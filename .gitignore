@@ -268,3 +268,6 @@ dist
 
 # For Mac
 .DS_Store
+
+# For VS Code
+.vscode

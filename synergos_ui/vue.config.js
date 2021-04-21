@@ -21,4 +21,8 @@ module.exports = {
     css: {
         extract: false
     },
+    devServer: {
+        compress: true,
+        disableHostCheck: true,
+      }
 }
