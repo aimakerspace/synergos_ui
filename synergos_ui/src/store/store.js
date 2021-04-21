@@ -6,14 +6,34 @@ export default createStore({
         project: '',
         expt: '',
         run: '',
+        MLflow:'',
+        RabbitMQ:'',
+        Graylog:'',
+        Amundsen:'',
+        Neo4j:'',
         CNA: "https://www.channelnewsasia.com/news"
     },
     mutations: {
         
     },
     getters: {
-        CNAurl: state => {
+        CNA_url: state => {
         return state.CNA + '/' + state.collab + '/' + state.run
+        },
+        MLflow_url: state => {
+            return state.MLflow
+        },
+        RabbitMQ_url: state => {
+            return state.RabbitMQ
+        },
+        Graylog_url: state => {
+            return state.Graylog
+        },
+        Amundsen_url: state => {
+            return state.Amundsen
+        },
+        Neo4j_url: state => {
+            return state.Neo4j
         }
     },
     modules: {

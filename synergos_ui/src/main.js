@@ -1,10 +1,10 @@
-import { createApp } from 'vue';
-import App from './App.vue';
+import { createApp } from 'vue'
+import App from './App.vue'
 import store from "./store/store";
-import Vue3DraggableResizable from 'vue3-draggable-resizable'
-import 'vue3-draggable-resizable/dist/Vue3DraggableResizable.css'
+import ElementPlus from 'element-plus';
+import 'element-plus/lib/theme-chalk/index.css';
 
-const app = createApp(App);
+const app = createApp(App)
 app.use(store)
-app.use(Vue3DraggableResizable)
+app.use(ElementPlus)
 app.mount('#app')

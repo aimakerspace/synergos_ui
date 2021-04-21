@@ -1,7 +1,6 @@
 <template>
     <form @submit.prevent="submitForm">
-    <h3> Please fill in the following:</h3>
-        <em class="dead_or_alive">Contacting backend... {{ ping_status }}</em>
+    <h3> Please select:</h3>        
         <br />
         <div class="nav">
              <br />
@@ -56,7 +55,11 @@
             </div>
             <br />
             <button>Submit</button>
-            <p> {{collab}} </p>
+            <br />
+            <br />
+            <br />
+            <br />
+            <em class="dead_or_alive">Connection status: {{ ping_status }}</em>
         </div>
         </div>
     </form> 
@@ -126,7 +129,7 @@ export default {
   },
   data() {
     return {
-      ping_status: "failed! 😱",
+      ping_status: "failed",
       nav_collab_m: null,
       nav_project_m: null,
       nav_expt_m: null,
@@ -210,6 +213,11 @@ export default {
           this.nav_run_metadata_dict = res.data["results"];
           console.log("get_run_metadata: ", this.nav_run_metadata_dict);
           console.log("sources: ", this.nav_run_metadata_dict["sources"]);
+          this.$store.state.MLflow = this.nav_run_metadata_dict["sources"]["01_mlflow"];
+          this.$store.state.RabbitMQ = this.nav_run_metadata_dict["sources"]["02_rabbitmq"];
+          this.$store.state.Graylog = this.nav_run_metadata_dict["sources"]["03_graylog"];
+          this.$store.state.Amundsen = this.nav_run_metadata_dict["sources"]["04_amundsen"];
+          this.$store.state.Neo4j = this.nav_run_metadata_dict["sources"]["05_neo4j"];
         })
         .catch(error => {
           console.error(error);
