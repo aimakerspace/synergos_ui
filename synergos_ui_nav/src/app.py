@@ -37,9 +37,13 @@ CORS(app, resources={r'/*': {'origins': '*'}})
 # Functions #
 #############
 
-# sanity check route
 @app.route('/nav/ping', methods=['GET'])
 def ping_pong():
+    """Health check endpoint
+
+    Returns:
+        json: Positive response message
+    """
     if DEBUG:
         app.logger.debug(collabs.read_all())
     return jsonify('connected!')
@@ -47,6 +51,11 @@ def ping_pong():
 
 @app.route('/nav/collabs', methods=['GET'])
 def nav_collabs():
+    """Returns list of collaborations
+
+    Returns:
+        json: List of collaboration
+    """
     response = {'status': "success"}
 
     collab_list = [{'name':c['key']['collab_id'].split('-')[0], 
@@ -61,6 +70,11 @@ def nav_collabs():
 
 @app.route('/nav/projects/', methods=['GET'])
 def nav_projects():
+    """Returns list of projects and optionally filter by collab id
+
+    Returns:
+        json: List of projects
+    """
 
     response = {'status': "success"}
     project_list = None
@@ -86,7 +100,11 @@ def nav_projects():
 
 @app.route('/nav/expts', methods=['GET'])
 def nav_expts():
+    """Returns list of experiments, optionally filtered by project id
 
+    Returns:
+        json: List of experiments
+    """
     response = {'status': "success"}
     expt_list = None
         
@@ -111,7 +129,11 @@ def nav_expts():
 
 @app.route('/nav/runs', methods=['GET'])
 def all_runs():
+    """Returns list of runs, optionally filtered by experiment id
 
+    Returns:
+        json: List of runs
+    """
     response = {'status': "success"}
     run_list = None
         
@@ -135,7 +157,11 @@ def all_runs():
 
 @app.route('/nav/run_metadata', methods=['GET'])
 def nav_run_metadata():
+    """Returns config of each run and associated source list
 
+    Returns:
+        json: source list and run config
+    """
     response = {'status': "success"}
     source_list = config['source_list']
     
