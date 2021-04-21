@@ -1,0 +1,3 @@
+[submodule "synergos_ui_nav/synergos_archive"]
+	path = synergos_ui_nav/synergos_archive
+	url = https://gitlab.int.aisingapore.org/aims/federatedlearning/synergos_archive.git
