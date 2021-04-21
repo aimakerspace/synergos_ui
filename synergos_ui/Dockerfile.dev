@@ -1,8 +1,5 @@
 FROM node:14.16-buster-slim
 
-#RUN yarn global add @vue/cli@4.5.11
-#RUN npm install
-
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
