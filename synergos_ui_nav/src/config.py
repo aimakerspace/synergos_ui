@@ -15,7 +15,7 @@ _nav_config_dev = {
         '02_rabbitmq': "http://localhost:15672",
         '03_graylog': "http://localhost:9000",
         '04_amundsen': "http://localhost:5000",
-        '05_neo4j': "http://localhost:7474/browser"
+        '05_neo4j': "http://localhost:7400/browser"
     }
 }
 
@@ -32,7 +32,7 @@ _nav_config_prod = {
         '02_rabbitmq': "http://localhost:15672",
         '03_graylog': "http://localhost:9000",
         '04_amundsen': "http://localhost:5000",
-        '05_neo4j': "http://localhost:7474/browser"
+        '05_neo4j': "http://localhost:7400/browser"
     }
 }
 
