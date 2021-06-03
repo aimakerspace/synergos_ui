@@ -1,4 +1,8 @@
-FROM node:14.16-buster-slim
+##############
+# Base Image #
+##############
+
+FROM node:14.16-buster-slim as base
 
 WORKDIR /app
 COPY package*.json ./
@@ -8,4 +12,3 @@ COPY . .
 EXPOSE 8080
 
 CMD ["npm", "run", "serve"]
-

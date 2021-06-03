@@ -1,0 +1,171 @@
+version: "3"
+
+services:
+
+  #########################
+  # Amundsen Dependencies #
+  #########################
+
+  amundsen_neo4j:
+    image: neo4j:3.5.26
+    container_name: amundsen_neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/test
+    ulimits:
+      nofile:
+        soft: 40000
+        hard: 40000
+    ports:
+        - 7474:7474
+        - 7687:7687
+    volumes:
+      - ./example/docker/neo4j/conf:/var/lib/neo4j/conf
+      - ./example/docker/neo4j/plugins:/var/lib/neo4j/plugins
+      - ./example/backup:/backup
+      - neo4j_data:/data
+    networks:
+      - synergos_catalogue
+
+  amundsen_elasticsearch:
+      image: elasticsearch:6.7.0
+      container_name: amundsen_es
+      ports:
+          - 9200:9200
+      ulimits:
+        nofile:
+          soft: 65536
+          hard: 65536
+      volumes:
+        - ./.local/elasticsearch/data:/usr/share/elasticsearch/data
+      networks:
+        - synergos_catalogue
+
+  amundsen_search:
+      image: amundsendev/amundsen-search:2.4.1
+      container_name: amundsen_search
+      ports:
+        - 5001:5000
+      depends_on:
+        - amundsen_elasticsearch
+      environment:
+        - PROXY_ENDPOINT=amundsen_es
+      command: gunicorn -w 2 --bind :5000 search_service.search_wsgi
+      networks:
+        - synergos_catalogue
+
+  amundsen_metadata:
+      image: amundsendev/amundsen-metadata:3.3.0
+      container_name: amundsen_metadata
+      depends_on:
+        - amundsen_neo4j
+      ports:
+        - 5002:5000
+      environment:
+         - PROXY_HOST=bolt://amundsen_neo4j
+      command: gunicorn -w 2 --bind :5000 metadata_service.metadata_wsgi
+      networks:
+        - synergos_catalogue
+
+  amundsen_frontend:
+      image: amundsendev/amundsen-frontend:3.1.0
+      container_name: amundsen_frontend
+      depends_on:
+        - amundsen_metadata
+        - amundsen_search
+      ports:
+        - 5000:5000
+      environment:
+        - SEARCHSERVICE_BASE=http://amundsen_search:5000
+        - METADATASERVICE_BASE=http://amundsen_metadata:5000
+        # Only for easy config-less Quickstart bookmark evalutation. `TestConfig` extends ordinary `LocalConfig` by
+        # defining `AUTH_USER_METHOD` to a hardcoded dummy user in `amundsen_application.tests.test_utils.get_test_user()`
+        # See further docs in https://github.com/amundsen-io/amundsenfrontendlibrary/blob/master/docs/configuration.md#flask
+        # and https://github.com/amundsen-io/amundsenfrontendlibrary/blob/master/docs/configuration.md#authentication
+        - FRONTEND_SVC_CONFIG_MODULE_CLASS=amundsen_application.config.TestConfig
+      command: gunicorn -w 2 --bind :5000 amundsen_application.wsgi
+      networks:
+        - synergos_catalogue
+
+
+  ########################
+  # Graylog Dependencies #
+  ########################
+
+  # MongoDB: https://hub.docker.com/_/mongo/
+  graylog_mongo:
+    image: mongo:4.2
+    container_name: graylog_mongo
+    networks:
+      - synergos_logger
+
+  # Elasticsearch: https://www.elastic.co/guide/en/elasticsearch/reference/6.x/docker.html
+  graylog_elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.0
+    container_name: graylog_es
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 1g
+    networks:
+      - synergos_logger
+
+  # Graylog: https://hub.docker.com/r/graylog/graylog/
+  graylog:
+    image: graylog/graylog:4.0
+    container_name: graylog
+    environment:
+      # CHANGE ME (must be at least 16 characters)!
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      # Password: admin
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_HTTP_PUBLISH_URI=http://127.0.0.1:9000/
+      # Fix for Graylog-ES detection issue: https://github.com/Graylog2/graylog2-server/issues/9550
+      - GRAYLOG_ELASTICSEARCH_VERSION=7
+    restart: always
+    depends_on:
+      - graylog_mongo
+      - graylog_elasticsearch
+    ports:
+      # Graylog web interface and REST API
+      - 9000:9000
+      # Syslog TCP
+      - 1514:1514
+      # Syslog UDP
+      - 1514:1514/udp
+      # GELF TCP
+      - 12201:12201
+      # GELF UDP
+      - 12201:12201/udp
+      # System Load Meta Tracking
+      - 9100:9100
+      - 9100:9100/udp
+      # Synergos Director Meta Tracking
+      - 9200:9200
+      - 9200:9200/udp
+      # Synergos TTP(s) Meta Tracking (Modify where necessary)
+      - 9300:9300
+      - 9300:9300/udp
+      # Synergos Worker(s) Meta Tracking (Modify where necessary)
+      - 9400:9400
+      - 9400:9400/udp
+    volumes:
+      - ./custom/config/:/usr/share/graylog/data/config/
+      - ./custom/contentpacks/:/usr/share/graylog/data/contentpacks/
+    networks:
+      - synergos_logger
+
+networks:
+  synergos_catalogue:
+  synergos_logger:

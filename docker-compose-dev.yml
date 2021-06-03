@@ -1,6 +1,8 @@
-version: "3.9"
+version: "3"
+
 services:
-  web:
+
+  nginx:
     build:
       context: nginx_docker
       dockerfile: 'Dockerfile.dev'
@@ -11,6 +13,7 @@ services:
       - "80:80"
     depends_on:
       - webapp
+
   webapp:
     build:
       context: synergos_ui
@@ -22,7 +25,8 @@ services:
       - "8080:8080"
     depends_on:
       - nav
-  nav:
+      
+  streamlit:
     build:
       context: synergos_ui_nav
       dockerfile: 'Dockerfile.dev'

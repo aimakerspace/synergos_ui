@@ -1,0 +1,38 @@
+[
+    {
+        "activation": "relu",
+        "is_input": true,
+        "l_type": "Conv2d",
+        "structure": {
+            "in_channels": 1, 
+            "out_channels": 6, 
+            "kernel_size": 3,
+            "stride": 1,
+            "padding": 1
+        }
+    },
+    {
+        "activation": null,
+        "is_input": false,
+        "l_type": "MaxPool2d",
+        "structure": {
+            "kernel_size": 3
+        }
+    },        
+    {
+        "activation": null,
+        "is_input": false,
+        "l_type": "Flatten",
+        "structure": {}
+    },
+    {
+        "activation": "relu",
+        "is_input": false,
+        "l_type": "Linear",
+        "structure": {
+            "bias": true,
+            "in_features": 600,
+            "out_features": 3
+        }
+    }
+]

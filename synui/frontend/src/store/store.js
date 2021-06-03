@@ -6,7 +6,7 @@ export default createStore({
         project: '',
         expt: '',
         run: '',
-        MLflow:'',
+        MLflow:'http://localhost:15000/mlflow',
         RabbitMQ:'',
         Graylog:'',
         Amundsen:'',
