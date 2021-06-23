@@ -22,7 +22,7 @@ from synui.utils import (
     render_participant,
     render_collaborations,
     render_projects,
-    render_registrations
+    render_participant_registrations
 )
 
 ##################
@@ -116,7 +116,7 @@ def view_profile(driver: Driver = None):
     """ Main function that governs the browsing of collaborations within a
         specified Synergos network
     """
-    st.title(f"Participant - {SUPPORTED_ACTIONS[1]}")
+    st.title(f"{R_TYPE.capitalize()} - {SUPPORTED_ACTIONS[1]}")
 
     ########################
     # Step 0: Introduction #
@@ -128,41 +128,23 @@ def view_profile(driver: Driver = None):
     ################################################################
 
     st.header("Step 1: View your Profile Information")
-    participant_id, updated_profile = render_participant(driver=driver)
+    participant_id, _ = render_participant(driver=driver)
 
     ########################################################################
     # Step 2: Pull associations & relationships of specified collaboration #
     ########################################################################
 
-    # st.header("Step 3: Explore Relationships & Associations")
-    # selected_project_id, _ = render_projects(
-    #     driver=collab_driver, 
-    #     collab_id=selected_collab_id
-    # )
+    st.header("Step 2: Explore Relationships & Associations")
+    render_participant_registrations(
+        driver=driver, 
+        participant_id=participant_id
+    )
 
-    # selected_expt_id, _ = render_experiments(
-    #     driver=collab_driver, 
-    #     collab_id=selected_collab_id,
-    #     project_id=selected_project_id
-    # )
-    
-    # render_runs(
-    #     driver=collab_driver, 
-    #     collab_id=selected_collab_id,
-    #     project_id=selected_project_id,
-    #     expt_id=selected_expt_id
-    # )
-
-    # ###########################################################
-    # # Step 4: Browse registrations of specified collaboration #
-    # ###########################################################
-
-    # st.header("Step 4: Browse Participant Registry")
-    # render_registrations(
-    #     driver=collab_driver,
-    #     collab_id=selected_collab_id,
-    #     project_id=selected_project_id
-    # )
+    # Things to render:
+    # 1) collaborations participant is part of
+        # 1a) project that participant under collab is part of
+        # 1b) Registered nodes
+        # 1c) Submitted dataset tags
 
 
 
@@ -174,63 +156,32 @@ def update_profile(driver: Driver = None):
     """ Main function that governs the updating of metadata in a collaborations 
         within a specified Synergos network
     """
-    st.title("Orchestrator - Update existing collaboration(s)")
-
-    ##################################################
-    # Step 1: Connect to your specified orchestrator #
-    ##################################################
-
-    st.header("Step 1: Connect to an Orchestrator")
-    collab_driver = render_orchestrator_inputs()
+    st.title(f"{R_TYPE.capitalize()} - {SUPPORTED_ACTIONS[2]}")
 
     ######################################################################
-    # Step 2: Pull collaboration information from specified orchestrator #
+    # Step 1: Pull collaboration information from specified orchestrator #
     ######################################################################
 
-    st.header("Step 2: Modify your collaboration of interest")
-    if collab_driver:
-        collab_data = collab_driver.collaborations.read_all().get('data', [])
-        collab_ids = [collab['key']['collab_id'] for collab in collab_data]
-    else:
-        collab_ids = []
+    st.header(f"Step 1: Modify your profile")
+    participant_id, updated_profile = render_participant(driver=driver)
 
-    with st.beta_container():
-
-        selected_collab_id = st.selectbox(
-            label="Collaboration ID:", 
-            options=collab_ids,
-            help="""Select a collaboration to peruse."""
-        )
-
-        if collab_driver:
-            selected_collab_data = collab_driver.collaborations.read(
-                collab_id=selected_collab_id
-            ).get('data', {})
-        else:
-            selected_collab_data = {}
-        
-        if selected_collab_data:
-            selected_collab_data.pop('relations')   # no relations rendered!
-
-        with st.beta_expander("Collaboration Details"):
-            updated_collab = collab_renderer.display(selected_collab_data)
-                
     ##################################
-    # Step 3: Register collaboration #
+    # Step 2: Register collaboration #
     ##################################
 
-    st.header("Step 3: Submit your collaboration entry")
+    st.header(f"Step 2: Submit your changes")
     is_confirmed = render_confirmation_form(
-        data=updated_collab,
+        data=updated_profile,
         r_type=R_TYPE,
         r_action="update",
         use_warnings=False    
     )
     if is_confirmed:
-        collab_driver.collaborations.update(
-            collab_id=selected_collab_id, 
-            **updated_collab
+        driver.participants.update(
+            participant_id=participant_id, 
+            **updated_profile
         )
+        rerun(f"Participant '{participant_id}' has been updated.")
 
 
 
@@ -242,61 +193,29 @@ def delete_profile(driver: Driver = None):
     """ Main function that governs the deletion of metadata in a collaborations 
         within a specified Synergos network
     """
-    st.title("Orchestrator - Remove existing collaboration(s)")
-
-    ##################################################
-    # Step 1: Connect to your specified orchestrator #
-    ##################################################
-
-    st.header("Step 1: Connect to an Orchestrator")
-    collab_driver = render_orchestrator_inputs()
+    st.title(f"{R_TYPE.capitalize()} - {SUPPORTED_ACTIONS[3]}")
 
     ######################################################################
-    # Step 2: Pull collaboration information from specified orchestrator #
+    # Step 1: Pull collaboration information from specified orchestrator #
     ######################################################################
 
-    st.header("Step 2: Target your collaboration of interest")
-    if collab_driver:
-        collab_data = collab_driver.collaborations.read_all().get('data', [])
-        collab_ids = [collab['key']['collab_id'] for collab in collab_data]
-    else:
-        collab_ids = []
+    st.header(f"Step 1: Specify your profile ID")
+    participant_id, updated_profile = render_participant(driver=driver)
 
-    with st.beta_container():
-
-        selected_collab_id = st.selectbox(
-            label="Collaboration ID:", 
-            options=collab_ids,
-            help="""Select a collaboration to peruse."""
-        )
-
-        if collab_driver:
-            selected_collab_data = collab_driver.collaborations.read(
-                collab_id=selected_collab_id
-            ).get('data', {})
-        else:
-            selected_collab_data = {}
-        
-        if selected_collab_data:
-            selected_collab_data.pop('relations')   # no relations rendered!
-
-        with st.beta_expander("Collaboration Details"):
-            updated_collab = collab_renderer.display(selected_collab_data)
-                
     ################################
-    # Step 3: Remove collaboration #
+    # Step 2: Remove collaboration #
     ################################
 
-    st.header("Step 3: Submit removal request for collaboration ")
+    st.header(f"Step 2: Submit a removal request")
     is_confirmed = render_confirmation_form(
-        data=updated_collab,
+        data=updated_profile,
         r_type=R_TYPE,
         r_action="removal",
-        use_warnings=False    
+        use_warnings=True    
     )
     if is_confirmed:
-        collab_driver.collaborations.delete(collab_id=selected_collab_id)
-        st.echo(f"Collaboration '{selected_collab_id}' has been deleted.")
+        driver.participants.delete(participant_id=participant_id)
+        rerun(f"Participant '{participant_id}' has been deleted.")
             
 
 

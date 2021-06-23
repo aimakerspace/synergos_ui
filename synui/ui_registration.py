@@ -12,15 +12,16 @@ import streamlit as st
 
 # Custom
 from synergos import Driver
-from synui.renderer import ParticipantRenderer
+from synui.renderer import RegistrationRenderer, TagRenderer
 from synui.utils import (
+    rerun,
+    render_upstream_hierarchy,
     render_orchestrator_inputs,
     render_confirmation_form,
     render_collaborations,
     render_projects,
-    render_experiments,
-    render_runs,
-    render_registrations
+    render_participant,
+    render_participant_registrations
 )
 
 ##################
@@ -28,375 +29,251 @@ from synui.utils import (
 ##################
 
 SUPPORTED_ACTIONS = [
-    "Create a new profile",
-    "View profile",
-    "Update profile",
-    "Remove profile"
+    "Create a new registration",
+    "View registration(s)",
+    "Update registration(s)",
+    "Remove registration(s)"
 ]
 
-R_TYPE = "participant"
+USER_TYPE = "Participant"
+R_TYPE = "registration"
 
-paticipant_renderer = ParticipantRenderer()
+registration_renderer = RegistrationRenderer()
+tag_renderer = TagRenderer() 
 
 ###########
 # Helpers #
 ###########
 
 
-#########################################################
-# Collaboration UI Option - Create new Collaboration(s) #
-#########################################################
+#######################################################
+# Registration UI Option - Create new Registration(s) #
+#######################################################
 
-def create_collaborations():
+def create_registrations(driver: Driver = None, participant_id: str = None):
     """ Main function that governs the creation of collaborations within a
         specified Synergos network
     """
-    st.title("Orchestrator - Create New Collaboration(s)")
+    st.title(f"{USER_TYPE} - {SUPPORTED_ACTIONS[0]}")
 
     ########################
     # Step 0: Introduction #
     ########################
 
-    basic_input_container = st.beta_container()
-    left_column, mid_column, right_column = basic_input_container.beta_columns(3)
 
-    collab_id = left_column.text_input(
-        label="Collaboration ID:",
-        help="Declare the name of your new collaboration."
+    ###################################################################
+    # Step 1:  Select which collaboration and project to register for #
+    ###################################################################
+
+    st.header("Step 1: Select your project")
+    selected_collab_id, _ = render_collaborations(driver, show_details=False)
+    selected_project_id, _ = render_projects(
+        driver=driver,
+        collab_id=selected_collab_id
     )
-
-    synergos_variant = mid_column.selectbox(
-        label="Variant:",
-        options=list(DEFAULT_DEPLOYMENTS.keys()),
-        help="Declare which variant of Synergos you deployed for this collaboration."
-    )
-
-    deployment_mode = right_column.selectbox(
-        label="Mode:",
-        options=["local", "distributed"],
-        help="""Declare which setting was Synergos deployed in. Selecting 
-        'local' indicates that all components have been deployed onto the same 
-        server. Conversely, selecting 'distributed' indicates a more complex
-        network deployed."""
-    )
-
-    default_host = "localhost" if deployment_mode == 'local' else ""
-
-    ##############################################################
-    # Step 1: Connect Synergos Driver to a deployed orchestrator #
-    ############################################################## 
-
-    st.header("Step 1: Connect to your Orchestrator")
-    driver_input_container = st.beta_container()
-    left_column, right_column = driver_input_container.beta_columns(2)
-
-    orchestrator_options = ["TTP" if synergos_variant != "SynCluster" else "Director"]
-    orchestrator_deployed = left_column.selectbox(
-        label="Orchestrator Type", 
-        options=orchestrator_options,
-        help="Orchestrator type will be dynamically inferred given your specified variant."
-    )
-    orchestrator_host = right_column.text_input(
-        label="Orchestrator IP:",
-        value=default_host,
-        help="Declare the server IP of your selected orchestrator."
-    )
-    orchestrator_port = right_column.number_input(
-        label="Orchestrator Port:",
-        value=5000,
-        help="Declare the access port of your selected orchestrator."
-    )
-    driver = Driver(host=orchestrator_host, port=orchestrator_port)
 
     ###########################################
-    # Step 2: Declare all deployed components #
-    ########################################### 
+    # Step 2: Register your compute resources #
+    ###########################################
 
-    st.header("Step 2: Declare all components of your Synergos Network")
+    st.header("Step 2: Register your compute resources")
+    with st.beta_expander("Node Registration"):
+        user_role = registration_renderer.render_role_declaration().get('role')
+        node_details = registration_renderer.render_registration_metadata().get('nodes')
 
-    optional_components_deployed = st.multiselect(
-        label="Supplementary components deployed for collaboration:", 
-        options=[
-            "Synergos Catalogue",
-            "Synergos Logger",
-            "Synergos Meter",
-            "Synergos MLOps",
-            "Synergos MQ",
-            "Synergos UI"
-        ], 
-        default=DEFAULT_DEPLOYMENTS[synergos_variant],
-        help="Declare which Addons were deployed alongside the core components."
-    )
+    ######################################
+    # Step 3: Register your dataset tags #
+    ######################################
 
-    collab_task = driver.collaborations
-    for idx, component in enumerate(optional_components_deployed, start=1):
+    st.header("Step 3: Register your dataset tags")
+    with st.beta_expander("Tag Registration"):
+        tag_details = tag_renderer.render_tag_metadata()
 
-        st.markdown(f"{idx}. Register specs for {component}:")
-        
-        if component == "Synergos Catalogue":
-            catalogue_info = collab_renderer.render_catalogue_metadata()
-            collab_task.configure_catalogue(
-                host=catalogue_info['catalogue_host'], 
-                port=catalogue_info['catalogue_port']
-            )
+    ##########################################
+    # Step 4: Submit your registration entry #
+    ##########################################
 
-        elif component == "Synergos Logger":
-            logger_info = collab_renderer.render_logger_metadata()
-            logger_ports = logger_info['logger_ports']
-            collab_task.configure_logger(
-                host=logger_info['logger_host'], 
-                sysmetrics_port=logger_ports['sysmetrics'],
-                director_port=logger_ports['director'],
-                ttp_port=logger_ports['ttp'],
-                worker_port=logger_ports['worker']
-            )
-
-        elif component == "Synergos Meter":
-            meter_info = collab_renderer.render_meter_metadata()
-            collab_task.configure_meter(
-                host=meter_info['meter_host'], 
-                port=meter_info['meter_port']
-            )
-
-        elif component == "Synergos MLOps":
-            mlops_info = collab_renderer.render_mlops_metadata()
-            collab_task.configure_mlops(
-                host=mlops_info['mlops_host'], 
-                port=mlops_info['mlops_port']
-            )
-
-        elif component == "Synergos MQ":
-            mq_info = collab_renderer.render_mq_metadata()
-            collab_task.configure_mq(
-                host=mq_info['mq_host'], 
-                port=mq_info['mq_port']
-            )
-
-        elif component == "Synergos UI":
-            ui_info = collab_renderer.render_ui_metadata()
-            collab_task.configure_ui(
-                host=ui_info['ui_host'], 
-                port=ui_info['ui_port']
-            )
-
-    ##################################
-    # Step 3: Register collaboration #
-    ##################################
-
-    st.header("Step 3: Submit your collaboration entry")
-    collaboration_configurations = collab_task._compile_configurations()
+    st.header(f"Step 4: Submit your {R_TYPE} entry")
     is_confirmed = render_confirmation_form(
-        data=collaboration_configurations,
+        data={
+            'role': user_role, 
+            'nodes': node_details,
+            'tags': tag_details
+        },
         r_type=R_TYPE,
         r_action="creation",
         use_warnings=False    
     )
     if is_confirmed:
-        collab_task.create(collab_id=collab_id)
+
+        try:
+            # Submit registrations
+            registration_task = driver.registrations
+            for _, info in sorted(node_details.items(), key=lambda x: x[0]):
+                registration_task.add_node(**info)
+
+            st.write(registration_task.list_nodes())
+
+            registration_task.create(
+                collab_id=selected_collab_id,
+                project_id=selected_project_id,
+                participant_id=participant_id,
+                role=user_role
+            )
+        except:
+            st.error("Invalid node metadata declared! Please check and try again!")
+
+        try:
+            # Submit tags
+            driver.tags.create(
+                collab_id=selected_collab_id,
+                project_id=selected_project_id,
+                participant_id=participant_id,
+                **tag_details
+            )
+        except:
+            st.error("Invalid tag hierarchy detected! Please check and try again!")
+
+        rerun(f"Node registrations has been successfully submitted.")
 
 
 
-##############################################################
-# Collaboration UI Option - Browse Existing Collaboration(s) #
-##############################################################
+############################################################
+# Registration UI Option - Browse Existing Registration(s) #
+############################################################
 
-def browse_collaborations():
+def browse_registrations(driver: Driver = None, participant_id: str = None):
     """ Main function that governs the browsing of collaborations within a
         specified Synergos network
     """
-    st.title("Orchestrator - Browse Existing Collaboration(s)")
+    st.title(f"{USER_TYPE} - {SUPPORTED_ACTIONS[1]}")
 
     ########################
     # Step 0: Introduction #
     ########################
 
 
-    ##################################################
-    # Step 1: Connect to your specified orchestrator #
-    ##################################################
+    #################################################################
+    # Step 1:  Select which collaboration and project to browse for #
+    #################################################################
 
-    st.header("Step 1: Connect to an Orchestrator")
-    collab_driver = render_orchestrator_inputs()
-
-    ######################################################################
-    # Step 2: Pull collaboration information from specified orchestrator #
-    ######################################################################
-
-    st.header("Step 2: Select your collaboration of interest")
-    selected_collab_id, _ = render_collaborations(driver=collab_driver)
-
-    ########################################################################
-    # Step 3: Pull associations & relationships of specified collaboration #
-    ########################################################################
-
-    st.header("Step 3: Explore Relationships & Associations")
-    selected_project_id, _ = render_projects(
-        driver=collab_driver, 
-        collab_id=selected_collab_id
-    )
-
-    selected_expt_id, _ = render_experiments(
-        driver=collab_driver, 
-        collab_id=selected_collab_id,
-        project_id=selected_project_id
-    )
-    
-    render_runs(
-        driver=collab_driver, 
-        collab_id=selected_collab_id,
-        project_id=selected_project_id,
-        expt_id=selected_expt_id
-    )
-
-    ###########################################################
-    # Step 4: Browse registrations of specified collaboration #
-    ###########################################################
-
-    st.header("Step 4: Browse Participant Registry")
-    render_registrations(
-        driver=collab_driver,
-        collab_id=selected_collab_id,
-        project_id=selected_project_id
+    st.header("Step 1: Browse by Filters")
+    render_participant_registrations(
+        driver=driver,
+        participant_id=participant_id
     )
 
 
 
-##############################################################
-# Collaboration UI Option - Update existing collaboration(s) #
-##############################################################
+############################################################
+# Registration UI Option - Update existing Registration(s) #
+############################################################
 
-def update_collaborations():
-    """ Main function that governs the updating of metadata in a collaborations 
-        within a specified Synergos network
+def update_registrations(driver: Driver = None, participant_id: str = None):
+    """ Main function that governs the updating of registration and tag 
+        metadata of a participant within a specified Synergos network
     """
-    st.title("Orchestrator - Update existing collaboration(s)")
+    st.title(f"{USER_TYPE} - {SUPPORTED_ACTIONS[2]}")
 
-    ##################################################
-    # Step 1: Connect to your specified orchestrator #
-    ##################################################
+    ##################################################################
+    # Step 1: Pull participant hierarchy from specified orchestrator #
+    ##################################################################
 
-    st.header("Step 1: Connect to an Orchestrator")
-    collab_driver = render_orchestrator_inputs()
+    st.header("Step 1: Modify your registration of interest")
+    key, updated_node_details, updated_tags = render_participant_registrations(
+        driver=driver,
+        participant_id=participant_id
+    )
 
-    ######################################################################
-    # Step 2: Pull collaboration information from specified orchestrator #
-    ######################################################################
+    ############################
+    # Step 2: Register changes #
+    ############################
 
-    st.header("Step 2: Modify your collaboration of interest")
-    if collab_driver:
-        collab_data = collab_driver.collaborations.read_all().get('data', [])
-        collab_ids = [collab['key']['collab_id'] for collab in collab_data]
-    else:
-        collab_ids = []
-
-    with st.beta_container():
-
-        selected_collab_id = st.selectbox(
-            label="Collaboration ID:", 
-            options=collab_ids,
-            help="""Select a collaboration to peruse."""
-        )
-
-        if collab_driver:
-            selected_collab_data = collab_driver.collaborations.read(
-                collab_id=selected_collab_id
-            ).get('data', {})
-        else:
-            selected_collab_data = {}
-        
-        if selected_collab_data:
-            selected_collab_data.pop('relations')   # no relations rendered!
-
-        with st.beta_expander("Collaboration Details"):
-            updated_collab = collab_renderer.display(selected_collab_data)
-                
-    ##################################
-    # Step 3: Register collaboration #
-    ##################################
-
-    st.header("Step 3: Submit your collaboration entry")
+    st.header("Step 2: Submit your registration updates")
     is_confirmed = render_confirmation_form(
-        data=updated_collab,
+        data={**updated_node_details, 'tags': updated_tags},
         r_type=R_TYPE,
         r_action="update",
         use_warnings=False    
     )
+
     if is_confirmed:
-        collab_driver.collaborations.update(
-            collab_id=selected_collab_id, 
-            **updated_collab
-        )
-
-
-
-##############################################################
-# Collaboration UI Option - Remove existing collaboration(s) #
-##############################################################
-
-def remove_collaborations():
-    """ Main function that governs the deletion of metadata in a collaborations 
-        within a specified Synergos network
-    """
-    st.title("Orchestrator - Remove existing collaboration(s)")
-
-    ##################################################
-    # Step 1: Connect to your specified orchestrator #
-    ##################################################
-
-    st.header("Step 1: Connect to an Orchestrator")
-    collab_driver = render_orchestrator_inputs()
-
-    ######################################################################
-    # Step 2: Pull collaboration information from specified orchestrator #
-    ######################################################################
-
-    st.header("Step 2: Target your collaboration of interest")
-    if collab_driver:
-        collab_data = collab_driver.collaborations.read_all().get('data', [])
-        collab_ids = [collab['key']['collab_id'] for collab in collab_data]
-    else:
-        collab_ids = []
-
-    with st.beta_container():
-
-        selected_collab_id = st.selectbox(
-            label="Collaboration ID:", 
-            options=collab_ids,
-            help="""Select a collaboration to peruse."""
-        )
-
-        if collab_driver:
-            selected_collab_data = collab_driver.collaborations.read(
-                collab_id=selected_collab_id
-            ).get('data', {})
-        else:
-            selected_collab_data = {}
         
-        if selected_collab_data:
-            selected_collab_data.pop('relations')   # no relations rendered!
+        try:
+            updated_user_role = updated_node_details.get('role')
+            updated_node_info = updated_node_details.get('nodes') 
+            
+            # Submit registrations
+            registration_task = driver.registrations
+            registration_task.update(
+                **key,
+                role=updated_user_role,
+                **updated_node_info
+            )
+        except:
+            st.error("Invalid node metadata declared! Please check and try again!")
 
-        with st.beta_expander("Collaboration Details"):
-            updated_collab = collab_renderer.display(selected_collab_data)
-                
+        try:
+            # Submit tags
+            driver.tags.update(**key, **updated_tags)
+        except:
+            st.error("Invalid tag hierarchy detected! Please check and try again!")
+
+        rerun(f"Node registrations has been successfully submitted.")
+
+
+
+###################################################################
+# Registration UI Option - Remove existing registration(s) & tags #
+###################################################################
+
+def remove_registrations(driver: Driver = None, participant_id: str = None):
+    """ Main function that governs the deletion of registration and tag 
+        metadata of a participant within a specified Synergos network
+    """
+    st.title(f"{USER_TYPE} - {SUPPORTED_ACTIONS[3]}")
+
+    ######################################################################
+    # Step 1: Pull collaboration information from specified orchestrator #
+    ######################################################################
+
+    st.header("Step 1: Target your registration of interest")
+    key, updated_node_details, updated_tags = render_participant_registrations(
+        driver=driver,
+        participant_id=participant_id
+    )
+
     ################################
-    # Step 3: Remove collaboration #
+    # Step 2: Remove collaboration #
     ################################
 
-    st.header("Step 3: Submit removal request for collaboration ")
+    st.header("Step 2: Submit your registration updates")
     is_confirmed = render_confirmation_form(
-        data=updated_collab,
+        data={**updated_node_details, 'tags': updated_tags},
         r_type=R_TYPE,
-        r_action="removal",
-        use_warnings=False    
+        r_action="update",
+        use_warnings=True    
     )
     if is_confirmed:
-        collab_driver.collaborations.delete(collab_id=selected_collab_id)
-        st.echo(f"Collaboration '{selected_collab_id}' has been deleted.")
-            
+        
+        try:           
+            # Submit registrations
+            registration_task = driver.registrations
+            registration_task.delete(**key)
+        except:
+            st.error("Invalid node metadata declared! Please check and try again!")
+
+        try:
+            # Submit tags
+            driver.tags.delete(**key)
+        except:
+            st.error("Invalid tag hierarchy detected! Please check and try again!")
+
+        rerun(f"Node registrations has been successfully submitted.") 
 
 
 ######################################
-# Collaboration UI - Page Formatting #
+# Registration UI - Page Formatting #
 ######################################
 
 def app():
@@ -410,14 +287,22 @@ def app():
             existing collaboration?"
     )
 
-    if option == "Create new collaboration(s)":
-        create_collaborations()
+    driver = render_orchestrator_inputs()
 
-    elif option == "Browse existing collaboration(s)":
-        browse_collaborations()
+    with st.sidebar.beta_container():
+        st.header("USER")
 
-    elif option == "Update existing collaboration(s)":
-        update_collaborations()
+        with st.beta_expander("User Parameters", expanded=True):
+            participant_id, _ = render_participant(driver=driver, show_details=False)
 
-    elif option == "Remove existing collaboration(s)":
-        remove_collaborations()
+    if option == SUPPORTED_ACTIONS[0]:
+        create_registrations(driver, participant_id)
+
+    elif option == SUPPORTED_ACTIONS[1]:
+        browse_registrations(driver, participant_id)
+
+    elif option == SUPPORTED_ACTIONS[2]:
+        update_registrations(driver, participant_id)
+
+    elif option == SUPPORTED_ACTIONS[3]:
+        remove_registrations(driver, participant_id)

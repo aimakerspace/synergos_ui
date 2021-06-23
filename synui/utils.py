@@ -12,7 +12,7 @@ import pickle
 import re
 import time
 import uuid
-from typing import Dict, Any, Union
+from typing import Dict, List, Any, Union
 
 # Libs
 import numpy as np
@@ -376,7 +376,7 @@ def render_collaborations(driver: Driver = None, show_details: bool = True):
         selected_collab_id = st.selectbox(
             label="Collaboration ID:", 
             options=collab_ids,
-            help="""Select a collaboration to peruse."""
+            help="Select a collaboration to peruse."
         )
 
         if not show_details:
@@ -578,13 +578,29 @@ def render_runs(
     return selected_run_id, updated_run
 
 
-def render_participant(driver: Driver = None):
-    """
+def render_participant(
+    driver: Driver = None,
+    participant_id: str = None,
+    show_details: bool = True 
+):
+    """ Renders out declaration form for specifying a participant to browse.
+        Note that this is from the participant's POV (i.e. the participant is 
+        expected to know his/her own username)
+
+    Args:
+        driver (Driver): A connected Synergos driver to communicate with the
+            selected orchestrator.
+        participant_id (str): ID of selected participant
+    Returns:
+
     """
     selected_participant_id = st.text_input(
         label="Participant ID:",
         help="""Declare your username."""
-    )
+    ) if not participant_id else participant_id
+
+    if not show_details:
+        return selected_participant_id, None
 
     if driver and selected_participant_id:
         participant_data = driver.participants.read(
@@ -595,15 +611,14 @@ def render_participant(driver: Driver = None):
 
     with st.beta_expander("Participant Details"):
         updated_profile = participant_renderer.display(participant_data)
-        
+    
     return selected_participant_id, updated_profile
 
 
-def render_registrations(
+def render_orchestrator_registrations(
     driver: Driver = None, 
-    participant_id: str = "",
-    collab_id: str = "", 
-    project_id: str = ""
+    collab_id: str = None, 
+    project_id: str = None
 ):
     """ Renders out retrieved registration metadata in a custom form 
 
@@ -620,67 +635,114 @@ def render_registrations(
             project_id=project_id
         ).get('data', [])
         participant_ids = [reg['key']['participant_id'] for reg in registry_data]
-    
-    # Type 2 view: Participant's Perspective
-    elif driver and participant_id:
-        participant_details = driver.participants.read(
-            participant_id=participant_id
-        ).get('data', {})
-        registry_data = participant_details.get('relations', {}).get('Registration', [])
-        participant_ids = [participant_id]
 
-    # Type 3 view: Insufficiant keys -> Render nothing
+    # Type 2 view: Insufficiant keys -> Render nothing
     else:
         registry_data = []
         participant_ids = []
 
-    with st.beta_container():
-
-        selected_participant_id = st.selectbox(
-            label="Participant ID:", 
-            options=participant_ids,
-            help="""Select an participant to view."""
-        )
-
-        if registry_data:
-            selected_registry = [
-                reg for reg in registry_data 
-                if reg['key']['participant_id'] == selected_participant_id
-            ].pop()
-        else:
-            selected_registry = {}
-
-        with st.beta_expander("Participant Details"):
-            participant_details = selected_registry.get('participant', {})
-            updated_particicpant = participant_renderer.display(participant_details)
-
-        with st.beta_container():
-            left_column, mid_column, right_column = st.beta_columns(3)
-
-            with left_column:
-                with st.beta_expander("Registration Details"):
-                    updated_registration = reg_renderer.display(selected_registry)
-
-            with mid_column:
-                with st.beta_expander("Tag Details"):
-                    tags = selected_registry.get('relations', {}).get('Tag', [])
-                    tag_details = tags.pop() if tags else {}
-                    updated_tags = tag_renderer.display(tag_details)
-
-            with right_column:
-                with st.beta_expander("Alignment Details"):
-                    alignments = selected_registry.get('relations', {}).get('Alignment', [])
-                    alignment_details = alignments.pop() if alignments else {}
-                    align_renderer.display(alignment_details)
-
-    return (
-        selected_participant_id, 
-        updated_particicpant,
-        updated_registration,
-        updated_tags
+    selected_participant_id = st.selectbox(
+        label="Participant ID:", 
+        options=participant_ids,
+        help="""Select an participant to view."""
     )
 
+    if registry_data:
+        selected_registry = [
+            reg for reg in registry_data 
+            if reg['key']['participant_id'] == selected_participant_id
+        ].pop()
+    else:
+        selected_registry = {}
 
+    with st.beta_container():
+
+        render_participant(
+            driver=driver, 
+            participant_id=selected_participant_id
+        )
+
+        with st.beta_expander("Registration Details"):
+            reg_renderer.display(selected_registry)
+
+        with st.beta_expander("Tag Details"):
+            tags = selected_registry.get('relations', {}).get('Tag', [])
+            tag_details = tags.pop() if tags else {}
+            tag_renderer.display(tag_details, is_stacked=True)
+
+        with st.beta_expander("Alignment Details"):
+            alignments = selected_registry.get('relations', {}).get('Alignment', [])
+            alignment_details = alignments.pop() if alignments else {}
+            align_renderer.display(alignment_details)
+
+    return selected_participant_id
+
+
+def render_participant_registrations(
+    driver: Driver = None, 
+    participant_id: str = None
+):
+    """ Renders out retrieved registration metadata in a custom form 
+
+    Args:
+        driver (Driver): A connected Synergos driver to communicate with the
+            selected orchestrator.
+        collab_id (str): ID of selected collaboration to be rendered
+        project_id (str): ID of selected project to be rendered
+    """
+    if participant_id:
+        participant_data = driver.participants.read(participant_id).get('data', {})
+    else:
+        participant_data = {}
+
+    participant_relations = participant_data.get('relations', {})
+    participant_registrations = participant_relations.get('Registration', [])
+    
+    registry_mapping = {}
+    for registration in participant_registrations:
+        curr_collab_id = registration.get('key', {}).get('collab_id')
+        curr_collab = registry_mapping.get(curr_collab_id, {})      
+        curr_project_id = registration.get('key', {}).get('project_id') 
+        curr_collab[curr_project_id] = registration   
+        registry_mapping[curr_collab_id] = curr_collab     
+
+    registered_collab_ids = list(registry_mapping.keys())
+    selected_collab_id = st.selectbox(
+        label="Collaboration ID:", 
+        options=registered_collab_ids,
+        help="""Select a collaboration to view."""
+    )
+
+    selected_project_id, _ = render_projects(
+        driver=driver,
+        collab_id=selected_collab_id
+    )
+   
+    with st.beta_expander("Registration Details"):
+        relevant_entry = registry_mapping.get(selected_collab_id, {}).get(selected_project_id, {})
+        updated_registrations = reg_renderer.display(data=relevant_entry)
+
+    with st.beta_expander("Tag Details"):
+        participant_tags = participant_relations.get('Tag', [])
+        retrieved_tags = [
+            tags 
+            for tags in participant_tags
+            if (
+                set(tags.get('key', {}).values()) == 
+                {participant_id, selected_collab_id, selected_project_id}
+            )
+        ]
+        relevant_tags = retrieved_tags.pop() if retrieved_tags else {}
+        
+        updated_tags = tag_renderer.display(data=relevant_tags)
+
+    composite_key = {
+        'participant_id': participant_id,
+        'collab_id': selected_collab_id, 
+        'project_id': selected_project_id
+    } 
+    return composite_key, updated_registrations, updated_tags
+    
 
 #####################
 # Interface Helpers #

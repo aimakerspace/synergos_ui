@@ -23,7 +23,7 @@ from synui.utils import (
     render_projects,
     render_experiments,
     render_runs,
-    render_registrations
+    render_orchestrator_registrations
 )
 
 ##################
@@ -133,7 +133,7 @@ def browse_projects(driver: Driver = None, key: Dict[str, str] = {}):
     ########################################################
 
     st.header("Step 3: Browse Participant Registry")
-    render_registrations(
+    render_orchestrator_registrations(
         driver=driver,
         **key,
         project_id=selected_project_id

@@ -1722,3 +1722,698 @@ def render_upstream_hierarchy(r_type: str, driver: Driver):
                     combination_key['expt_id'] = selected_expt_id
 
     return combination_key
+
+
+
+def render_upstream_hierarchy(r_type: str, driver: Driver):
+    """
+    """
+    SUPPORTED_RECORDS = ["collaboration", "project", "experiment", "run"]
+
+    with st.sidebar.beta_container():
+
+        st.sidebar.header("FILTERS")
+        combination_key = {}
+
+        if r_type in SUPPORTED_RECORDS[1:]:
+            if driver:
+                collab_data = driver.collaborations.read_all().get('data', [])
+                collab_ids = [collab['key']['collab_id'] for collab in collab_data]
+            else:
+                collab_ids = []
+
+            selected_collab_id = st.sidebar.selectbox(
+                label="Collaboration ID:", 
+                options=collab_ids,
+                help="""Select a collaboration to peruse."""
+            )
+            combination_key['collab_id'] = selected_collab_id
+
+            if r_type in SUPPORTED_RECORDS[2:]:
+                if driver and selected_collab_id:
+                    project_data = driver.projects.read_all(selected_collab_id).get('data', [])
+                    project_ids = [proj['key']['project_id'] for proj in project_data]
+                else:
+                    project_ids = []
+
+                selected_project_id = st.sidebar.selectbox(
+                    label="Project ID:", 
+                    options=project_ids,
+                    help="""Select a project to peruse."""
+                )
+                combination_key['project_id'] = selected_project_id
+
+                if r_type in SUPPORTED_RECORDS[3:]:
+                    if driver and selected_collab_id and selected_project_id:
+                        expt_data = driver.experiments.read_all(
+                            collab_id=selected_collab_id, 
+                            project_id=selected_project_id
+                        ).get('data', [])
+                        expt_ids = [expt['key']['expt_id'] for expt in expt_data]
+                    else:
+                        expt_ids = []
+
+                    selected_expt_id = st.sidebar.selectbox(
+                        label="Experiment ID:", 
+                        options=expt_ids,
+                        help="""Select an experiment to peruse."""
+                    )
+                    combination_key['expt_id'] = selected_expt_id
+
+    return combination_key 
+
+
+
+
+
+
+
+
+
+import pptree
+
+
+
+
+
+
+                    data_tree = pptree.Node(f"{dataset_type} Structure")
+
+                    node_mappings = {}
+                    prev_node = data_tree
+                    for tags in data_meta_tags:
+                        for node_name in tags:
+
+                            if node_name in node_mappings:
+                                curr_node = node_mappings.get(node_name)
+                            else:
+                                curr_node = pptree.Node(node_name, parent=prev_node)
+                            
+                            node_mappings[node_name] = curr_node
+                            prev_node = curr_node
+
+                with st.echo():
+                    st.write(str(data_tree)) 
+
+
+
+
+
+                    node_mappings = {}
+                    for tags in data_meta_tags:
+
+                        st.write(tags)
+                        prev_node = data_tree
+                        for node_name in tags:
+                            
+                            if node_name in node_mappings:
+                                curr_node = node_mappings.get(node_name)
+                            else:
+                                curr_node = pydot.Node(
+                                    node_name, 
+                                    label=node_name,
+                                    shape='circle'
+                                )
+                                data_tree.add_node(curr_node)
+
+                            if not data_tree.get_edge(
+                                prev_node.get_name(),
+                                curr_node.get_name(), 
+                            ):
+                                my_edge = pydot.Edge(
+                                    prev_node.get_name(), 
+                                    curr_node.get_name(), 
+                                    color='blue'
+                                )
+                                data_tree.add_edge(my_edge)
+                                node_mappings[node_name] = curr_node
+                                prev_node = curr_node
+
+
+                    tree_png = data_tree.create_png()
+                    st.image(tree_png)
+
+
+
+
+            st.write(tags)
+
+            prev_idx = 0
+            curr_idx = 0
+            while curr_idx < len(tags):
+
+                prev_token = tags[prev_idx]
+                curr_token = tags[curr_idx]
+                prev_keypoint = tag_keypoints.get(prev_token, [])
+
+                prev_keypoint.append(curr_token)
+                tag_keypoints.update({prev_token: prev_keypoint})
+
+                if prev_idx == curr_idx:
+                    curr_idx += 1
+                else:
+                    prev_idx += 1
+                    curr_idx += 1
+
+
+
+    def __parse_to_tree(self, meta: str, data_tags: List[List[str]]):
+        """
+        """
+        if data_tags:
+            
+            data_tree = pydot.Dot(
+                f"{meta.upper()} Dataset Structure", 
+                # graph_type='graph', 
+                rankdir="LR",
+                fillcolor="white",
+                bgcolor="#0E1117"
+            )
+            data_tree.set_node_defaults(
+                color='white',
+                style='filled',
+                shape='box',
+                fontname='Courier',
+                fontsize='10'
+            )
+
+            # Generate all nodes first
+            node_colours = {}
+            for idx, tags in enumerate(zip_longest(*data_tags)):
+
+                # Generate unique colors for each token hierarchy
+                curr_colour = node_colours.get(idx, generate_hex_colour())
+                node_colours[idx] = curr_colour
+
+                tags_keypoints = [tag for tag in set(tags) if tag]
+                for idx, node_name in enumerate(tags_keypoints):
+
+                    curr_node = pydot.Node(
+                        node_name, 
+                        label=node_name,
+                        shape='rectangle',
+                        style='filled',
+                        color=curr_colour#"#DC582A"
+                    )
+                    data_tree.add_node(curr_node)
+
+            # Construct all edges between valid nodes
+            # for tags in data_tags:
+
+            #     tag_colour = generate_hex_colour()
+            #     prev_node_name = data_tree.get_name()
+            #     for node_name in tags:
+
+            #         if not data_tree.get_edge(prev_node_name, node_name):
+            #             node_edge = pydot.Edge(
+            #                 prev_node_name, 
+            #                 node_name, 
+            #                 color=tag_colour
+            #             )
+            #             data_tree.add_edge(node_edge)
+
+            #         prev_node_name = node_name
+
+            for idx, tags in enumerate(data_tags):
+
+                curr_edge_colour = generate_hex_colour()
+                prev_node_name = data_tree.get_name()
+                for node_name in tags:
+
+                    # if not data_tree.get_edge(prev_node_name, node_name):
+                    node_edge = pydot.Edge(
+                        prev_node_name, 
+                        node_name, 
+                        color=curr_edge_colour
+                    )
+                    data_tree.add_edge(node_edge)
+
+                    prev_node_name = node_name
+
+            with st.beta_container():
+                tree_png = data_tree.create_png()
+                st.image(
+                    tree_png, 
+                    caption=f"{meta.upper()} Dataset Hierarchy",
+                    use_column_width='always'
+                )
+        
+
+
+
+    def __parse_to_tags(self, meta):
+        """
+        """
+        options_container = st.empty()
+        path_input_container = st.empty()
+      
+        src_path = path_input_container.text_input(label="Data source:")
+        is_added = st.button(label="Add")  
+        is_resetted = st.button("Reset") 
+
+        if src_path and is_added:
+            self._options.append(src_path)
+        
+        selected_paths = options_container.multiselect(
+            label="dadaa", 
+            options=self._options, 
+            default=self._options,
+            key=f"{meta}_options"
+        )
+        self._options = selected_paths
+
+        selected_tags = [path.split('/') for path in selected_paths]
+        st.write(selected_tags)
+        
+
+        # self.options = selected_paths
+
+
+
+
+def render_participant_registrations(
+    driver: Driver = None, 
+    participant_id: str = None,
+    collab_id: str = None,
+    project_id: str = None
+):
+    """ Renders out retrieved registration metadata in a custom form 
+
+    Args:
+        driver (Driver): A connected Synergos driver to communicate with the
+            selected orchestrator.
+        collab_id (str): ID of selected collaboration to be rendered
+        project_id (str): ID of selected project to be rendered
+    """
+    if participant_id:
+        participant_data = driver.participants.read(participant_id).get('data', {})
+    else:
+        participant_data = {}
+
+    participant_relations = participant_data.get('relations', {})
+    participant_registrations = participant_relations.get('Registration', [])
+    
+    registry_mapping = {}
+    for registration in participant_registrations:
+        curr_collab_id = registration.get('key', {}).get('collab_id')
+        curr_collab = registry_mapping.get(curr_collab_id, {})
+        curr_project_id = registration.get('key', {}).get('project_id') 
+        curr_collab[curr_project_id] = registration   
+        registry_mapping[curr_collab_id] = curr_collab     
+
+    registered_collab_ids = list(registry_mapping.keys())
+    selected_collab_id = st.selectbox(
+        label="Collaboration ID:", 
+        options=registered_collab_ids,
+        help="""Select a collaboration to view."""
+    )
+
+    # relevant_project_ids = list(registry_mapping.get(selected_collab_id, {}).keys())
+    # selected_project_id = st.selectbox(
+    #     label="Project ID:", 
+    #     options=relevant_project_ids,
+    #     help="""Select a collaboration to view."""
+    # )
+    selected_project_id, _ = render_projects(
+        driver=driver,
+        collab_id=selected_collab_id
+    )
+
+    relevant_entry = registry_mapping.get(selected_collab_id, {}).get(selected_project_id, {})
+    
+    with st.beta_expander("Registration Details"):
+        reg_renderer.display(data=relevant_entry)
+
+    return selected_collab_id, {}
+
+
+
+
+
+
+    def render_tag_metadata(
+        self, 
+        data: Dict[str, Any] = {}
+    ) -> Dict[str, List[List[str]]]:
+        """ Renders a form capturing dataset tags registered for use 
+            under by a participant in a deployed Synergos network, given its 
+            prerequisite information, as well as any updates to their values.
+
+        Args:
+            data (dict): Information relevant to a tag entry
+        Returns:
+            Updated data tags (dict)
+        """     
+        train_tags = data.get('train', [])
+        valid_tags = data.get('evaluate', [])
+        predict_tags = data.get('predict', [])
+
+        with st.beta_container():
+            updated_train_tags = st.text_area(
+                label="Training Data Tags", 
+                value=pprint.pformat(train_tags),
+                height=200
+            )
+            updated_eval_tags = st.text_area(
+                label="Evaluation Data Tags", 
+                value=pprint.pformat(valid_tags),
+                height=200
+            )
+            updated_predict_tags = st.text_area(
+                label="Inference Data Tags", 
+                value=pprint.pformat(predict_tags),
+                height=200
+            )
+
+        tag_details = {}
+        for dataset_type in dataset_types:
+            with st.beta_container():
+                columns = st.beta_columns((1, 2))
+
+                with columns[0]:
+                    data_meta_tags = self.__parse_to_tags(meta=dataset_type)
+
+                with columns[1]:
+                    self.__parse_to_tree(
+                        meta=dataset_type, 
+                        data_tags=data_meta_tags
+                    )
+
+                tag_details[dataset_type] = data_meta_tags
+
+                st.markdown("---")
+                
+        return {
+            'train': updated_train_tags,
+            'evaluate': updated_eval_tags,
+            'predict': updated_predict_tags
+        }
+
+
+
+    def __parse_to_tags(self, meta: str, tag_string: str) -> List[List[str]]:
+        """ Acquires and convert declared paths to data sources into data tags 
+
+        Args:
+            meta (str): Type of data tags processed (i.e. 'train'/'evaluate'/'predict')
+        Returns:
+            Meta-specific Data tags (list)
+        """           
+        data_meta_string = st.text_area(
+            label=f"Declare all {meta.upper()} tags options:", 
+            height=300,
+            key=meta
+        ).replace('\'', '"')
+
+        data_meta_paths = data_meta_string.splitlines()
+
+        options_container = st.empty()
+        self._options = options_container.multiselect(
+            label=f"{meta.upper()} Data Sources:", 
+            options=data_meta_paths, 
+            default=data_meta_paths,
+            key=f"{meta}_options"
+        )
+
+        data_meta_tokens = [
+            Path(path_str).parts[1:] 
+            for path_str in self._options
+        ]
+        return data_meta_tokens
+
+
+
+
+    with st.beta_container():
+        left_column, mid_column, right_column = st.beta_columns(3)
+
+        with left_column:
+            with st.beta_expander("Registration Details"):
+                reg_renderer.display(selected_registry)
+
+        with mid_column:
+            with st.beta_expander("Tag Details"):
+                tags = selected_registry.get('relations', {}).get('Tag', [])
+                tag_details = tags.pop() if tags else {}
+                tag_renderer.display(tag_details, is_stacked=True)
+
+        with right_column:
+            with st.beta_expander("Alignment Details"):
+                alignments = selected_registry.get('relations', {}).get('Alignment', [])
+                alignment_details = alignments.pop() if alignments else {}
+                align_renderer.display(alignment_details)
+
+
+
+
+    # def render_tag_metadata(
+    #     self, 
+    #     data: Dict[str, Any] = {},
+    #     is_stacked: bool = False
+    # ) -> Dict[str, List[List[str]]]:
+    #     """ Renders a form capturing dataset tags registered for use 
+    #         under by a participant in a deployed Synergos network, given its 
+    #         prerequisite information, as well as any updates to their values.
+
+    #     Args:
+    #         data (dict): Information relevant to a tag entry
+    #     Returns:
+    #         Updated data tags (dict)
+    #     """     
+    #     TAG_KEYS = ["train", "evaluate", "predict"]
+
+    #     for key, value in data.items():
+
+    #         if key in TAG_KEYS:
+
+    #             with st.beta_container():
+    #                 columns = st.beta_columns((1, 2))
+
+    #                 with columns[0]:
+    #                     data_meta_string = st.text_area(
+    #                         label=f"Declare all {dataset_type.upper()} tags options:", 
+    #                         height=300,
+    #                         key=dataset_type
+    #                     ).replace('\'', '"')
+    #                     data_meta_tags = self.__parse_to_tags(
+    #                         meta=dataset_type,
+    #                         tag_string=data_meta_string
+    #                     )
+
+    #                 with columns[1]:
+    #                     self.__parse_to_tree(
+    #                         meta=dataset_type, 
+    #                         data_tags=data_meta_tags
+    #                     )
+
+    #                 tag_paths = [
+    #                     Path(*[os.sep, *tokens]).as_posix() 
+    #                     for tokens in value
+    #                 ]
+    #                 updated_meta_string = columns[0].text_area(
+    #                     label=f"{key} Data Tags", 
+    #                     value="\n".join(tag_paths),
+    #                     height=200
+    #                 )
+    #                 updated_meta_tags = self.__parse_to_tags(
+    #                     meta=key,
+    #                     tag_string=updated_meta_string
+    #                 )
+
+    #                 self.__parse_to_tree(
+    #                     meta=key, 
+    #                     data_tags=updated_meta_tags
+    #                 )
+
+    #                 st.markdown("---")
+
+
+        # tag_details = {}
+        # for dataset_type in dataset_types:
+        #     with st.beta_container():
+        #         columns = st.beta_columns((1, 2))
+
+        #         with columns[0]:
+        #             data_meta_tags = self.__parse_to_tags(meta=dataset_type)
+
+        #         with columns[1]:
+        #             self.__parse_to_tree(
+        #                 meta=dataset_type, 
+        #                 data_tags=data_meta_tags
+        #             )
+
+        #         tag_details[dataset_type] = data_meta_tags
+
+        #         st.markdown("---")
+
+        # return {
+        #     'train': updated_train_tags,
+        #     'evaluate': updated_eval_tags,
+        #     'predict': updated_predict_tags
+        # }
+
+
+
+
+    def render_registration_metadata(
+        self, 
+        data: Dict[str, Any] = {}
+    ) -> Dict[str, Dict[str, Union[int, str, bool]]]:
+        """ Renders a form capturing existing nodes registered for use 
+            under by a participant in a deployed Synergos network, given its 
+            prerequisite information, as well as any updates to their values.
+
+        Args:
+            data (dict): Information relevant to a registration entry
+        Returns:
+            Updated registration (dict)
+        """       
+        node_details = {
+            reg_key: reg_value
+            for reg_key, reg_value in data.items()
+            if "node_" in reg_key 
+        }
+
+        updated_nodes = {}
+        for node_idx, node_info in sorted(
+            node_details.items(), 
+            key=lambda x: x[0]
+        ):
+            host = node_info.get('host', "")
+            rpc_port = node_info.get('f_port', "")
+            syft_port = node_info.get('port', "")
+            log_msgs = node_info.get('log_msgs', False)
+            verbose = node_info.get("verbose", False)
+
+            node_name = " ".join(node_idx.capitalize().split('_'))
+            
+            with st.beta_container():
+
+                st.header(node_name)
+
+                updated_host = st.text_input(
+                    label="IP Address:", 
+                    value=host, 
+                    key=uuid.uuid4()
+                )
+                updated_rpc_port = st.text_input(
+                    label="RPC Port:", 
+                    value=rpc_port, 
+                    key=uuid.uuid4()
+                )
+                updated_syft_port = st.text_input(
+                    label="Syft Port:", 
+                    value=syft_port, 
+                    key=uuid.uuid4()
+                )
+
+                log_msgs = st.checkbox(
+                    label=f"{node_name}: Display logs", 
+                    value=log_msgs
+                )
+
+                if log_msgs:
+                    verbose = st.checkbox(
+                        label=f"{node_name}: Use verbose view", 
+                        value=verbose
+                    )
+
+            updated_nodes[node_idx] = {
+                'host': updated_host,
+                'f_port': updated_rpc_port,
+                'port': updated_syft_port,
+                'log_msgs': log_msgs,
+                'verbose': verbose
+            }
+
+        return updated_nodes
+
+
+
+    def render_registration_metadata(
+        self, 
+        data: Dict[str, Any] = {}
+    ) -> Dict[str, Dict[str, Union[int, str, bool]]]:
+        """ Renders a form capturing existing nodes registered for use 
+            under by a participant in a deployed Synergos network, given its 
+            prerequisite information, as well as any updates to their values.
+
+        Args:
+            data (dict): Information relevant to a registration entry
+        Returns:
+            Updated registration (dict)
+        """       
+        node_details = {
+            reg_key: reg_value
+            for reg_key, reg_value in data.items()
+            if "node_" in reg_key 
+        }
+
+        updated_nodes = {}
+        for node_idx, node_info in sorted(
+            node_details.items(), 
+            key=lambda x: x[0]
+        ):
+            host = node_info.get('host', "")
+            rpc_port = node_info.get('f_port', "")
+            syft_port = node_info.get('port', "")
+            log_msgs = node_info.get('log_msgs', False)
+            verbose = node_info.get("verbose", False)
+
+            node_name = " ".join(node_idx.capitalize().split('_'))
+            
+            with st.beta_container():
+
+                st.header(node_name)
+
+                updated_host = st.text_input(
+                    label="IP Address:", 
+                    value=host, 
+                    key=uuid.uuid4()
+                )
+                updated_rpc_port = st.text_input(
+                    label="RPC Port:", 
+                    value=rpc_port, 
+                    key=uuid.uuid4()
+                )
+                updated_syft_port = st.text_input(
+                    label="Syft Port:", 
+                    value=syft_port, 
+                    key=uuid.uuid4()
+                )
+
+                log_msgs = st.checkbox(
+                    label=f"{node_name}: Display logs", 
+                    value=log_msgs
+                )
+
+                if log_msgs:
+                    verbose = st.checkbox(
+                        label=f"{node_name}: Use verbose view", 
+                        value=verbose
+                    )
+
+            updated_nodes[node_idx] = {
+                'host': updated_host,
+                'f_port': updated_rpc_port,
+                'port': updated_syft_port,
+                'log_msgs': log_msgs,
+                'verbose': verbose
+            }
+
+        return updated_nodes
+
+['a', 'b', 'c', 'd']
+['a', 'b', 'c', 'e']
+['a', 'b', 'f', 'g']
+['a', 'b', 'f', 'h']
+['a', 'b', 'f', 'd']
+
+
+
+/a/b/c/d
+/a/b/c/e
+/a/b/c/f
+/a/b/g/h
+/a/b/g/i
+/a/b/j/k

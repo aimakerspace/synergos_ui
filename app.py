@@ -71,6 +71,17 @@ st.set_page_config(
 hide_streamlit_style = "<style>footer {visibility: hidden;}</style>"
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
+# resize_iframes_style = """
+# <style>
+#     iframe {
+#         resize: both;
+#         overflow: auto;
+#     }
+# </style>
+# """
+# st.markdown(resize_iframes_style, unsafe_allow_html=True) 
+
+
 with st.sidebar.beta_container():
 
     st.header("OPTIONS")
@@ -177,11 +188,12 @@ multiapp.run()
 #     scrolling=True    
 # )
 
-# components.iframe(
-#     src="http://localhost:15000/",
-#     height=1000, 
-#     scrolling=True    
-# )
+# with st.beta_columns(2)[0]:
+#     components.iframe(
+#         src="http://localhost:5000/ttp/connect",
+#         height=800, 
+#         scrolling=True    
+#     )
 
 # download=st.button('Download Excel File')
 # if download:
