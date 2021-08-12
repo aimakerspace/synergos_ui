@@ -1,0 +1,35 @@
+#selection {
+    position     : relative;
+    white-space  : nowrap;
+    display      : flexbox;
+    align-content: center;
+}
+
+.participant-page {
+    margin-left: 50px;
+    margin-top : 50px;
+}
+
+.card {
+    border-radius  : 20px;
+    height         : 170px;
+    width          : auto;
+    margin-top     : 30px;
+    object-fit     : cover;
+    display        : flexbox;
+    align-items    : center;
+    justify-content: center;
+}
+
+.card-img {
+    position: relative;
+    padding : 10px;
+    width   : 100%;
+    height  : auto;
+}
+
+.custom-button {
+    position: absolute;
+    right   : 0%;
+    bottom  : 0%;
+}

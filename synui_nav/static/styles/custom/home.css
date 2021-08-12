@@ -1,0 +1,31 @@
+.home-page {
+    padding   : 3rem;
+    max-height: 100%;
+    height    : auto;
+    overflow-y: auto;
+}
+
+.header {
+    padding-top   : 3rem;
+    padding-bottom: 1rem;
+}
+
+.card {
+    border-radius  : 1.5rem;
+    height         : 100%;
+    width          : auto;
+    object-fit     : cover;
+    display        : flexbox;
+    align-items    : center;
+    justify-content: center;
+}
+
+.card-img {
+    padding: 1rem;
+}
+
+.custom-button {
+    position: absolute;
+    right   : 0%;
+    bottom  : 0%;
+}

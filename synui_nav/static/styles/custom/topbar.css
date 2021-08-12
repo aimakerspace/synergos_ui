@@ -1,0 +1,6 @@
+nav>#topbar {
+    background-color: #ffffff;
+    /* height          : 50px; */
+    height          : 3rem;
+    padding         : 0;
+}

@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/orchestrator.css">
+{% endblock %}
+
+
+{% block content %}
+<!-- Orchestrator Navbar -->
+<nav class="navbar fixed-top shadow-sm navbar-light" id="selection">
+    <span class="navbar-text" id="selection_back_text">
+        <a href="/home">
+            <i class="fa bi-arrow-left-short fa-2x">Home</i>
+        </a>
+    </span>
+</nav>
+
+<div class="ttp-page">
+    <h1 class="title" id="ttp-title">Orchestrator Dashboard</h1>
+
+    <div class="row">
+
+        <!-- Collaboration Metadata Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/collaborations">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/collaboration.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Collaborations</h5>
+                            <p class="card-text">Deployment configurations</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Project Metadata Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/projects">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/project.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Projects</h5>
+                            <p class="card-text">Dataset variants</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Experiment Metadata Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/experiments">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/experiment.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Experiments</h5>
+                            <p class="card-text">Model architectures</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Run Metadata Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/runs">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/run.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Runs</h5>
+                            <p class="card-text">Hyperparameter sets</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <h3 class="title" id="ttp-title">Performance Actions</h3>
+
+    <div class="row">
+
+        <!-- Optimization Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/optimizations">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/optimizer.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Optimize</h5>
+                            <p class="card-text">Tune your models!</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Analysis Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/analysis">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/analyzer.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Analyse</h5>
+                            <p class="card-text">Check your results here!</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

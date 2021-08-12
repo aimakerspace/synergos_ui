@@ -1,0 +1,64 @@
+.mock-background {
+    background: #383838;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal-main {
+    position: relative;
+    width: 451px;
+    height: 251px;
+
+    background: #FFFFFF;
+    box-sizing: border-box;
+    border-radius: 5px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-messaging {
+    background: #587180;
+}
+
+.modal-bottom-block {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    background: #FFFFFF;
+    border-radius: 5px;
+}
+
+.modal-title {
+    font-family: 'Josefin Sans';
+    font-size: 36px;
+    font-weight: bold;
+    color: #F8E5DB;
+}
+.modal-subtitle {
+    font-family: 'Josefin Sans';
+    font-size: 16px;
+    font-weight: normal;
+    color: #F8E5DB;
+}
+.modal-button-back {
+    position: sticky;
+    width: 111px;
+    height: 40px;
+
+    background: #DA7F4D;
+    border-radius: 3px;
+
+    display: flex;
+
+    color: #F8E5DB;
+    justify-content: center;
+    align-items: center;
+
+    font-family: 'Josefin Sans';
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 26px;
+    letter-spacing: 0em;
+}

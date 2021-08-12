@@ -1,0 +1,67 @@
+.nav-container {
+    height: 150px;
+    width: 200px;
+    border-radius: 0px;
+
+
+    background: #FFFFFF;
+    /* Tangerine Light Tint */
+
+    border: 1px solid #F8E5DB;
+    box-sizing: border-box;
+}
+
+.nav-sidebar a {
+    font-family: 'Josefin Sans';
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    color: #EFA85A;
+
+    line-height: 26px;
+    letter-spacing: 0em;
+    text-align: left;
+
+    height: 26px;
+    width: 100%;
+    border-radius: nullpx;
+
+    padding: 0 0 0 1em;
+
+    display: block;
+  }
+
+.nav-sidebar a:hover {
+    color: #DA8247;
+    background: #FCF3E3
+    }
+
+.nav-tabs a {
+    width: 41px;
+    height: 26px;
+    left: 209px;
+    top: 145px;
+
+    font-family: 'Josefin Sans';
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 160%;
+    /* identical to box height, or 26px */
+
+
+    /* Ocean700 */
+
+    color: #3E5059;
+
+    padding: 0 0 0 5px;
+
+    text-align: center;
+
+}
+
+.nav-tabs a:hover {
+    color: #232C31;
+    font-weight: bold;
+    border-bottom: 2px solid #3E5059;
+    }
