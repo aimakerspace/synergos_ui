@@ -1,7 +1,7 @@
-{% extends "base.html" %}
+{% extends "navigation.html" %}
 
 
-{% block styles %}
+{% block selection_styles %}
 <link rel="stylesheet" type="text/css" href="/static/styles/custom/cards.css">
 <link rel="stylesheet" type="text/css" href="/static/styles/custom/actions.css">
 
@@ -9,6 +9,7 @@
 {% endblock %}
 
 
+<!-- Override breadcrumb in "navigation.html" -->
 {% block breadcrumb %}
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
