@@ -1,91 +1,57 @@
-{% extends "base.html" %}
+{% extends "navigation.html" %}
 
 
-{% block styles %}
+{% block selection_styles %}
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/cards.css">
 <link rel="stylesheet" type="text/css" href="/static/styles/custom/participant.css">
 {% endblock %}
 
 
 {% block content %}
-<!-- Participant Navbar -->
-<nav class="navbar fixed-top shadow-sm navbar-light" id="selection">
-    <span class="navbar-text" id="selection_back_text">
-        <a href="/home">
-            <i class="fa bi-arrow-left-short fa-2x">Home</i>
-        </a>
-    </span>
-</nav>
-
 <div class="participant-page">
-    <h1 class="title" id="participant-title">Participant</h1>
+    <h1 class="title" id="participant-title">Participant Dashboard</h1>
 
     <div class="row">
-        <div class="col-md-5">
-            <div class="card">
-                <div class="row no-gutters">
-                    <div class="col-md-4">
-                        <img src="/static/images/participant.svg" class="card-img" alt="...">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Manage your Profile</h5>
-                            <p class="card-text">Customize your account!</p>
-                            <p class="card-text">
-                                <a href="/view/profiles" class="custom-button">
-                                    <i class="fa bi-arrow-right-circle-fill fa-2x"></i>
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-5">
-            <div class="card mb-3">
-                <div class="row no-gutters">
-                    <div class="col-md-4">
-                        <img src="/static/images/registration.svg" class="card-img" alt="...">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Manage your Registrations</h5>
-                            <p class="card-text">Declare your setup!</p>
-                            <p class="card-text">
-                                <small class="text-muted">
-                                    <a href="/view/registrations" class="custom-button">
-                                        <i class="fa bi-arrow-right-circle-fill fa-2x"></i>
-                                    </a>
-                                </small>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-5">
-            <div class="card">
-                <div class="row no-gutters">
-                    <div class="col-md-4">
-                        <img src="/static/images/inference.svg" class="card-img" alt="...">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Submit your Inferences</h5>
-                            <p class="card-text">Try out your trained models here!</p>
-                            <p class="card-text">
-                                <a href="/view/inferences" class="custom-button">
-                                    <i class="fa bi-arrow-right-circle-fill fa-2x"></i>
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
+        <!-- Profile Metadata Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/participant/profiles">
+                <img class="custom-card-img" src="/static/images/participant.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Profile</h5>
+                    <span class="custom-card-text">Content management</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Registration Metadata Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/participant/registrations">
+                <img class="custom-card-img" src="/static/images/registration.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Registrations</h5>
+                    <span class="custom-card-text">Entering partnerships</span>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <h3 class="title" id="participant-header">Actions</h3>
+
+    <div class="row">
+
+        <!-- Inference Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/participant/inferences">
+                <img class="custom-card-img" src="/static/images/inference.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Predict</h5>
+                    <span class="custom-card-text">Conduct inferences</span>
+                </div>
+            </a>
+        </div>
+        
+    </div>
 </div>
 {% endblock %}

@@ -1,16 +1,23 @@
+/* Adjust visibility of top border (gradient-colored)  */
+.css-ilb8f5 {
+    visibility: hidden;
+}
+
 /* Adjust size of empty space at the top of each page */
 .css-1y0tads {
     padding-top: 1rem;
 }
 
-/* Adjust size of empty space at the top of sidebar */
-.css-1s8nojw {
-    padding-top: 4rem;
+/* Adjust sidebar configurations */
+.css-17eq0hr {
+    padding-top     : 4rem;
+    background-color: #f5f5f5;
+    border-radius   : 1.5rem;
 }
 
-/* Adjust visibility of top border (gradient-colored)  */
-.css-ilb8f5 {
-    visibility: hidden;
+.main {
+    border-radius: 1.5rem;
+    color: #000000;
 }
 
 /* Toggles visibility of footer */

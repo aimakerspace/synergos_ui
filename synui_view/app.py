@@ -7,6 +7,7 @@
 # Generic/Built-in
 import os
 from glob import glob
+from typing import Tuple
 
 # Libs
 import streamlit as st
@@ -27,25 +28,25 @@ from views.analysis import app as analysis_app
 # Configurations #
 ##################
 
-SUPPORTED_DEFAULT_PROCESSES = {
-    # "Construct a deployment script": None
-}
+# SUPPORTED_DEFAULT_PROCESSES = {
+#     # "Construct a deployment script": None
+# }
 
-SUPPORTED_ORCHESTRATOR_PROCESSES = {
-    'collaborations': {'Manage collaboration(s)': collab_app},
-    'projects': {'Manage project(s)': project_app},
-    'experiments': {'Manage experiment(s)': expt_app},
-    "Manage run(s)": run_app,
-    "Submit federated job(s)": submit_app,
-    # "Analyse federated job(s)": analysis_app,
-    # "Optimize a model": None
-}
+# SUPPORTED_ORCHESTRATOR_PROCESSES = {
+#     'collaborations': {'Manage collaboration(s)': collab_app},
+#     'projects': {'Manage project(s)': project_app},
+#     'experiments': {'Manage experiment(s)': expt_app},
+#     "Manage run(s)": run_app,
+#     "Submit federated job(s)": submit_app,
+#     # "Analyse federated job(s)": analysis_app,
+#     # "Optimize a model": None
+# }
 
-SUPPORTED_PARTICIPANT_PROCESSES = {
-    "Manage your profile": participant_app,
-    "Manage your registrations": reg_app,
-    "Submit inference(s)": infer_app
-}
+# SUPPORTED_PARTICIPANT_PROCESSES = {
+#     "Manage your profile": participant_app,
+#     "Manage your registrations": reg_app,
+#     "Submit inference(s)": infer_app
+# }
 
 ####################
 # Helper Functions #
@@ -74,20 +75,24 @@ def read_production_css() -> str:
     return production_styles
 
 
-def navigate() -> str:
+def load_remote_args() -> Tuple[str]:
     """ Helper function that parses incoming query parameters for use in
         subsequent view generations.
 
     Returns:
-        View type (str)
+        User Role       (str)
+        Resource type   (str)
+        View type     (str)
     """
     try:
-        st.sidebar.write(st.experimental_get_query_params())
-        view = st.experimental_get_query_params()['p'][0]
+        input_kwargs = st.experimental_get_query_params()
+        role = input_kwargs['r'][0]
+        resource = input_kwargs['p'][0]
+        view = input_kwargs['a'][0]
     except Exception as e:
         st.error("Unable to parse view! Please use the main app.")
         return None
-    return view
+    return role, resource, view
 
 
 ######################################
@@ -115,34 +120,34 @@ def main():
     production_styles = read_production_css()
     st.markdown(production_styles, unsafe_allow_html=True) 
 
-    requested_view = navigate()
+    _, resource, requested_view = load_remote_args()
 
-    if requested_view == "collaborations":
-        collab_app()
+    if resource == "collaborations":
+        collab_app(action=requested_view)
 
-    elif requested_view == "projects":
-        project_app()
+    # elif resource == "projects":
+    #     project_app(action=requested_view)
 
-    elif requested_view == "experiments":
-        expt_app()
+    # elif resource == "experiments":
+    #     expt_app(action=requested_view)
 
-    elif requested_view == "runs":
-        run_app()
+    # elif resource == "runs":
+    #     run_app(action=requested_view)
 
-    elif requested_view == "optimizations":
-        pass
+    # elif resource == "optimizations":
+    #     pass
 
-    elif requested_view == "analysis":
-        analysis_app()
+    # elif resource == "analysis":
+    #     analysis_app(action=requested_view)
 
-    elif requested_view == "profiles":
-        participant_app()
+    # elif resource == "profiles":
+    #     participant_app(action=requested_view)
 
-    elif requested_view == "registrations":
-        reg_app()
+    # elif resource == "registrations":
+    #     reg_app(action=requested_view)
 
-    elif requested_view == "inferences":
-        infer_app()
+    # elif resource == "inferences":
+    #     infer_app(action=requested_view)
 
 
 ###########

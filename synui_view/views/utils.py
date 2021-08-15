@@ -10,9 +10,10 @@ import os
 import json
 import pickle
 import re
+import socket
 import time
 import uuid
-from typing import Dict, List, Any, Union
+from typing import Callable, Dict, List, Any, Union
 
 # Libs
 import numpy as np
@@ -51,25 +52,34 @@ tag_renderer = TagRenderer()
 participant_renderer = ParticipantRenderer()
 align_renderer = AlignmentRenderer()
 
-###################
-# Styling Helpers #
-###################
-
-def local_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-
-
-def remote_css(url):
-    st.markdown(f'<link href="{url}" rel="stylesheet">', unsafe_allow_html=True)    
-
-
-def icon(icon_name):
-    st.markdown(f'<i class="material-icons">{icon_name}</i>', unsafe_allow_html=True)
-
 #################
 # State Helpers #
 #################
+
+def is_connection_valid(host: str, port: int) -> bool:
+    """ Given a set of host and port mappings, pre-runs connection diagnostics 
+        to check if connection information declared is valid (i.e. server is
+        reachable)
+
+    Args:
+        host (str): IP address of server to test
+        port (int): Port allocation of connection to test
+    Returns:
+        Connection state (bool)
+    """
+
+    try:
+        # Check if there is a DNS listening
+        host = socket.gethostbyname(host)
+
+        # Check if the host is actually reachable
+        s = socket.create_connection((host, 80), 2)
+        s.close()
+        return True
+
+    except:
+        return False
+
 
 class _SessionState:
 
@@ -289,7 +299,7 @@ def render_orchestrator_inputs() -> Union[Driver, None]:
                 help="Declare the access port of your selected orchestrator."
             )
 
-    if orchestrator_host and orchestrator_port:
+    if is_connection_valid(host=orchestrator_host, port=orchestrator_port):
         driver = Driver(host=orchestrator_host, port=orchestrator_port)
     else:
         driver = None    # Ensures rendering of unpopulated widgets
@@ -970,114 +980,19 @@ class MultiApp:
     # Helpers #
     ###########
 
-    def add_app(self, title, func):
-        """Adds a new application.
-        Parameters
-        ----------
-        func:
-            the python function to render this app.
-        title:
-            title of the app. Appears in the dropdown in the sidebar.
+    def add_view(self, action: str, func: Callable):
+        """ Adds a new application view, mapped to a specific action.
+
+        Args:
+            action (str): Keyword trigger
+            func (Callable): Python function to render this app.
         """
-        self.apps[title] = func
+        self.apps[action] = func
 
     ##################
     # Main Functions #
     ##################
 
-    def run(self):
-        selected_title = st.sidebar.selectbox(
-            'What do you want to do?',
-            list(self.apps.keys())
-        )
-        app = self.apps[selected_title]
+    def run(self, action: str):
+        app = self.apps[action]
         app()
-
-
-if __name__ == '__main__':
-    st.markdown("""
-                ## How to download files in Streamlit with download_button()
-                ~> Below are use cases and code examples for the `download_button()`
-                function, which returns a clickable download link given your data
-                file as input.
-                See the `Show code example` at the bottom of each section for a
-                code snippet you can copy & paste.
-                [Recommend improvements here](https://discuss.streamlit.io/)
-                The download_button() function is an extension of a workaround based on
-                the discussions covered in more detail at [Awesome Streamlit](http://awesome-streamlit.org/).
-                Go to Gallery -> Select the App Dropdown -> Choose "File Download Workaround"
-                for more information.""")
-
-    st.markdown('-'*17)
-
-
-    # ---------------------
-    # Download from memory
-    # ---------------------
-    if st.checkbox('Download object from memory'):
-        st.write('~> Use if you want to save some data from memory (e.g. pd.DataFrame, dict, list, str, int)')
-
-        # Enter text for testing
-        s = st.selectbox('Select dtype', ['list',  # TODO: Add more
-                                          'str',
-                                          'int',
-                                          'float',
-                                          'dict',
-                                          'bool',
-                                          'pd.DataFrame'])
-        
-        filename = st.text_input('Enter output filename and ext (e.g. my-dataframe.csv, my-file.json, my-list.txt)', 'my-file.json')
-
-        # Pickle Rick
-        pickle_it = st.checkbox('Save as pickle file')
-
-        sample_df = pd.DataFrame({'x': list(range(10)), 'y': list(range(10))})
-        sample_dtypes = {'list': [1,'a', [2, 'c'], {'b': 2}],
-                         'str': 'Hello Streamlit!',
-                         'int': 17,
-                         'float': 17.0,
-                         'dict': {1: 'a', 'x': [2, 'c'], 2: {'b': 2}},
-                         'bool': True,
-                         'pd.DataFrame': sample_df}
-
-        # Display sample data
-        st.write(f'#### Sample `{s}` to be saved to `{filename}`')
-        st.code(sample_dtypes[s], language='python')
-
-        # Download sample
-        download_button_str = download_button(sample_dtypes[s], filename, f'Click here to download {filename}', pickle_it=pickle_it)
-        st.markdown(download_button_str, unsafe_allow_html=True)
-
-        if st.checkbox('Show code example '):
-            code_text = f"""
-                        s = {sample_dtypes[s]}
-                        download_button_str = download_button(s, '{filename}', 'Click here to download {filename}', pickle_it={pickle_it})
-                        st.markdown(download_button_str, unsafe_allow_html=True)"""
-
-            st.code(code_text, language='python')
-
-    # --------------------------
-    # Select a file to download
-    # --------------------------
-    if st.checkbox('Select a file to download'):
-        st.write('~> Use if you want to test uploading / downloading a certain file.')
-
-        # Upload file for testing
-        folder_path = st.text_input('Enter directory: deafult .', '.')
-        filename = file_selector(folder_path=folder_path)
-
-        # Load selected file
-        with open(filename, 'rb') as f:
-            s = f.read()
-
-        download_button_str = download_button(s, filename, f'Click here to download {filename}')
-        st.markdown(download_button_str, unsafe_allow_html=True)
-
-        if st.checkbox('Show code example'):
-            code_text = f"""
-                        with open('{filename}', 'rb') as f:
-                            s = f.read()
-                        download_button_str = download_button(s, '{filename}', 'Click here to download {filename}')
-                        st.markdown(download_button_str, unsafe_allow_html=True)"""
-
-            st.code(code_text, language='python')

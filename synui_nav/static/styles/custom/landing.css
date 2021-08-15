@@ -1,0 +1,19 @@
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: linear-gradient(to right, rgba(19, 19, 20, 0.52), rgba(109, 90, 5, 0.73)),
+        url('/static/images/synergos_landing_background.svg') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size   : cover;
+    -o-background-size     : cover;
+    background-size        : cover;
+    display                : flex;
+    align-items            : left;
+}
+
+.btn {
+    border-radius: 2rem;
+}

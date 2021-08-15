@@ -1,14 +1,3 @@
-#selection {
-    position     : relative;
-    white-space  : nowrap;
-    display      : flexbox;
-    align-content: center;
-}
-
-#selection>span {
-    padding-left: 1rem;
-}
-
 .ttp-page {
     padding   : 0 3rem;
     max-height: 100%;
@@ -16,33 +5,11 @@
     overflow-y: auto;
 }
 
-#ttp-title {
+.title {
     margin-top   : 3rem;
     margin-bottom: 1rem;
 }
 
-#custom-card {
-    margin : 1rem;
-    width  : 25rem;
-    height : 10rem;
-    padding: 1rem;
-    display: block;
-}
-
-#custom-card h5.card-title {
-    font-weight: bold;
-    color      : black;
-}
-
-#custom-card p.card-text {
-    font-weight: normal;
-    color      : black;
-}
-
-#custom-card img.card-img {
-    width        : 8rem;
-    height       : 8rem;
-    padding      : 1.5rem;
-    border-radius: 2rem;
-    box-shadow   : inset 0px 0px 10px black;
+#ttp-header {
+    color: #878787;
 }

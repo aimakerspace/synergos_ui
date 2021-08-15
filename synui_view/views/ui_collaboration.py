@@ -14,6 +14,7 @@ import streamlit as st
 from synergos import Driver
 from views.renderer import CollaborationRenderer
 from views.utils import (
+    MultiApp,
     download_button,
     rerun, 
     render_id_generator,
@@ -374,27 +375,18 @@ def remove_collaborations(driver: Driver = None):
 # Collaboration UI - Page Formatting #
 ######################################
 
-def app():
+def app(action: str):
     """ Main app orchestrating collaboration management procedures """
-    option = st.sidebar.selectbox(
-        label='Select action to perform:', 
-        options=SUPPORTED_ACTIONS,
-        help="State your role for your current visit to Synergos. Are you a \
-            trusted third party (i.e. TTP) looking to orchestrate your own \
-            federated cycle? Or perhaps a participant looking to enroll in an \
-            existing collaboration?"
-    )
+    
+    core_app = MultiApp()
+    core_app.add_view(action="create", func=create_collaborations)
+    core_app.add_view(action="browse", func=browse_collaborations)
+    core_app.add_view(action="update", func=update_collaborations)
+    core_app.add_view(action="delete", func=remove_collaborations)
 
     driver = render_orchestrator_inputs()
 
-    if option == SUPPORTED_ACTIONS[0]:
-        create_collaborations(driver)
-
-    elif option == SUPPORTED_ACTIONS[1]:
-        browse_collaborations(driver)
-
-    elif option == SUPPORTED_ACTIONS[2]:
-        update_collaborations(driver)
-
-    elif option == SUPPORTED_ACTIONS[3]:
-        remove_collaborations(driver)
+    if driver:
+        core_app.run(action=action)(driver)
+    else:
+        st.warning("Grid not specified! Please declare your connection to continue.")

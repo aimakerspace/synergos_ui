@@ -50,9 +50,22 @@ def load_participant(request: Request):
     return templates.TemplateResponse("participant.html", {"request": request})
 
 
-@app.get("/view/{role}/{action}", response_class=HTMLResponse)
-def load_view(request: Request, role: str, action: str):
+@app.get("/actions/{role}/{resource}", response_class=HTMLResponse)
+def load_actions(request: Request, role: str, resource: str):
+    return templates.TemplateResponse(
+        "actions.html", 
+        {"request": request, 'role': role, 'resource': resource}
+    )
+
+
+@app.get("/view/{role}/{resource}/{action}", response_class=HTMLResponse)
+def load_view(request: Request, role: str, resource: str, action: str):
     return templates.TemplateResponse(
         "viewport.html",
-        {'request': request, 'role': role, 'action': action}
+        {
+            'request': request, 
+            'role': role, 
+            'resource': resource, 
+            'action': action
+        }
     )

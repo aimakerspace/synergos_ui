@@ -2,6 +2,7 @@
 
 
 {% block styles %}
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/cards.css">
 <link rel="stylesheet" type="text/css" href="/static/styles/custom/home.css">
 {% endblock %}
 
@@ -12,54 +13,70 @@
 
     <!-- Dashboard Section -->
     <h4 class="header" id="dashboard-header">Dashboards</h4>
+
     <div class="row">
-        <div class="col-md-5">
-            <div class="card">
-                <div class="row no-gutters">
-                    <div class="col-md-4">
-                        <img src="/static/images/orchestrator.svg" class="card-img" alt="...">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Orchestrator</h5>
-                            <p class="card-text">Are you a trusted third party looking to orchestrate your
-                                own federated cycle?</p>
-                            <p class="card-text">
-                                <a href="/orchestrator" class="custom-button">
-                                    <i class="fa bi-arrow-right-circle-fill fa-2x"></i>
-                                </a>
-                            </p>
-                        </div>
-                    </div>
+
+        <!-- Orchestrator Dashboard -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/orchestrator">
+                <img class="custom-card-img" src="/static/images/orchestrator.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Orchestrator</h5>
+                    <span class="custom-card-text">Trusted Third Partiest</span>
                 </div>
-            </div>
+            </a>
         </div>
-        <div class="col-md-5">
-            <div class="card mb-3">
-                <div class="row no-gutters">
-                    <div class="col-md-4">
-                        <img src="/static/images/participant.svg" class="card-img" alt="...">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">Participant</h5>
-                            <p class="card-text">Are you an individual or organisation looking to enroll in an existing
-                                collaboration?</p>
-                            <p class="card-text">
-                                <a href="/participant" class="custom-button">
-                                    <i class="fa bi-arrow-right-circle-fill fa-2x"></i>
-                                </a>
-                            </p>
-                        </div>
-                    </div>
+
+        <!-- Participant Dashboard -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/participant">
+                <img class="custom-card-img" src="/static/images/participant.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Participant</h5>
+                    <span class="custom-card-text">Contributing individuals or organizationss</span>
                 </div>
-            </div>
+            </a>
         </div>
+
     </div>
 
     <!-- Resources Section -->
     <h4 class="header" id="resources-header">Resources</h4>
 
-
+    <div class="card-deck">
+        <div class="card">
+            <img src="..." class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
+                    content. This content is a little bit longer.</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Last updated 3 mins ago</small>
+            </div>
+        </div>
+        <div class="card">
+            <img src="..." class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Last updated 3 mins ago</small>
+            </div>
+        </div>
+        <div class="card">
+            <img src="..." class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
+                    content. This card has even longer content than the first to show that equal height action.</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Last updated 3 mins ago</small>
+            </div>
+        </div>
+    </div>
+    
 </div>
 {% endblock %}

@@ -1,6 +1,24 @@
-{% extends "base.html" %}
+{% extends "actions.html" %}
+
+
+{% block view_styles %}
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/streamlit.css">
+{% endblock %}
+
+
+{% block action %}
+<li class="breadcrumb-item">
+    <a href="/actions/{{role}}/{{resource}}"><span>Manage {{resource | capitalize}}</span></a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">
+    <span>{{action | capitalize}} {{resource | capitalize}}</span>
+</li>
+{% endblock %}
+
+
 {% block content %}
-<iframe src="http://localhost:8501/?r={{role}}&p={{action}}" id="streamlit-content" allowfullscreen frameborder="0" wmode="transparent">
+<iframe src="http://localhost:8501/?r={{role}}&p={{resource}}&a={{action}}" id="streamlit-content" allowfullscreen
+    frameborder="0" wmode="transparent">
     Your browser doesn't support iframes
 </iframe>
 {% endblock %}

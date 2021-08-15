@@ -3660,3 +3660,966 @@ div.custom-card a span.custom-card-main-text {
             <span class="custom-card-subtext">Analyse</span>
         </a>
     </div> -->
+
+
+
+
+
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/orchestrator.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Orchestrator</h5>
+                            <p class="card-text">Are you a trusted third party looking to orchestrate your
+                                own federated cycle?</p>
+                            <p class="card-text">
+                                <a href="/orchestrator" class="custom-button">
+                                    <i class="fa bi-arrow-right-circle-fill fa-2x"></i>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card mb-3">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/participant.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Participant</h5>
+                            <p class="card-text">Are you an individual or organisation looking to enroll in an existing
+                                collaboration?</p>
+                            <p class="card-text">
+                                <a href="/participant" class="custom-button">
+                                    <i class="fa bi-arrow-right-circle-fill fa-2x"></i>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    <div class="row">
+
+        <!-- Profile Metadata Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/participant/profiles">
+                <div class="row no-gutters">
+                    <div class="col-md-3">
+                        <img src="/static/images/participant.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Profile</h5>
+                            <p class="card-text">Content management</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Registration Metadata Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/participant/registrations">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/registration.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Registrations</h5>
+                            <p class="card-text">Entering partnerships</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <h3 class="title" id="participant-header">Actions</h3>
+
+    <div class="row">
+       
+        <!-- Inference Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/participant/inferences">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/inference.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Predict</h5>
+                            <p class="card-text">Conduct inferences</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+    </div>
+
+
+/* #custom-card {
+    margin : 1rem;
+    width  : 25rem;
+    height : 7rem;
+    padding: 1rem;
+    display: block;
+}
+
+#custom-card h5.card-title {
+    font-weight: bold;
+    color      : black;
+}
+
+#custom-card p.card-text {
+    font-weight: normal;
+    color      : black;
+}
+
+#custom-card:hover h5.card-title {
+    color          : #d87f4d;
+    font-size      : 150%;
+    text-decoration: underline;
+}
+
+#custom-card:hover p.card-text {
+    color: #d87f4d;
+}
+
+#custom-card img.card-img {
+    display      : block;
+    margin-left  : auto;
+    margin-right : auto;
+    width        : 5rem;
+    height       : 5rem;
+    padding      : 1rem;
+    border-radius: 1px;
+    box-shadow   : 0px 0px 10px rgb(223, 222, 222);
+} */
+
+
+
+/* #custom-card div.card-body {
+    margin-left: auto;
+    margin-right: auto;
+} */
+
+
+/* .css-1s8nojw {
+    padding-top: 4rem;
+    background-color: #edf2ef;
+    border-radius: 1.5rem;
+} */
+
+.stSidebar div[class^='st-'] {
+    background-color: yellow;
+}
+
+.main div[class^='st-'] {
+    background-color: white;
+} */
+
+.reportview-container div[class^="css-"]>div[class^='st-']{
+    background-color: yellow;
+}
+
+
+                    //for making parent of submenu active
+                    $(this).closest("li").parent().parent().addClass("active");
+
+
+
+
+
+
+
+
+
+
+
+
+
+.menu-logo .logo-content img {
+    width                : 3.8rem;
+    height               : 3.8rem;
+    /* position          : fixed; */
+    /* object-fit        : contain; */
+    -webkit-transition   : all .1s linear;
+    transition           : all .1s linear;
+}
+
+
+
+
+/* .fa {
+    position      : relative;
+    display       : table-cell;
+    width         : 4rem;
+    height        : 2rem;
+    text-align    : center;
+    vertical-align: middle;
+    font-size     : 1.5rem;
+} */
+
+.main-menu .nav-icon {
+    /* position      : relative; */
+    display       : table-cell;
+    width         : 4rem;
+    height        : 2rem;
+    text-align    : center;
+    vertical-align: middle;
+    font-size     : 1.2rem;
+}
+
+.main-menu .nav-text {
+    position      : relative;
+    display       : table-cell;
+    vertical-align: middle;
+    width         : 10rem;
+    font-family   : 'Titillium Web', sans-serif;
+}
+
+.main-menu>ul.helpline {
+    position: absolute;
+    left    : 0;
+    bottom  : 0;
+}
+
+a:hover,
+a:focus {
+    text-decoration: none;
+}
+
+nav {
+    -webkit-user-select: none;
+    -moz-user-select   : none;
+    -ms-user-select    : none;
+    -o-user-select     : none;
+    user-select        : none;
+}
+
+nav ul,
+nav li {
+    outline    : 0;
+    margin     : 0;
+    padding    : 0;
+    line-height: 4rem;
+}
+
+nav.main-menu {
+    border-top-right-radius   : 1.5rem;
+    border-bottom-right-radius: 1.5rem;
+}
+
+nav.main-menu:not(:hover) li.active>a {
+    color           : #ffffff;
+    background-color: #d87f4d;
+}
+
+nav.main-menu:hover li:hover>a {
+    background-color: #d87f4d;
+    border-top-right-radius: 3rem;
+    border-bottom-right-radius: 3rem;
+}
+
+
+
+
+
+<nav class="navbar fixed-top shadow-sm navbar-light" id="selection">
+    <span class="navbar-text" id="selection_back_text">
+        <a href="/home">
+            <i class="fa bi-arrow-left-short fa-2x">Home</i>
+        </a>
+    </span>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+body {
+    font-family     : 'Poppins', sans-serif;
+    font-weight     : normal;
+    margin          : 0;
+    background-color: #ffffff;
+}
+
+.home-page {
+    padding   : 0 3rem;
+    max-height: 100%;
+    height    : auto;
+    overflow-y: auto;
+}
+
+.title, .header {
+    margin-top   : 3rem;
+    margin-bottom: 1rem;
+}
+
+.header {
+    color: #878787;
+}
+
+#custom-card {
+    margin : 1rem;
+    width  : 25rem;
+    height : 10rem;
+    padding: 1rem;
+    display: block;
+}
+
+#custom-card h5.card-title {
+    font-weight: bold;
+    color      : black;
+}
+
+#custom-card p.card-text {
+    font-weight: normal;
+    color      : black;
+}
+
+#custom-card:hover h5.card-title {
+    color          : #d87f4d;
+    font-size      : 150%;
+    text-decoration: underline;
+}
+
+#custom-card:hover p.card-text {
+    color: #d87f4d;
+}
+
+#custom-card img.card-img {
+    width        : 8rem;
+    height       : 8rem;
+    padding      : 1.5rem;
+    border-radius: 2rem;
+    box-shadow   : inset 0px 0px 10px black;
+}
+
+
+
+
+
+
+<div class="ttp-page">
+    <h1 class="title" id="ttp-title">Orchestrator Dashboard</h1>
+
+    <div class="row">
+
+        <!-- Collaboration Metadata Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/collaborations">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/collaboration.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Collaborations</h5>
+                            <p class="card-text">Deployment configurations</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Project Metadata Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/projects">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/project.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Projects</h5>
+                            <p class="card-text">Dataset variants</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Experiment Metadata Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/experiments">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/experiment.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Experiments</h5>
+                            <p class="card-text">Model architectures</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Run Metadata Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/runs">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/run.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Runs</h5>
+                            <p class="card-text">Hyperparameter sets</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <h3 class="title" id="ttp-header">Performance Actions</h3>
+
+    <div class="row">
+
+        <!-- Optimization Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/optimizations">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/optimizer.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Optimize</h5>
+                            <p class="card-text">Tune your models!</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Analysis Pipeline -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/view/orchestrator/analysis">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/analyzer.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Analyse</h5>
+                            <p class="card-text">Check your results here!</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="home-page">
+    <h1 class="title" id="home-title">Welcome to Synergos Portal</h1>
+
+    <!-- Dashboard Section -->
+    <h4 class="header" id="dashboard-header">Dashboards</h4>
+
+    <div class="row">
+
+        <!-- Orchestrator Dashboard -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/orchestrator">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/orchestrator.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Orchestrator</h5>
+                            <p class="card-text">Trusted Third Parties</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Participant Dashboard -->
+        <div class="card mb-3 border-0" id="custom-card">
+            <a href="/participant">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                        <img src="/static/images/participant.svg" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">Participant</h5>
+                            <p class="card-text">Contributing individuals or organizations</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Resources Section -->
+    <h4 class="header" id="resources-header">Resources</h4>
+
+    <div class="card-deck">
+        <div class="card">
+            <img src="..." class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
+                    content. This content is a little bit longer.</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Last updated 3 mins ago</small>
+            </div>
+        </div>
+        <div class="card">
+            <img src="..." class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">This card has supporting text below as a natural lead-in to additional content.</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Last updated 3 mins ago</small>
+            </div>
+        </div>
+        <div class="card">
+            <img src="..." class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Card title</h5>
+                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional
+                    content. This card has even longer content than the first to show that equal height action.</p>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted">Last updated 3 mins ago</small>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+
+
+.home-page {
+    padding   : 0 3rem;
+    max-height: 100%;
+    height    : auto;
+    overflow-y: auto;
+}
+
+.title, .header {
+    margin-top   : 3rem;
+    margin-bottom: 1rem;
+}
+
+.header {
+    color: #878787;
+}
+
+#custom-card {
+    margin : 1rem;
+    width  : 25rem;
+    height : 10rem;
+    padding: 1rem;
+    display: block;
+}
+
+#custom-card h5.card-title {
+    font-weight: bold;
+    color      : black;
+}
+
+#custom-card p.card-text {
+    font-weight: normal;
+    color      : black;
+}
+
+#custom-card:hover h5.card-title {
+    color          : #d87f4d;
+    font-size      : 150%;
+    text-decoration: underline;
+}
+
+#custom-card:hover p.card-text {
+    color: #d87f4d;
+}
+
+#custom-card img.card-img {
+    width        : 8rem;
+    height       : 8rem;
+    padding      : 1.5rem;
+    border-radius: 2rem;
+    box-shadow   : inset 0px 0px 10px black;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* #selection {
+    position     : relative;
+    white-space  : nowrap;
+    display      : flexbox;
+    align-content: center;
+}
+
+#selection .navbar-text {
+    padding-left: 1rem;
+}
+
+#selection .navbar-text a {
+    display    : flex;
+    align-items: center;
+    font-size  : 1.2rem;
+} */
+
+<!-- <nav class="navbar fixed-top shadow-sm navbar-light" id="selection">
+    <span class="navbar-text" id="selection_back_text">
+        <a href="/home">
+            <i class="fa bi-arrow-left-short fa-2x"></i>
+            <span>Home</span>
+        </a>
+    </span>
+</nav> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def app():
+    """ Main app orchestrating collaboration management procedures """
+    option = st.sidebar.selectbox(
+        label='Select action to perform:', 
+        options=SUPPORTED_ACTIONS,
+        help="State your role for your current visit to Synergos. Are you a \
+            trusted third party (i.e. TTP) looking to orchestrate your own \
+            federated cycle? Or perhaps a participant looking to enroll in an \
+            existing collaboration?"
+    )
+
+    driver = render_orchestrator_inputs()
+
+    if option == SUPPORTED_ACTIONS[0]:
+        create_collaborations(driver)
+
+    elif option == SUPPORTED_ACTIONS[1]:
+        browse_collaborations(driver)
+
+    elif option == SUPPORTED_ACTIONS[2]:
+        update_collaborations(driver)
+
+    elif option == SUPPORTED_ACTIONS[3]:
+        remove_collaborations(driver)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    st.markdown("""
+                ## How to download files in Streamlit with download_button()
+                ~> Below are use cases and code examples for the `download_button()`
+                function, which returns a clickable download link given your data
+                file as input.
+                See the `Show code example` at the bottom of each section for a
+                code snippet you can copy & paste.
+                [Recommend improvements here](https://discuss.streamlit.io/)
+                The download_button() function is an extension of a workaround based on
+                the discussions covered in more detail at [Awesome Streamlit](http://awesome-streamlit.org/).
+                Go to Gallery -> Select the App Dropdown -> Choose "File Download Workaround"
+                for more information.""")
+
+    st.markdown('-'*17)
+
+
+    # ---------------------
+    # Download from memory
+    # ---------------------
+    if st.checkbox('Download object from memory'):
+        st.write('~> Use if you want to save some data from memory (e.g. pd.DataFrame, dict, list, str, int)')
+
+        # Enter text for testing
+        s = st.selectbox('Select dtype', ['list',  # TODO: Add more
+                                          'str',
+                                          'int',
+                                          'float',
+                                          'dict',
+                                          'bool',
+                                          'pd.DataFrame'])
+        
+        filename = st.text_input('Enter output filename and ext (e.g. my-dataframe.csv, my-file.json, my-list.txt)', 'my-file.json')
+
+        # Pickle Rick
+        pickle_it = st.checkbox('Save as pickle file')
+
+        sample_df = pd.DataFrame({'x': list(range(10)), 'y': list(range(10))})
+        sample_dtypes = {'list': [1,'a', [2, 'c'], {'b': 2}],
+                         'str': 'Hello Streamlit!',
+                         'int': 17,
+                         'float': 17.0,
+                         'dict': {1: 'a', 'x': [2, 'c'], 2: {'b': 2}},
+                         'bool': True,
+                         'pd.DataFrame': sample_df}
+
+        # Display sample data
+        st.write(f'#### Sample `{s}` to be saved to `{filename}`')
+        st.code(sample_dtypes[s], language='python')
+
+        # Download sample
+        download_button_str = download_button(sample_dtypes[s], filename, f'Click here to download {filename}', pickle_it=pickle_it)
+        st.markdown(download_button_str, unsafe_allow_html=True)
+
+        if st.checkbox('Show code example '):
+            code_text = f"""
+                        s = {sample_dtypes[s]}
+                        download_button_str = download_button(s, '{filename}', 'Click here to download {filename}', pickle_it={pickle_it})
+                        st.markdown(download_button_str, unsafe_allow_html=True)"""
+
+            st.code(code_text, language='python')
+
+    # --------------------------
+    # Select a file to download
+    # --------------------------
+    if st.checkbox('Select a file to download'):
+        st.write('~> Use if you want to test uploading / downloading a certain file.')
+
+        # Upload file for testing
+        folder_path = st.text_input('Enter directory: deafult .', '.')
+        filename = file_selector(folder_path=folder_path)
+
+        # Load selected file
+        with open(filename, 'rb') as f:
+            s = f.read()
+
+        download_button_str = download_button(s, filename, f'Click here to download {filename}')
+        st.markdown(download_button_str, unsafe_allow_html=True)
+
+        if st.checkbox('Show code example'):
+            code_text = f"""
+                        with open('{filename}', 'rb') as f:
+                            s = f.read()
+                        download_button_str = download_button(s, '{filename}', 'Click here to download {filename}')
+                        st.markdown(download_button_str, unsafe_allow_html=True)"""
+
+            st.code(code_text, language='python')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class MultiApp:
+    """ Framework for combining multiple streamlit applications.
+    
+    Usage:
+        def foo():
+            st.title("Hello Foo")
+        def bar():
+            st.title("Hello Bar")
+        app = MultiApp()
+        app.add_app("Foo", foo)
+        app.add_app("Bar", bar)
+        app.run()
+    
+    It is also possible keep each application in a separate file.
+        import foo
+        import bar
+        app = MultiApp()
+        app.add_app("Foo", foo.app)
+        app.add_app("Bar", bar.app)
+        app.run()
+    """
+    def __init__(self):
+        self.apps = {}
+
+    ###########
+    # Helpers #
+    ###########
+
+    def add_app(self, action: str, func: Callable):
+        """ Adds a new application view, mapped to a specific action.
+
+        Args:
+            action (str): Keyword trigger
+            func (Callable): Python function to render this app.
+        """
+        self.apps[action] = func
+
+    ##################
+    # Main Functions #
+    ##################
+
+    def run(self, action: str):
+        selected_title = st.sidebar.selectbox(
+            'What do you want to do?',
+            list(self.apps.keys())
+        )
+        app = self.apps[selected_title]
+        app()
+
+
+
+
+
+
+
+
+
+
+
+
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="/{{role}}"><span>{{role | capitalize}}</span></a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="/actions/{{role}}/{{resource}}"><span>Manage {{resource | capitalize}}</span></a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+            <span>{{action | capitalize}} {{resource | capitalize}}</span>
+        </li>
+    </ol>
+</nav>
+
+
+
+
+
+
+
+
+###################
+# Styling Helpers #
+###################
+
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+
+def remote_css(url):
+    st.markdown(f'<link href="{url}" rel="stylesheet">', unsafe_allow_html=True)    
+
+
+def icon(icon_name):
+    st.markdown(f'<i class="material-icons">{icon_name}</i>', unsafe_allow_html=True) 

@@ -14,8 +14,8 @@
         integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" type="text/css" href="/static/styles/custom/streamlit.css">
     <link rel="stylesheet" type="text/css" href="/static/styles/custom/sidebar.css">
+    <link rel="stylesheet" type="text/css" href="/static/styles/custom/viewport.css">
 
     <!-- Other styles added here -->
     {% block styles %}{% endblock %}
@@ -33,30 +33,33 @@
 
     <nav class="main-menu" id="main-menu">
         <div class="menu-logo">
-            <img id="logo" src="/static/images/synergos_logo.png" alt="">
-            <h1 class="menu-logo-text">Synergos</h1>
+            <a class="logo-content" href="/">
+                <img id="logo" src="/static/images/synergos_logo.png" alt="">
+                <h1 class="menu-logo-text">Synergos</h1>
+            </a>
         </div>
-        <ul>
-            <li class="main-menu-item active">
-                <a href="/home">
+
+        <ul class="menu-options">
+            <li class="main-menu-item">
+                <a class="item-content" href="/home">
                     <i class="fa fa-home fa-2x"></i>
                     <span class="nav-text">Home</span>
                 </a>
             </li>
             <li class="main-menu-item">
-                <a href="/orchestrator">
-                    <i class="fa bi-person-badge fa-2x"></i>
+                <a class="item-content" href="/orchestrator">
+                    <img class="nav-icon" src="/static/images/orchestrator.svg">
                     <span class="nav-text">Orchestrator</span>
                 </a>
             </li>
             <li class="main-menu-item">
-                <a href="/participant">
-                    <i class="fa bi-people fa-2x"></i>
+                <a class="item-content" href="/participant">
+                    <img class="nav-icon" src="/static/images/participant.svg">
                     <span class="nav-text">Participants</span>
                 </a>
             </li>
             <li class="main-menu-item">
-                <a href="#">
+                <a class="item-content" href="#">
                     <i class="fa fa-info fa-2x"></i>
                     <span class="nav-text">Documentation</span>
                 </a>
@@ -64,8 +67,8 @@
         </ul>
 
         <ul class="helpline">
-            <li>
-                <a href="https://aisingapore.org/home/contact/">
+            <li class="main-menu-item">
+                <a class="item-content" href="https://aisingapore.org/home/contact/">
                     <i class="fa bi-question-circle fa-2x"></i>
                     <span class="nav-text">Help</span>
                 </a>
@@ -74,6 +77,8 @@
     </nav>
 
     <div class="container-fluid mw-100 mh-100" id="viewport">
+        {% block breadcrumb %}{% endblock %}
+        
         {% block content %}{% endblock %}
     </div>
 
@@ -89,9 +94,24 @@
             console.log('Works!')
         }
     </script>
-    <script>
+    <script type="text/javascript">
+        $(function() {
+            // this will get the full URL at the address bar
+            var url = window.location.href;
 
+            // passes on every "a" tag
+            $(".main-menu a").each(function() {
+                // checks if its the same on the address bar
+                if (url == (this.href)) {
+                    $(this).closest("li").addClass("active");
+                } else {
+                    $(this).closest("li").removeClass("active");
+                }
+            });
+        });        
     </script>
+
+    {% block scripts %}{% endblock %}
 </body>
 
 </html>

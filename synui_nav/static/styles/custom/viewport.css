@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+body {
+    font-family     : 'Poppins', sans-serif;
+    font-weight     : normal;
+    margin          : 0;
+    background-color: #ffffff;
+}
+
+#viewport {
+    width              : auto;
+    height             : calc(100vh - 4rem);
+    position           : fixed;
+    padding            : 0;
+    border             : none;
+    top                : 4rem;
+    left               : 4rem;
+    right              : 0;
+    z-index            : 0;
+    transition         : left .1s linear;
+    overflow           : hidden;
+    /* overflow-y      : scroll; */
+    border-radius      : 1.5rem;
+}
+
+.main-menu:hover+#viewport {
+    left: 16rem;
+}
