@@ -111,14 +111,15 @@ class TagRenderer(BaseRenderer):
                 # graph_type='graph', 
                 rankdir="LR",
                 fillcolor="white",
-                bgcolor="#0E1117"
+                bgcolor="white"
             )
             data_tree.set_node_defaults(
-                color='white',
+                color='black',
                 style='filled',
                 shape='box',
-                fontname='Courier',
-                fontsize='10'
+                fontname='Arial',
+                fontsize='15',
+                fontcolor='white'
             )
 
             # Generate all nodes first

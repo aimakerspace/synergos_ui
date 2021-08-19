@@ -5,7 +5,6 @@
 ####################
 
 # Generic/Built-in
-import uuid
 from typing import Dict
 
 # Libs
@@ -15,13 +14,14 @@ import streamlit as st
 from synergos import Driver
 from views.renderer import ExperimentRenderer
 from views.utils import (
-    rerun,
+    is_request_successful,
     render_id_generator,
     render_orchestrator_inputs,
     render_upstream_hierarchy,
     render_confirmation_form,
     render_experiments,
-    render_runs
+    render_runs,
+    MultiApp
 )
 
 ##################
@@ -72,7 +72,7 @@ def create_experiments(driver: Driver = None, key: Dict[str, str] = {}):
     # Step 2: Register experiment #
     ###############################
 
-    st.header("Step 4: Submit your experiment entry")
+    st.header("Step 2: Submit your experiment entry")
     is_confirmed = render_confirmation_form(
         data=architecture,
         r_type=R_TYPE,
@@ -80,8 +80,12 @@ def create_experiments(driver: Driver = None, key: Dict[str, str] = {}):
         use_warnings=False    
     )
     if is_confirmed:
-        driver.experiments.create(**key, expt_id=expt_id, **architecture)
-        rerun(f"Experiment '{expt_id}' has been created.")
+        create_resp = driver.experiments.create(
+            **key, 
+            expt_id=expt_id, 
+            **architecture
+        )
+        is_request_successful(create_resp)
 
 
 
@@ -153,12 +157,12 @@ def update_experiments(driver: Driver = None, key: Dict[str, str] = {}):
         use_warnings=False    
     )
     if is_confirmed:
-        driver.experiments.update(
+        update_resp = driver.experiments.update(
             **key,
             expt_id=selected_expt_id,
             **updated_experiment
         )
-        rerun(f"Experiment '{selected_expt_id}' has been updated.")
+        is_request_successful(update_resp)
 
 
 
@@ -195,37 +199,36 @@ def remove_experiments(driver: Driver = None, key: Dict[str, str] = {}):
         use_warnings=True    
     )
     if is_confirmed:
-        driver.experiments.delete(**key, expt_id=selected_expt_id)
-        rerun(f"Experiment '{selected_expt_id}' has been deleted.")
+        delete_resp = driver.experiments.delete(**key, expt_id=selected_expt_id)
+        is_request_successful(delete_resp)
 
 
 ###################################
 # Experiment UI - Page Formatting #
 ###################################
 
-def app():
+def app(action: str):
     """ Main app orchestrating experiment management procedures """
-    option = st.sidebar.selectbox(
-        label='Select action to perform:', 
-        options=SUPPORTED_ACTIONS,
-        help="State your role for your current visit to Synergos. Are you a \
-            trusted third party (i.e. TTP) looking to orchestrate your own \
-            federated cycle? Or perhaps a participant looking to enroll in an \
-            existing collaboration?"
-    )
+    core_app = MultiApp()
+    core_app.add_view(title=SUPPORTED_ACTIONS[0], func=create_experiments)
+    core_app.add_view(title=SUPPORTED_ACTIONS[1], func=browse_experiments)
+    core_app.add_view(title=SUPPORTED_ACTIONS[2], func=update_experiments)
+    core_app.add_view(title=SUPPORTED_ACTIONS[3], func=remove_experiments)
 
     driver = render_orchestrator_inputs()
 
-    combination_key = render_upstream_hierarchy(r_type=R_TYPE, driver=driver)
+    if driver:
+        combination_key = render_upstream_hierarchy(r_type=R_TYPE, driver=driver)
+        core_app.run(action)(driver, combination_key)
 
-    if option == SUPPORTED_ACTIONS[0]:
-        create_experiments(driver, combination_key)
+    else:
+        st.warning(
+            """
+            Please declare a valid grid connection to continue.
+            
+            You will see this message if:
 
-    elif option == SUPPORTED_ACTIONS[1]:
-        browse_experiments(driver, combination_key)
-
-    elif option == SUPPORTED_ACTIONS[2]:
-        update_experiments(driver, combination_key)
-
-    elif option == SUPPORTED_ACTIONS[3]:
-        remove_experiments(driver, combination_key)
+                1. You have not declared your grid in the sidebar
+                2. Connection parameters you have declared are invalid
+            """
+        )

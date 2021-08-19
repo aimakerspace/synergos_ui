@@ -52,6 +52,24 @@ tag_renderer = TagRenderer()
 participant_renderer = ParticipantRenderer()
 align_renderer = AlignmentRenderer()
 
+###################
+# General Helpers #
+###################
+
+def load_custom_css(css_path: str):
+    """ Helper function that loads in and combines all custom static CSS rules 
+        declared as a HTML tag string. This is a temporary hack to inject
+        custom designs & formats into Streamlit
+
+    Args:
+        css_path (str): Path to CSS rules
+    """
+    with open(css_path, "r") as csp:
+        loaded_styles = csp.read()
+
+    styles_string = f"<style>{loaded_styles}</style>"
+    st.markdown(styles_string, unsafe_allow_html=True)
+
 #################
 # State Helpers #
 #################
@@ -67,17 +85,40 @@ def is_connection_valid(host: str, port: int) -> bool:
     Returns:
         Connection state (bool)
     """
-
     try:
         # Check if there is a DNS listening
         host = socket.gethostbyname(host)
 
         # Check if the host is actually reachable
-        s = socket.create_connection((host, 80), 2)
+        s = socket.create_connection((host, port), 2)
         s.close()
         return True
 
     except:
+        return False
+
+
+def is_request_successful(resp: dict):
+    """ Parses a REST response for its status code and renders a corresponding
+        onscreen notification
+
+    Args:
+        resp (dict): JSON payload received from REST-RPC
+    Returns:
+        Status (bool) 
+    """
+    status_code = resp.get('status')
+    if status_code >= 200 and status_code < 300: 
+        st.success("Request successfully completed.")
+        return True
+    else:
+        st.error(
+            """
+            Something when wrong during your submission!
+
+            Please check that all declared parameters are correct and try again.
+            """
+        )
         return False
 
 
@@ -454,13 +495,17 @@ def render_confirmation_form(
 
         with right_column:
             if is_previewed:
-                with st.echo(code_location="below"):
-                    st.write(data)
+                # with st.echo(code_location="below"):
+                #     st.write(data)
+                st.code(
+                    json.dumps(data, sort_keys=True, indent=4),
+                    language="json"
+                )
 
     return is_correct and is_submitted
 
 
-def render_collaborations(driver: Driver = None, show_details: bool = True):
+def render_collaborations(driver: Driver, show_details: bool = True):
     """ Renders out retrieved collaboration metadata in a custom form 
 
     Args:
@@ -471,11 +516,8 @@ def render_collaborations(driver: Driver = None, show_details: bool = True):
         Selected collaboration ID    (str)
         Updated collaboration record (dict)
     """
-    if driver:
-        collab_data = driver.collaborations.read_all().get('data', [])
-        collab_ids = [collab['key']['collab_id'] for collab in collab_data]
-    else:
-        collab_ids = []
+    collab_data = driver.collaborations.read_all().get('data', [])
+    collab_ids = [collab['key']['collab_id'] for collab in collab_data]
 
     with st.beta_container():
 
@@ -488,12 +530,9 @@ def render_collaborations(driver: Driver = None, show_details: bool = True):
         if not show_details:
             return selected_collab_id, None
             
-        if driver:
-            selected_collab_data = driver.collaborations.read(
-                collab_id=selected_collab_id
-            ).get('data', {})
-        else:
-            selected_collab_data = {}
+        selected_collab_data = driver.collaborations.read(
+            collab_id=selected_collab_id
+        ).get('data', {})
         
         if selected_collab_data:
             selected_collab_data.pop('relations')   # no relations rendered!
@@ -520,11 +559,8 @@ def render_projects(
         Selected project ID    (str)
         Updated project record (dict)
     """
-    if driver and collab_id:
-        project_data = driver.projects.read_all(collab_id).get('data', [])
-        project_ids = [proj['key']['project_id'] for proj in project_data]
-    else:
-        project_ids = []
+    project_data = driver.projects.read_all(collab_id).get('data', [])
+    project_ids = [proj['key']['project_id'] for proj in project_data]
 
     with st.beta_container():
 
@@ -537,13 +573,10 @@ def render_projects(
         if not show_details:
             return selected_project_id, None
 
-        if driver:
-            selected_project_data = driver.projects.read(
-                collab_id=collab_id,
-                project_id=selected_project_id
-            ).get('data', {})
-        else:
-            selected_project_data = {}
+        selected_project_data = driver.projects.read(
+            collab_id=collab_id,
+            project_id=selected_project_id
+        ).get('data', {})
 
         if selected_project_data:
             selected_project_data.pop('relations')  # no relations rendering
@@ -575,14 +608,11 @@ def render_experiments(
         Selected experiment ID    (str)
         Updated experiment record (dict)
     """
-    if driver and collab_id and project_id:
-        expt_data = driver.experiments.read_all(
-            collab_id=collab_id, 
-            project_id=project_id
-        ).get('data', [])
-        expt_ids = [expt['key']['expt_id'] for expt in expt_data]
-    else:
-        expt_ids = []
+    expt_data = driver.experiments.read_all(
+        collab_id=collab_id, 
+        project_id=project_id
+    ).get('data', [])
+    expt_ids = [expt['key']['expt_id'] for expt in expt_data]
     
     with st.beta_container():
 
@@ -595,14 +625,11 @@ def render_experiments(
         if not show_details:
             return selected_expt_id, None
 
-        if driver:
-            selected_expt_data = driver.experiments.read(
-                collab_id=collab_id,
-                project_id=project_id,
-                expt_id=selected_expt_id
-            ).get('data', {})
-        else:
-            selected_expt_data = {}
+        selected_expt_data = driver.experiments.read(
+            collab_id=collab_id,
+            project_id=project_id,
+            expt_id=selected_expt_id
+        ).get('data', {})
             
         if selected_expt_data:
             selected_expt_data.pop('relations')  # no relations rendering
@@ -640,15 +667,12 @@ def render_runs(
         Selected run ID    (str)
         Updated run record (dict)
     """
-    if driver and collab_id and project_id and expt_id:
-        run_data = driver.runs.read_all(
-            collab_id=collab_id, 
-            project_id=project_id,
-            expt_id=expt_id
-        ).get('data', [])
-        run_ids = [run['key']['run_id'] for run in run_data]
-    else:
-        run_ids = []
+    run_data = driver.runs.read_all(
+        collab_id=collab_id, 
+        project_id=project_id,
+        expt_id=expt_id
+    ).get('data', [])
+    run_ids = [run['key']['run_id'] for run in run_data]
     
     with st.beta_container():
 
@@ -661,15 +685,12 @@ def render_runs(
         if not show_details:
             return selected_run_id, None
 
-        if driver:
-            selected_run_data = driver.runs.read(
-                collab_id=collab_id,
-                project_id=project_id,
-                expt_id=expt_id,
-                run_id=selected_run_id
-            ).get('data', {})
-        else:
-            selected_run_data = {}
+        selected_run_data = driver.runs.read(
+            collab_id=collab_id,
+            project_id=project_id,
+            expt_id=expt_id,
+            run_id=selected_run_id
+        ).get('data', {})
 
         if selected_run_data:
             selected_run_data.pop('relations')  # no relations rendering
@@ -708,7 +729,7 @@ def render_participant(
     if not show_details:
         return selected_participant_id, None
 
-    if driver and selected_participant_id:
+    if selected_participant_id:
         participant_data = driver.participants.read(
             participant_id=selected_participant_id
         ).get('data', {})
@@ -974,25 +995,37 @@ class MultiApp:
         app.run()
     """
     def __init__(self):
+        self.__action_map = {
+            'create': 0,
+            'browse': 1,
+            'update': 2,
+            'delete': 3
+        }
         self.apps = {}
 
     ###########
     # Helpers #
     ###########
 
-    def add_view(self, action: str, func: Callable):
+    def add_view(self, title: str, func: Callable):
         """ Adds a new application view, mapped to a specific action.
 
         Args:
-            action (str): Keyword trigger
+            title (str): Keyword trigger
             func (Callable): Python function to render this app.
         """
-        self.apps[action] = func
+        self.apps[title] = func
 
     ##################
     # Main Functions #
     ##################
 
-    def run(self, action: str):
-        app = self.apps[action]
-        app()
+    def run(self, action: str = "create"):
+        selected_title = st.sidebar.selectbox(
+            'What do you want to do?',
+            list(self.apps.keys()),
+            index=self.__action_map[action],
+            key="action"
+        )
+        app = self.apps[selected_title]
+        return app

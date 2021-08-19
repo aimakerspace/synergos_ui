@@ -21,8 +21,9 @@ from views.ui_run import app as run_app
 from views.ui_participant import app as participant_app
 from views.ui_registration import app as reg_app
 from views.ui_inference import app as infer_app
-from views.submission import app as submit_app
+from views.ui_submission import app as submit_app
 from views.analysis import app as analysis_app
+from views.utils import load_custom_css
 
 ##################
 # Configurations #
@@ -48,32 +49,11 @@ from views.analysis import app as analysis_app
 #     "Submit inference(s)": infer_app
 # }
 
+GLOBAL_CSS_PATH = os.path.join(STYLES_DIR, "custom", "st_global.css")
+
 ####################
 # Helper Functions #
 ####################
-
-def read_production_css() -> str:
-    """ Helper function that loads in and combines all static CSS files 
-        declared as a HTML tag string. This is a temporary hack to inject
-        custom designs & formats into Streamlit
-
-    Returns:
-        Production style tag (str)   
-    """
-    prod_css_globstring = os.path.join(STYLES_DIR, "**", "*.css") 
-    style_paths = glob(prod_css_globstring)
-
-    loaded_styles = []
-    for style_path in style_paths:
-
-        with open(style_path, "r") as pcp:
-            curr_styles = pcp.read()
-            loaded_styles.append(curr_styles)
-
-    production_styles = "<style>{}</style>".format('\n'.join(loaded_styles)) 
-
-    return production_styles
-
 
 def load_remote_args() -> Tuple[str]:
     """ Helper function that parses incoming query parameters for use in
@@ -93,7 +73,6 @@ def load_remote_args() -> Tuple[str]:
         st.error("Unable to parse view! Please use the main app.")
         return None
     return role, resource, view
-
 
 ######################################
 # Main Synergos UI - Page formatting #
@@ -117,34 +96,33 @@ def main():
     # [Solution]
     # Inject CSS code directly into the HTML template rendered 
 
-    production_styles = read_production_css()
-    st.markdown(production_styles, unsafe_allow_html=True) 
+    load_custom_css(css_path=GLOBAL_CSS_PATH)
 
     _, resource, requested_view = load_remote_args()
 
     if resource == "collaborations":
         collab_app(action=requested_view)
 
-    # elif resource == "projects":
-    #     project_app(action=requested_view)
+    elif resource == "projects":
+        project_app(action=requested_view)
 
-    # elif resource == "experiments":
-    #     expt_app(action=requested_view)
+    elif resource == "experiments":
+        expt_app(action=requested_view)
 
-    # elif resource == "runs":
-    #     run_app(action=requested_view)
+    elif resource == "runs":
+        run_app(action=requested_view)
+
+    elif resource == "analytics":
+        submit_app(action=requested_view)
 
     # elif resource == "optimizations":
     #     pass
 
-    # elif resource == "analysis":
-    #     analysis_app(action=requested_view)
+    elif resource == "profiles":
+        participant_app(action=requested_view)
 
-    # elif resource == "profiles":
-    #     participant_app(action=requested_view)
-
-    # elif resource == "registrations":
-    #     reg_app(action=requested_view)
+    elif resource == "registrations":
+        reg_app(action=requested_view)
 
     # elif resource == "inferences":
     #     infer_app(action=requested_view)

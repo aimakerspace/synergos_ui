@@ -4406,9 +4406,60 @@ def app():
         remove_collaborations(driver)
 
 
+def app():
+    """ Main app orchestrating project management procedures """
+    option = st.sidebar.selectbox(
+        label='Select action to perform:', 
+        options=SUPPORTED_ACTIONS,
+        help="State your role for your current visit to Synergos. Are you a \
+            trusted third party (i.e. TTP) looking to orchestrate your own \
+            federated cycle? Or perhaps a participant looking to enroll in an \
+            existing collaboration?"
+    )
+
+    driver = render_orchestrator_inputs()
+
+    combination_key = render_upstream_hierarchy(r_type=R_TYPE, driver=driver)
+
+    if option == SUPPORTED_ACTIONS[0]:
+        create_projects(driver, combination_key)
+
+    elif option == SUPPORTED_ACTIONS[1]:
+        browse_projects(driver, combination_key)
+
+    elif option == SUPPORTED_ACTIONS[2]:
+        update_projects(driver, combination_key)
+
+    elif option == SUPPORTED_ACTIONS[3]:
+        remove_projects(driver, combination_key)
 
 
+def app():
+    """ Main app orchestrating experiment management procedures """
+    option = st.sidebar.selectbox(
+        label='Select action to perform:', 
+        options=SUPPORTED_ACTIONS,
+        help="State your role for your current visit to Synergos. Are you a \
+            trusted third party (i.e. TTP) looking to orchestrate your own \
+            federated cycle? Or perhaps a participant looking to enroll in an \
+            existing collaboration?"
+    )
 
+    driver = render_orchestrator_inputs()
+
+    combination_key = render_upstream_hierarchy(r_type=R_TYPE, driver=driver)
+
+    if option == SUPPORTED_ACTIONS[0]:
+        create_experiments(driver, combination_key)
+
+    elif option == SUPPORTED_ACTIONS[1]:
+        browse_experiments(driver, combination_key)
+
+    elif option == SUPPORTED_ACTIONS[2]:
+        update_experiments(driver, combination_key)
+
+    elif option == SUPPORTED_ACTIONS[3]:
+        remove_experiments(driver, combination_key)
 
 
 
@@ -4623,3 +4674,1177 @@ def remote_css(url):
 
 def icon(icon_name):
     st.markdown(f'<i class="material-icons">{icon_name}</i>', unsafe_allow_html=True) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def render_collaborations(driver: Driver = None, show_details: bool = True):
+    """ Renders out retrieved collaboration metadata in a custom form 
+
+    Args:
+        driver (Driver): A connected Synergos driver to communicate with the
+            selected orchestrator.
+        show_details (bool): Toogles if collaboration details should be shown 
+    Returns:
+        Selected collaboration ID    (str)
+        Updated collaboration record (dict)
+    """
+    if driver:
+        collab_data = driver.collaborations.read_all().get('data', [])
+        collab_ids = [collab['key']['collab_id'] for collab in collab_data]
+    else:
+        collab_ids = []
+
+    with st.beta_container():
+
+        selected_collab_id = st.selectbox(
+            label="Collaboration ID:", 
+            options=collab_ids,
+            help="Select a collaboration to peruse."
+        )
+
+        if not show_details:
+            return selected_collab_id, None
+            
+        if driver:
+            selected_collab_data = driver.collaborations.read(
+                collab_id=selected_collab_id
+            ).get('data', {})
+        else:
+            selected_collab_data = {}
+        
+        if selected_collab_data:
+            selected_collab_data.pop('relations')   # no relations rendered!
+
+        with st.beta_expander("Collaboration Details"):
+            updated_collab = collab_renderer.display(selected_collab_data)
+
+    return selected_collab_id, updated_collab
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: linear-gradient(to right, rgba(19, 19, 20, 0.52), rgba(109, 90, 5, 0.73)),
+        url('/static/images/synergos_landing_background.svg') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size   : cover;
+    -o-background-size     : cover;
+    background-size        : cover;
+    display                : flex;
+    align-items            : left;
+}
+
+.btn {
+    border-radius: 2rem;
+}
+
+
+
+
+
+
+
+.intro-block .intro-content:hover {
+    animation-name              : collapse;
+    animation-duration          : 1s;
+    /* animation-iteration-count: infinite; */
+    /* linear | ease | ease-in | ease-out | ease-in-out */
+    animation-timing-function   : linear;
+    animation-play-state        : paused;
+}
+
+
+
+
+
+
+
+
+
+/* .resources .carousel .carousel-item {
+    height: 25rem;
+}
+
+.resources .carousel .carousel-item .card {
+    position: relative;
+    height  : 100vh;
+} */
+
+/* .carousel-item img {
+    position: absolute;
+    object-fit:cover;
+    top: 0;
+    left: 0;
+    min-height: 15rem;
+} */
+
+/* .carousel-inner {
+    max-height: 25rem !important;
+}
+
+.carousel-item,
+.card {
+    position  : relative;
+    max-height: 100%;
+    max-width : 100%;
+} */
+
+
+
+
+
+
+
+
+
+
+
+        // const numClicks = ref(0)
+        // const onClicked = () => {
+        //     numClicks.value++
+        //     Streamlit.setComponentValue(numClicks.value)
+        // }
+
+        // return {
+        //     numClicks,
+        //     onClicked,
+        // }
+
+
+
+
+
+
+
+
+
+
+
+
+    # st.markdown(
+    #     """
+    #     <style>
+    #     #streamlit-content {
+    #         margin-top: .4rem;
+    #         width     : 90vw;
+    #         height    : 90vh;
+    #         position  : relative;
+    #         overflow: hidden;
+    #     }
+    #     </style>
+
+    #     <body>
+    #     <div class="css-1y0tads">
+    #         <iframe src="http://localhost:8080/" id="streamlit-content" allowfullscreen
+    #             frameborder="0" wmode="transparent">
+    #             Your browser doesn't support iframes
+    #         </iframe>
+    #     </div>
+    #     <body>
+    #     """,
+    #     unsafe_allow_html=True
+    # )
+
+    # st.markdown(
+    #     """
+    #     <script>
+    #     var injection = '''
+    #         <iframe src="http://localhost:8080/?p=hello" id="streamlit-content" allowfullscreen
+    #             frameborder="0" wmode="transparent">
+    #             Your browser doesn't support iframes
+    #         </iframe>
+    #     '''
+    #     $(injection).insertBefore("section");
+
+    #     </script>
+    #     """,
+    #     unsafe_allow_html=True
+    # )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <template>
+    <div class="container">
+        <!-- <span>
+            Hello, {{ args.name }}! &nbsp;
+            <button @click="onClicked">Click Me!</button>
+        </span> -->
+        <input type="checkbox" v-model="draggable" /> Draggable
+        <input type="checkbox" v-model="resizable" /> Resizable
+        <input type="checkbox" v-model="responsive" /> Responsive
+        <br />
+        <div style="width: 100%; margin-top: 10px; height: 100%">
+            <grid-layout
+                v-model="layout"
+                :col-num="12"
+                :row-height="30"
+                :is-draggable="draggable"
+                :is-resizable="resizable"
+                :responsive="responsive"
+                :vertical-compact="true"
+                :use-css-transforms="true"
+            >
+                <grid-item
+                    v-for="item in layout"
+                    :static="item.static"
+                    :x="item.x"
+                    :y="item.y"
+                    :w="item.w"
+                    :h="item.h"
+                    :i="item.i"
+                    :key="item.i"
+                >
+                    <span class="text">{{ item.i }}</span>
+                    <iframe
+                        src="http://localhost:15672/"
+                        id="rmq"
+                        allowfullscreen
+                        frameborder="0"
+                        wmode="transparent"
+                    >
+                        Your browser doesn't support iframes
+                    </iframe>
+                </grid-item>
+            </grid-layout>
+        </div>
+    </div>
+</template>
+
+
+<script>
+// import { ref } from "vue"
+// import { Streamlit } from "streamlit-component-lib"
+import { GridLayout, GridItem } from "vue-grid-layout"
+// import { useStreamlit } from "../streamlit"
+
+export default {
+    name: "CommandStation",
+    components: {
+        GridLayout,
+        GridItem,
+    },
+    props: ["args"],   // Arguments that are passed to the plugin in Python are accessible in prop "args"
+    // setup() {
+    //     useStreamlit() // lifecycle hooks for automatic Streamlit resize
+    // },
+    data() {
+        return {
+            layout: [
+                { x: 0, y: 0, w: 4, h: 8, i: "0" },
+                { x: 4, y: 0, w: 4, h: 8, i: "1" },
+                { x: 8, y: 0, w: 4, h: 8, i: "2" },
+
+                // { x: 0, y: 8, w: 4, h: 8, i: "3" },
+                // { x: 4, y: 16, w: 4, h: 8, i: "4" },
+                // { x: 8, y: 24, w: 4, h: 8, i: "5" },
+
+                // { x: 0, y: 8, w: 4, h: 8, i: "6" },
+                // { x: 4, y: 16, w: 4, h: 8, i: "7" },
+                // { x: 8, y: 24, w: 4, h: 8, i: "8" },
+
+                // { x: 0, y: 8, w: 4, h: 8, i: "9" },
+                // { x: 4, y: 16, w: 4, h: 8, i: "10" },
+                // { x: 8, y: 24, w: 4, h: 8, i: "11" },
+
+                // { x: 0, y: 8, w: 4, h: 8, i: "12" },
+                // { x: 4, y: 16, w: 4, h: 8, i: "13" },
+                // { x: 8, y: 24, w: 4, h: 8, i: "14" },
+
+                // { x: 0, y: 8, w: 4, h: 8, i: "15" },
+                // { x: 4, y: 16, w: 4, h: 8, i: "16" },
+                // { x: 8, y: 24, w: 4, h: 8, i: "17" },
+
+                // { x: 0, y: 8, w: 4, h: 8, i: "17" },
+                // { x: 4, y: 16, w: 4, h: 8, i: "18" },
+                // { x: 8, y: 24, w: 4, h: 8, i: "19" },
+
+                // { x: 0, y: 8, w: 4, h: 8, i: "20" },
+                // { x: 4, y: 16, w: 4, h: 8, i: "21" },
+                // { x: 8, y: 24, w: 4, h: 8, i: "22" },
+
+                // { x: 0, y: 8, w: 4, h: 8, i: "23" },
+                // { x: 4, y: 16, w: 4, h: 8, i: "24" },
+                // { x: 8, y: 24, w: 4, h: 8, i: "25" },
+            ],
+            draggable: true,
+            resizable: true,
+            responsive: true,
+            index: 0,
+        }
+    },
+}
+</script>
+
+
+<style scoped>
+.vue-grid-layout {
+    background: #eee;
+}
+.vue-grid-item:not(.vue-grid-placeholder) {
+    background: #ccc;
+    border: 1px solid black;
+}
+.vue-grid-item .resizing {
+    opacity: 0.9;
+}
+.vue-grid-item .static {
+    background: #cce;
+}
+.vue-grid-item .text {
+    font-size: 24px;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 100%;
+    width: 100%;
+}
+.vue-grid-item .no-drag {
+    height: 100%;
+    width: 100%;
+}
+.vue-grid-item .minMax {
+    font-size: 12px;
+}
+.vue-grid-item .add {
+    cursor: pointer;
+}
+.vue-draggable-handle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 0;
+    left: 0;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><circle cx='5' cy='5' r='5' fill='#999999'/></svg>")
+        no-repeat;
+    background-position: bottom right;
+    padding: 0 8px 8px 0;
+    background-repeat: no-repeat;
+    background-origin: content-box;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+.layoutJSON {
+    background: #ddd;
+    border: 1px solid black;
+    margin-top: 10px;
+    padding: 10px;
+}
+.columns {
+    -moz-columns: 120px;
+    -webkit-columns: 120px;
+    columns: 120px;
+}
+
+#rmq {
+    margin-top: 0.4rem;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+  We bootstrap our Component to Streamlit with our scoped slot in the top-level App.
+  This is where scoped slot passes Streamlit `args` data from itself to children MyComponent.
+  You should not have to edit this, but are free to do so :)
+-->
+<template>
+    <div id="app">
+        <!-- <WithStreamlitConnection v-slot="{ args }">
+            <CommandStation :args="args" />
+        </WithStreamlitConnection> -->
+        <CommandStation />
+    </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue"
+import CommandStation from "./components/CommandStation.vue"
+
+// "withStreamlitConnection" is a scoped slot. It bootstraps the
+// connection between your component and the Streamlit app, and handles
+// passing arguments from Python -> Component.
+//
+// You don't need to edit withStreamlitConnection (but you're welcome to!).
+// import WithStreamlitConnection from "./streamlit/WithStreamlitConnection.vue"
+
+export default defineComponent({
+    name: "App",
+    components: {
+        CommandStation,
+        // WithStreamlitConnection,
+    },
+})
+</script>
+
+<style>
+/* body {
+    margin: 0;
+} */
+#app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #2c3e50;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+  We bootstrap our Component to Streamlit with our scoped slot in the top-level App.
+  This is where scoped slot passes Streamlit `args` data from itself to children MyComponent.
+  You should not have to edit this, but are free to do so :)
+-->
+<template>
+    <div id="app">
+        <WithStreamlitConnection v-slot="{ args }">
+            <MyComponent :args="args" />
+        </WithStreamlitConnection>
+    </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue"
+import MyComponent from "./MyComponent.vue"
+
+// "withStreamlitConnection" is a scoped slot. It bootstraps the
+// connection between your component and the Streamlit app, and handles
+// passing arguments from Python -> Component.
+//
+// You don't need to edit withStreamlitConnection (but you're welcome to!).
+import WithStreamlitConnection from "./streamlit/WithStreamlitConnection.vue"
+
+export default defineComponent({
+    name: "App",
+    components: {
+        MyComponent,
+        WithStreamlitConnection,
+    },
+})
+</script>
+
+<style>
+body {
+    margin: 0;
+}
+#app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #2c3e50;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+    "@typescript-eslint/eslint-plugin": "^2.33.0",
+    "@typescript-eslint/parser": "^2.33.0",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-typescript": "^4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.0-0",
+    "@vue/eslint-config-typescript": "^5.0.2",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^7.0.0-0",
+    "typescript": "~3.9.3"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    const renderData = ref<RenderData>((undefined as unknown) as RenderData)
+
+
+
+
+
+
+
+
+
+
+    /* .css-1y0tads+iframe {
+    width   : 100vw !important;
+    height  : 100vh !important;
+    padding : 0;
+    position: fixed;
+} */
+
+/* .section[data-testid="stSidebar"][aria-expanded=true] + .css-1y0tads,
+.section[data-testid="stSidebar"][aria-expanded=true] + iframe {
+    height  : 100vh !important;
+    width   : auto !important;
+    padding : 0;
+    position: fixed;
+} */
+
+/* .section[data-testid="stSidebar"]:not([aria-expanded=True]) + .css-1y0tads {
+    padding : 0 !important;
+} */
+
+/* section[data-testid="stSidebar"][aria-expanded=True] + div.block-container,
+section[data-testid="stSidebar"][aria-expanded=True] + div.main,
+section[data-testid="stSidebar"][aria-expanded=True] + div.css-1y0tads
+section[data-testid="stSidebar"][aria-expanded=True] + div.eknhn3m2
+section[data-testid="stSidebar"][aria-expanded=True] + div.css-1v3fvcr {
+    padding : 0 !important;
+    position: absolute !important;
+} */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[data-testid="stDecoration"] {
+    height : 0 !important;
+    display: none !important;
+}
+
+/* Full screen IFrame from SynUI-Tracker (when sidebar is expanded) */
+section[data-testid="stSidebar"][aria-expanded=true]+section.main,
+section[data-testid="stSidebar"][aria-expanded=true]+section.eknhn3m1,
+section[data-testid="stSidebar"][aria-expanded=true]+section.css-1v3fvcr {
+    height  : 100vh !important;
+    width   : calc(100vw - 21rem) !important;
+    margin  : 0 0 0 21rem !important;
+    padding : 0 !important;
+    position: absolute !important;
+}
+
+section[data-testid="stSidebar"][aria-expanded=true]+section>div.block-container,
+section[data-testid="stSidebar"][aria-expanded=true]+section>div.css-1y0tads,
+section[data-testid="stSidebar"][aria-expanded=true]+section>div.eknhn3m2 {
+    height  : 100% !important;
+    width   : 100% !important;
+    padding : 0 !important;
+    position: relative !important;
+}
+
+/* Full screen IFrame from SynUI-Tracker (when sidebar is collapsed) */
+section[data-testid="stSidebar"][aria-expanded=false]+section.main,
+section[data-testid="stSidebar"][aria-expanded=false]+section.eknhn3m1,
+section[data-testid="stSidebar"][aria-expanded=false]+section.css-1v3fvcr {
+    height  : 100vh !important;
+    width   : 100vw !important;
+    padding : 0 !important;
+    position: absolute !important;
+}
+
+section[data-testid="stSidebar"][aria-expanded=false]+section>div.block-container,
+section[data-testid="stSidebar"][aria-expanded=false]+section>div.css-1y0tads,
+section[data-testid="stSidebar"][aria-expanded=false]+section>div.eknhn3m2 {
+    height  : 100% !important;
+    width   : 100% !important;
+    padding : 0 !important;
+    position: relative !important;
+}
+
+
+/* section iframe[id]:not([id="streamlit-content"]) {
+    width   : 100% !important;
+    height  : 100% !important;
+    position: relative !important;
+} */
+
+/* section[data-testid="stSidebar"][aria-expanded=True] + div.css-1y0tads */
+/* section[data-testid="stSidebar"][aria-expanded=True] + div.eknhn3m2 */
+
+/* a[aria-expanded="true"]{
+    background-color: #42DCA3;
+  } */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  def read_production_css() -> str:
+    """ Helper function that loads in and combines all static CSS files 
+        declared as a HTML tag string. This is a temporary hack to inject
+        custom designs & formats into Streamlit
+
+    Returns:
+        Production style tag (str)   
+    """
+    prod_css_globstring = os.path.join(STYLES_DIR, "**", "*.css") 
+    style_paths = glob(prod_css_globstring)
+
+    loaded_styles = []
+    for style_path in style_paths:
+
+        with open(style_path, "r") as pcp:
+            curr_styles = pcp.read()
+            loaded_styles.append(curr_styles)
+
+    production_styles = "<style>{}</style>".format('\n'.join(loaded_styles)) 
+
+    return production_styles
+
+
+
+
+
+
+
+
+
+
+    # components.html(
+    #     """
+    #     <style>
+    #     #streamlit-content {
+    #         margin-top: .4rem;
+    #         width     : 90vw;
+    #         height    : 90vh;
+    #         position  : relative;
+    #         overflow  : hidden;
+    #     }
+    #     </style>
+
+    #     <body>
+
+    #         <iframe src="http://localhost:8080/" id="streamlit-content" allowfullscreen
+    #             frameborder="0" wmode="transparent">
+    #             Your browser doesn't support iframes
+    #         </iframe>
+    #     <body>
+    #     """
+    # )
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def commence_jobs(driver: Driver = None, filters: Dict[str, str] = {}):
+    """
+    """
+    st.title("Orchestrator - Submit a Federated Job")
+
+    # Extract individual keys
+    filtered_collab_id = filters.get('collab_id', None)
+    filtered_project_id = filters.get('project_id', None)
+    filtered_expt_id = filters.get('expt_id', None)
+    filtered_run_id = filters.get('run_id', None)  
+
+    # A. Filter out relevant collaborations
+    if driver and not filtered_collab_id:
+        all_collabs = driver.collaborations.read_all().get('data', [])
+        collab_ids = [collab['key']['collab_id'] for collab in all_collabs]
+
+    elif driver and filtered_collab_id:
+        collab_ids = [filtered_collab_id]
+
+    else:
+        collab_ids = []
+
+    federated_jobs = []
+    for collab_id in collab_ids:
+
+        # B. Filter out relevant projects
+        if driver and not filtered_project_id:
+            all_projects = driver.projects.read_all(
+                collab_id=collab_id
+                ).get('data', [])
+            project_ids = [project['key']['project_id'] for project in all_projects]
+        
+        elif driver and filtered_project_id:
+            project_ids = [filtered_project_id]
+
+        else:
+            project_ids = []
+
+        for project_id in project_ids:
+
+            # C. Filter out relevant experiments
+            if driver and not filtered_expt_id:
+                all_expts = driver.experiments.read_all(
+                    collab_id=collab_id, 
+                    project_id=project_id
+                    ).get('data', [])
+                expt_ids = [expt['key']['expt_id'] for expt in all_expts]
+            
+            elif driver and filtered_expt_id:
+                expt_ids = [filtered_expt_id]
+
+            else:
+                expt_ids = []
+
+            for expt_id in expt_ids:
+
+                # D. Filter out relevant runs
+                if driver and not filtered_run_id:
+                    all_runs = driver.runs.read_all(
+                        collab_id=collab_id, 
+                        project_id=project_id, 
+                        expt_id=expt_id
+                        ).get('data', [])
+                    job_keys = [run['key'] for run in all_runs]
+                
+                elif driver and filtered_run_id:
+                    run = driver.runs.read(
+                        collab_id=collab_id, 
+                        project_id=project_id, 
+                        expt_id=expt_id, 
+                        run_id=filtered_run_id
+                        ).get('data', {})
+                    job_keys = [run['key']]
+
+                else:
+                    job_keys = []
+
+                federated_jobs += job_keys
+
+    # List out all collaborations in hierarchy
+    for _idx, job_key in enumerate(federated_jobs):
+        
+        with st.beta_container():
+            st.markdown("---")
+
+            columns = st.beta_columns((1, 1.5))
+            
+            with columns[0]:
+                st.text_input(
+                    label="Collaboration ID:", 
+                    value=job_key.get('collab_id', ""),
+                    key=f"collab_{_idx}"
+                )
+                st.text_input(
+                    label="Project ID:", 
+                    value=job_key.get('project_id', ""),
+                    key=f"project_{_idx}"
+                )
+                st.text_input(
+                    label="Experiment ID:", 
+                    value=job_key.get('expt_id', ""),
+                    key=f"experiment_{_idx}"
+                )
+                st.text_input(
+                    label="Run ID:", 
+                    value=job_key.get('run_id', ""),
+                    key=f"run_{_idx}"
+                )
+               
+                # Check if model corresponding to job key exists 
+                # (i.e. training has completed)
+                trained_model = driver.models.read(**job_key).get('data', {})
+                valid_stats = driver.validations.read(**job_key).get('data', {})
+
+                status = st.text_input(
+                    label="Status:", 
+                    key=f"status_{_idx}", 
+                    value=("completed" if (trained_model and valid_stats) else "idle")
+                )
+
+                if status == "idle":
+
+                    st.markdown("") # buffer spacing
+
+                    is_auto_aligned = st.checkbox(
+                        label="Perform state auto-alignment",
+                        value=True,
+                        key=f"auto_align_{_idx}"
+                    )
+                    is_auto_fixed = st.checkbox(
+                        label="Perform architecture auto-fixing",
+                        value=True,
+                        key=f"auto_fix_{_idx}"
+                    )
+                    is_logged = st.checkbox(
+                        label="Display logs",
+                        value=False,
+                        key=f"log_msg_{_idx}"
+                    )
+                    is_verbose = False
+                    if is_logged:
+                        is_verbose = st.checkbox(
+                            label="Use verbose view",
+                            value=is_verbose,
+                            key=f"verbose_{_idx}"
+                        )
+
+                    is_submitted = st.button(label="Start", key=f"start_{_idx}")
+                    if is_submitted:
+
+                        with st.spinner('Job in progress...'):
+
+                            driver.alignments.create(
+                                **job_key,
+                                auto_align=is_auto_aligned,
+                                auto_fix=is_auto_fixed
+                            ).get('data', [])
+
+                            driver.models.create(
+                                **job_key,
+                                auto_align=is_auto_aligned,
+                                dockerised= True,
+                                log_msgs=is_logged,
+                                verbose=is_verbose
+                            ).get('data', [])
+
+                            driver.validations.create(
+                                **job_key,
+                                auto_align=is_auto_aligned,
+                                dockerised= True,
+                                log_msgs=is_logged,
+                                verbose=is_verbose
+                            ).get('data', [])
+
+                        st.info("Job Completed! Please refresh to view results.")
+
+                if status == 'completed':
+                    action = st.radio(
+                        label="Select an action:",
+                        options=SUPPORTED_OPTIONS,
+                        key=f"action_{_idx}"
+                    )
+                    
+                    if action == SUPPORTED_OPTIONS[0]:
+                        with columns[-1]:
+                            with st.echo(code_location="below"):
+                                st.write(valid_stats)
+
+                    else:
+                        filename = st.text_input(
+                            label="Filename:",
+                            value=f"RESULTS_{job_key['collab_id']}_{job_key['project_id']}_{job_key['expt_id']}_{job_key['run_id']}",
+                            help="Specify a custom filename if desired"
+                        )
+                        download_name = f"{filename}.json"
+                        download_tag = download_button(
+                            object_to_download={
+                                'models': trained_model,
+                                'validations': valid_stats 
+                            },
+                            download_filename=download_name,
+                            button_text="Download"
+                        )
+                        st.markdown(download_tag, unsafe_allow_html=True)
+
+
+
+
+
+
+
+
+
+
+
+
+        val_data = project_data.get('relations', {}).get('Validation', [])
+        avg_metrics = {}
+        for val_record in val_data:
+            
+            expt_id = val_record.get('key', {}).get('expt_id')
+            run_id = val_record.get('key', {}).get('run_id')
+
+            val_stats = val_record.get('evaluate', {}).get('statistics', {})
+            for metric, results in val_stats.items():
+
+                if metric in target_metrics:
+                    if isinstance(results, list) and results:
+                        score = sum(results)/len(results)
+                    elif isinstance(results, float):
+                        score = results
+                    else:
+                        score = 0
+
+                    expt_score_collection = avg_metrics.get(expt_id, {})
+                    run_score_collection = expt_score_collection.get(run_id, {})
+                
+                    score_collection = run_score_collection.get(metric, [])
+                    score_collection.append(score)
+
+                    run_score_collection[metric] = score_collection
+                    expt_score_collection[run_id] = run_score_collection
+                    avg_metrics[expt_id] = expt_score_collection
+
+        consolidated_avgs = {}
+        for expt, expt_scores in avg_metrics.items():
+            for run, run_scores in expt_scores.items():
+                for metric, score_collection in run_scores.items():
+                    grid_avg = sum(score_collection)/len(score_collection)
+                    metric_collection = consolidated_avgs.get(metric, [])
+                    metric_collection.append((expt, run, grid_avg))
+                    consolidated_avgs[metric] = metric_collection
+
+
+
+
+
+    id_buffer_length = 0
+    for (expt_id, run_id, _) in best_metrics.values():
+        curr_max_length = max(len(expt_id), len(run_id)) 
+        if curr_max_length > id_buffer_length:
+            id_buffer_length = curr_max_length
+
+
+    id_buffer_length = next(iter(set([
+        max(len(expt_id), len(run_id)) 
+        for (expt_id, run_id, _) in best_metrics.values()
+    ])))
+
+
+
+
+
+
+
+
+    components.html(
+        """
+        <!-- Bootstrap CSS CDN -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+            integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+        
+        <!-- Bootstrap JS CDN -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+            crossorigin="anonymous"></script>
+        
+        <!-- Tab Bar -->
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Active</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled" href="#">Disabled</a>
+            </li>
+        </ul>
+
+        <!- Tab Content ->
+        <div class="tab-content" id="tabs">
+            <div class="tab-pane" id="aaa">...Content...</div>
+            <div class="tab-pane" id="bbb">...Content...</div>
+            <div class="tab-pane" id="ccc">...Content...</div>
+        </div>
+        """,
+        width=500,
+        height=1000
+    )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # "catalogue_host":""
+    # "catalogue_port":0
+    # "logger_host":"127.0.0.1"
+    # "logger_ports":{
+    # "sysmetrics":9100
+    # "director":9200
+    # "ttp":9300
+    # "worker":9400
+    # }
+    # "meter_host":""
+    # "meter_port":0
+    # "mlops_host":""
+    # "mlops_port":0
+    # "mq_host":"127.0.0.1"
+    # "mq_port":5672
+    # "ui_host":""
+    # "ui_port":0 

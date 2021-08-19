@@ -195,8 +195,8 @@ class ParticipantRenderer(BaseRenderer):
 
             columns = st.beta_columns((1, 1.5))
 
-            with columns[0]:
-                self.render_profile_pic(data)
+            # with columns[0]:
+            #     self.render_profile_pic(data)
 
             with columns[1]:
                 st.header("**Profile**")

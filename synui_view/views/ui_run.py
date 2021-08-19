@@ -15,12 +15,14 @@ import streamlit as st
 from synergos import Driver
 from views.renderer import RunRenderer
 from views.utils import (
+    is_request_successful,
     rerun,
     render_id_generator,
     render_orchestrator_inputs,
     render_upstream_hierarchy, 
     render_confirmation_form,
-    render_runs
+    render_runs,
+    MultiApp
 )
 
 ##################
@@ -78,8 +80,8 @@ def create_runs(driver: Driver = None, key: Dict[str, str] = {}):
         use_warnings=False    
     )
     if is_confirmed:
-        driver.runs.create(**key, run_id=run_id, **hyperparameters)
-        rerun(f"Run '{run_id}' has been created.")
+        create_resp = driver.runs.create(**key, run_id=run_id, **hyperparameters)
+        is_request_successful(create_resp)
 
 
 
@@ -109,13 +111,13 @@ def browse_runs(driver: Driver = None, key: Dict[str, str] = {}):
     # Step 2: Pull associations & relationships of specified collaboration #
     ########################################################################
 
-    # st.header("Step 4: Explore Relationships & Associations")
+    # st.header("Step 2: Explore Relationships & Associations")
 
 
 
-########################################################
+##########################################
 # Run UI Option - Update existing Run(s) #
-########################################################
+##########################################
 
 def update_runs(driver: Driver = None, key: Dict[str, str] = {}):
     """ Main function that governs the updating of metadata in a run 
@@ -138,7 +140,7 @@ def update_runs(driver: Driver = None, key: Dict[str, str] = {}):
     # Step 2: Update run #
     ######################
 
-    st.header("Step 4: Submit your updated run entry")
+    st.header("Step 2: Submit your updated run entry")
     is_confirmed = render_confirmation_form(
         data=updated_hyperparameters,
         r_type=R_TYPE,
@@ -146,18 +148,18 @@ def update_runs(driver: Driver = None, key: Dict[str, str] = {}):
         use_warnings=False    
     )
     if is_confirmed:
-        driver.runs.update(
+        update_resp = driver.runs.update(
             **key,
             run_id=selected_run_id,
             **updated_hyperparameters
         )
-        rerun(f"Run '{selected_run_id}' has been updated.")
+        is_request_successful(update_resp)
 
 
 
-###########################################################
+####################################################
 # Run UI Option - Remove existing collaboration(s) #
-###########################################################
+####################################################
 
 def remove_runs(driver: Driver = None, key: Dict[str, str] = {}):
     """ Main function that governs the deletion of metadata in a run 
@@ -188,8 +190,8 @@ def remove_runs(driver: Driver = None, key: Dict[str, str] = {}):
         use_warnings=True    
     )
     if is_confirmed:
-        driver.runs.delete(**key, run_id=selected_run_id)
-        rerun(f"Run '{selected_run_id}' has been updated.")
+        delete_resp = driver.runs.delete(**key, run_id=selected_run_id)
+        is_request_successful(delete_resp)
             
 
 
@@ -197,29 +199,28 @@ def remove_runs(driver: Driver = None, key: Dict[str, str] = {}):
 # Run UI - Page Formatting #
 ############################
 
-def app():
+def app(action: str):
     """ Main app orchestrating run management procedures """
-    option = st.sidebar.selectbox(
-        label='Select action to perform:', 
-        options=SUPPORTED_ACTIONS,
-        help="State your role for your current visit to Synergos. Are you a \
-            trusted third party (i.e. TTP) looking to orchestrate your own \
-            federated cycle? Or perhaps a participant looking to enroll in an \
-            existing collaboration?"
-    )
+    core_app = MultiApp()
+    core_app.add_view(title=SUPPORTED_ACTIONS[0], func=create_runs)
+    core_app.add_view(title=SUPPORTED_ACTIONS[1], func=browse_runs)
+    core_app.add_view(title=SUPPORTED_ACTIONS[2], func=update_runs)
+    core_app.add_view(title=SUPPORTED_ACTIONS[3], func=remove_runs)
 
     driver = render_orchestrator_inputs()
 
-    combination_key = render_upstream_hierarchy(r_type=R_TYPE, driver=driver)
+    if driver:
+        combination_key = render_upstream_hierarchy(r_type=R_TYPE, driver=driver)
+        core_app.run(action)(driver, combination_key)
 
-    if option == SUPPORTED_ACTIONS[0]:
-        create_runs(driver, combination_key)
+    else:
+        st.warning(
+            """
+            Please declare a valid grid connection to continue.
+            
+            You will see this message if:
 
-    elif option == SUPPORTED_ACTIONS[1]:
-        browse_runs(driver, combination_key)
-
-    elif option == SUPPORTED_ACTIONS[2]:
-        update_runs(driver, combination_key)
-
-    elif option == SUPPORTED_ACTIONS[3]:
-        remove_runs(driver, combination_key)
+                1. You have not declared your grid in the sidebar
+                2. Connection parameters you have declared are invalid
+            """
+        )

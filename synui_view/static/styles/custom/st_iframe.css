@@ -1,0 +1,52 @@
+[data-testid="stDecoration"] {
+    height : 0 !important;
+    display: none !important;
+}
+
+/* Full screen IFrame from SynUI-Tracker (when sidebar is expanded) */
+section[data-testid="stSidebar"][aria-expanded=true]+section.main,
+section[data-testid="stSidebar"][aria-expanded=true]+section.eknhn3m1,
+section[data-testid="stSidebar"][aria-expanded=true]+section.css-1v3fvcr {
+    height  : 100vh !important;
+    width   : calc(100vw - 21rem - 1rem) !important;
+    margin  : -2.6rem 0 0 21.5rem !important;
+    padding : 0 !important;
+    position: absolute !important;
+}
+
+section[data-testid="stSidebar"][aria-expanded=true]+section>div.block-container,
+section[data-testid="stSidebar"][aria-expanded=true]+section>div.css-1y0tads,
+section[data-testid="stSidebar"][aria-expanded=true]+section>div.eknhn3m2 {
+    height  : 100% !important;
+    width   : 100% !important;
+    padding : 0 !important;
+    position: relative !important;
+    overflow: hidden;
+}
+
+/* Full screen IFrame from SynUI-Tracker (when sidebar is collapsed) */
+section[data-testid="stSidebar"][aria-expanded=false]+section.main,
+section[data-testid="stSidebar"][aria-expanded=false]+section.eknhn3m1,
+section[data-testid="stSidebar"][aria-expanded=false]+section.css-1v3fvcr {
+    height  : 100vh !important;
+    width   : calc(100vw - 1rem) !important;
+    margin  : -2.6rem 0 0 .5rem !important;
+    padding : 0 !important;
+    position: absolute !important;
+}
+
+section[data-testid="stSidebar"][aria-expanded=false]+section>div.block-container,
+section[data-testid="stSidebar"][aria-expanded=false]+section>div.css-1y0tads,
+section[data-testid="stSidebar"][aria-expanded=false]+section>div.eknhn3m2 {
+    height  : 100% !important;
+    width   : 100% !important;
+    padding : 0 !important;
+    position: relative !important;
+}
+
+.iframe {
+    width     : 100% !important;
+    height    : 100% !important;
+    position  : relative !important;
+    border-radius: 5px;
+}

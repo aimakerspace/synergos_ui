@@ -37,3 +37,10 @@ IMAGE_DIR = os.path.join(STATIC_DIR, "images")
 
 # State styling directory
 STYLES_DIR = os.path.join(STATIC_DIR, "styles")
+
+# Temporary directory to track user access
+TMP_DIR = os.path.join(SRC_DIR, "tmp")
+
+# State docker alias address for SynUI-Tracker
+SYNUI_TRACKER_HOST = ""
+SYNUI_TRACKER_PORT = 3002

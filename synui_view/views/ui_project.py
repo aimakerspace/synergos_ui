@@ -15,7 +15,7 @@ import streamlit as st
 from synergos import Driver
 from views.renderer import ProjectRenderer
 from views.utils import (
-    rerun,
+    is_request_successful,
     render_id_generator,
     render_orchestrator_inputs,
     render_upstream_hierarchy,
@@ -23,7 +23,8 @@ from views.utils import (
     render_projects,
     render_experiments,
     render_runs,
-    render_orchestrator_registrations
+    render_orchestrator_registrations,
+    MultiApp
 )
 
 ##################
@@ -84,8 +85,13 @@ def create_projects(driver: Driver = None, key: Dict[str, str] = {}):
         use_warnings=False    
     )
     if is_confirmed:
-        driver.projects.create(**key, project_id=project_id, **project_info)
-        rerun(f"Project '{project_id}' has been created.")
+        create_resp = driver.projects.create(
+            **key, 
+            project_id=project_id, 
+            **project_info
+        )
+        is_request_successful(create_resp)
+
 
 
 ##################################################
@@ -170,12 +176,12 @@ def update_projects(driver: Driver = None, key: Dict[str, str] = {}):
         use_warnings=False    
     )
     if is_confirmed:
-        driver.projects.update(
+        update_resp = driver.projects.update(
             **key,
             project_id=selected_project_id, 
             **updated_project
         )
-        rerun(f"Project '{selected_project_id}' has been updated.")
+        is_request_successful(update_resp)
 
 
 
@@ -211,37 +217,41 @@ def remove_projects(driver: Driver = None, key: Dict[str, str] = {}):
         use_warnings=True    
     )
     if is_confirmed:
-        driver.projects.delete(**key, project_id=selected_project_id)
-        rerun(f"Project '{selected_project_id}' has been deleted.")
+        delete_resp = driver.projects.delete(
+            **key, 
+            project_id=selected_project_id
+        )
+        is_request_successful(delete_resp)
+
 
 
 ################################
 # Project UI - Page Formatting #
 ################################
 
-def app():
+def app(action: str):
     """ Main app orchestrating project management procedures """
-    option = st.sidebar.selectbox(
-        label='Select action to perform:', 
-        options=SUPPORTED_ACTIONS,
-        help="State your role for your current visit to Synergos. Are you a \
-            trusted third party (i.e. TTP) looking to orchestrate your own \
-            federated cycle? Or perhaps a participant looking to enroll in an \
-            existing collaboration?"
-    )
+
+    core_app = MultiApp()
+    core_app.add_view(title=SUPPORTED_ACTIONS[0], func=create_projects)
+    core_app.add_view(title=SUPPORTED_ACTIONS[1], func=browse_projects)
+    core_app.add_view(title=SUPPORTED_ACTIONS[2], func=update_projects)
+    core_app.add_view(title=SUPPORTED_ACTIONS[3], func=remove_projects)
 
     driver = render_orchestrator_inputs()
 
-    combination_key = render_upstream_hierarchy(r_type=R_TYPE, driver=driver)
+    if driver:
+        combination_key = render_upstream_hierarchy(r_type=R_TYPE, driver=driver)
+        core_app.run(action)(driver, combination_key)
 
-    if option == SUPPORTED_ACTIONS[0]:
-        create_projects(driver, combination_key)
+    else:
+        st.warning(
+            """
+            Please declare a valid grid connection to continue.
+            
+            You will see this message if:
 
-    elif option == SUPPORTED_ACTIONS[1]:
-        browse_projects(driver, combination_key)
-
-    elif option == SUPPORTED_ACTIONS[2]:
-        update_projects(driver, combination_key)
-
-    elif option == SUPPORTED_ACTIONS[3]:
-        remove_projects(driver, combination_key)
+                1. You have not declared your grid in the sidebar
+                2. Connection parameters you have declared are invalid
+            """
+        )

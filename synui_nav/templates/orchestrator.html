@@ -59,20 +59,9 @@
 
     </div>
 
-    <h3 class="title" id="ttp-header">Performance Actions</h3>
+    <h3 class="title" id="ttp-header">Management Actions</h3>
 
     <div class="row">
-
-        <!-- Optimization Pipeline -->
-        <div class="container custom-card">
-            <a class="clickable-content" href="/actions/orchestrator/optimizations">
-                <img class="custom-card-img" src="/static/images/optimizer.svg">
-                <div class="custom-card-body">
-                    <h5 class="custom-card-title">Optimize</h5>
-                    <span class="custom-card-text">Tune your models!</span>
-                </div>
-            </a>
-        </div>
 
         <!-- Analysis Pipeline -->
         <div class="container custom-card">
@@ -80,11 +69,22 @@
                 <img class="custom-card-img" src="/static/images/analyzer.svg">
                 <div class="custom-card-body">
                     <h5 class="custom-card-title">Analyse</h5>
-                    <span class="custom-card-text">Check your results here!</span>
+                    <span class="custom-card-text">Training and tracking</span>
                 </div>
             </a>
         </div>
-        
+
+        <!-- Optimization Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/orchestrator/optimizations">
+                <img class="custom-card-img" src="/static/images/optimizer.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Optimize</h5>
+                    <span class="custom-card-text">Model tuning</span>
+                </div>
+            </a>
+        </div>
+
     </div>
 </div>
 {% endblock %}

@@ -14,14 +14,15 @@ import streamlit as st
 from synergos import Driver
 from views.renderer import RegistrationRenderer, TagRenderer
 from views.utils import (
+    is_request_successful,
     rerun,
-    render_upstream_hierarchy,
     render_orchestrator_inputs,
     render_confirmation_form,
     render_collaborations,
     render_projects,
     render_participant,
-    render_participant_registrations
+    render_participant_registrations,
+    MultiApp
 )
 
 ##################
@@ -112,27 +113,29 @@ def create_registrations(driver: Driver = None, participant_id: str = None):
             for _, info in sorted(node_details.items(), key=lambda x: x[0]):
                 registration_task.add_node(**info)
 
-            registration_task.create(
+            reg_create_resp = registration_task.create(
                 collab_id=selected_collab_id,
                 project_id=selected_project_id,
                 participant_id=participant_id,
                 role=user_role
             )
+            st.info("Processing node registrations...")
+            is_request_successful(reg_create_resp)
         except:
             st.error("Invalid node metadata declared! Please check and try again!")
 
         try:
             # Submit tags
-            driver.tags.create(
+            tag_create_resp = driver.tags.create(
                 collab_id=selected_collab_id,
                 project_id=selected_project_id,
                 participant_id=participant_id,
                 **tag_details
             )
+            st.info("Processing data tag registrations...")
+            is_request_successful(tag_create_resp)
         except:
             st.error("Invalid tag hierarchy detected! Please check and try again!")
-
-        rerun(f"Node registrations has been successfully submitted.")
 
 
 
@@ -203,21 +206,23 @@ def update_registrations(driver: Driver = None, participant_id: str = None):
             
             # Submit registrations
             registration_task = driver.registrations
-            registration_task.update(
+            reg_update_resp = registration_task.update(
                 **key,
                 role=updated_user_role,
                 **updated_node_info
             )
+            st.info("Processing node registrations...")
+            is_request_successful(reg_update_resp)
         except:
             st.error("Invalid node metadata declared! Please check and try again!")
 
         try:
             # Submit tags
-            driver.tags.update(**key, **updated_tags)
+            tag_update_resp = driver.tags.update(**key, **updated_tags)
+            st.info("Processing data tag registrations...")
+            is_request_successful(tag_update_resp)
         except:
             st.error("Invalid tag hierarchy detected! Please check and try again!")
-
-        rerun(f"Node registrations has been successfully updated.")
 
 
 
@@ -257,48 +262,56 @@ def remove_registrations(driver: Driver = None, participant_id: str = None):
         try:           
             # Submit registrations
             registration_task = driver.registrations
-            registration_task.delete(**key)
+            delete_resp = registration_task.delete(**key)
 
             # By virtue of hierarchical cascade, all associated tags  will
             # automatically be deleted as well
+
+            st.info("Processing deletion request...")
+            is_request_successful(delete_resp)
             
         except:
             st.error("Invalid node metadata declared! Please check and try again!")
 
-        rerun(f"Node registrations has been successfully deleted.") 
 
 
 ######################################
 # Registration UI - Page Formatting #
 ######################################
 
-def app():
+def app(action: str):
     """ Main app orchestrating collaboration management procedures """
-    option = st.sidebar.selectbox(
-        label='Select action to perform:', 
-        options=SUPPORTED_ACTIONS,
-        help="State your role for your current visit to Synergos. Are you a \
-            trusted third party (i.e. TTP) looking to orchestrate your own \
-            federated cycle? Or perhaps a participant looking to enroll in an \
-            existing collaboration?"
-    )
+    core_app = MultiApp()
+    core_app.add_view(title=SUPPORTED_ACTIONS[0], func=create_registrations)
+    core_app.add_view(title=SUPPORTED_ACTIONS[1], func=browse_registrations)
+    core_app.add_view(title=SUPPORTED_ACTIONS[2], func=update_registrations)
+    core_app.add_view(title=SUPPORTED_ACTIONS[3], func=remove_registrations)
 
     driver = render_orchestrator_inputs()
 
-    with st.sidebar.beta_container():
-        st.header("USER")
+    if driver:
+        with st.sidebar.beta_container():
+            st.header("USER")
 
-        with st.beta_expander("User Parameters", expanded=True):
-            participant_id, _ = render_participant(driver=driver, show_details=False)
+            with st.beta_expander("User Parameters", expanded=True):
+                participant_id, _ = render_participant(
+                    driver=driver, 
+                    show_details=False
+                )
 
-    if option == SUPPORTED_ACTIONS[0]:
-        create_registrations(driver, participant_id)
+        core_app.run(action)(driver, participant_id)
 
-    elif option == SUPPORTED_ACTIONS[1]:
-        browse_registrations(driver, participant_id)
+    else:
+        st.warning(
+            """
+            Please declare a valid grid connection to continue.
+            
+            You will see this message if:
 
-    elif option == SUPPORTED_ACTIONS[2]:
-        update_registrations(driver, participant_id)
+                1. You have not declared your grid in the sidebar
+                2. Connection parameters you have declared are invalid
 
-    elif option == SUPPORTED_ACTIONS[3]:
-        remove_registrations(driver, participant_id)
+            Please verify your connection metadata with your assisting
+            ochestrator, before trying again.
+            """
+        )
