@@ -271,3 +271,6 @@ dist
 
 # For VS Code
 .vscode
+
+# Temporary folders
+.tmp/
