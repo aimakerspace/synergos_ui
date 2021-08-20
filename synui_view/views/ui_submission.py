@@ -5,10 +5,8 @@
 ####################
 
 # Generic/Built-in
+import json
 import os
-import time
-import validators
-import tempfile
 from collections import Counter
 from typing import Dict, List, Any, Tuple
 
@@ -17,11 +15,12 @@ import streamlit as st
 import streamlit.components.v1 as components 
 
 # Custom
-from config import STYLES_DIR, TMP_DIR
+from config import STYLES_DIR
 from synergos import Driver
-from torch import reciprocal
+from views.core.processes import TrackedProcess
 from views.utils import (
     is_connection_valid,
+    rerun,
     download_button,
     load_custom_css,
     render_orchestrator_inputs,
@@ -76,7 +75,6 @@ def load_command_station(driver: Driver, filters: Dict[str, str]):
     collab_id = filters.get('collab_id', '')
     collab_data = driver.collaborations.read(collab_id).get('data', {})
 
-    # st.write(collab_data)
     if collab_data:
 
         command_station = components.declare_component(
@@ -209,7 +207,8 @@ def collate_general_statistics(driver: Driver, filters: Dict[str, str]):
 
 
 def collate_participant_statistics(driver: Driver, filters: Dict[str, str]):
-    """
+    """ Composes a table of metadata summarizing the state of participant-specific 
+        resource available for a project under specified collaboration
 
     Args:
         driver (Driver): Helper object to facilitate connection
@@ -553,30 +552,7 @@ def perform_healthcheck(driver: Driver, filters: Dict[str, str]) -> Tuple[bool]:
     ])
 
     return has_inactive_components, has_active_grids
-
-
-def start_process(filters: Dict[str, str]):
-    """ Create unique tempfile to mark that a federated keyset has been 
-        previously accessed and a job for it already launched.
-    """
-    pass
-
-def end_process(filters: Dict[str, str]):
-    """ Removes unique tempfile previously generated in "start_process()" as
-        post-process cleanup.
-    """
-    pass
-
-def check_process(filters: Dict[str, str]):
-    """ Determines status of the launched process corresponding to a specified
-        federated keyset. There are 3 possible states:
-
-        1. Idle       - Federated Job is unattempted 
-        2. In-progess - Federated job is still in progress 
-        3. Completed  - Federated job is completed
-    """
-    pass
-
+ 
 
 def load_launchpad(driver: Driver, filters: Dict[str, str]):
     """ Loads up launch page for initializing a federated job. This corresponds
@@ -611,57 +587,210 @@ def load_launchpad(driver: Driver, filters: Dict[str, str]):
     job_id = driver.runs.read(**filters).get('data', {}).get('doc_id')
     st.header(f"Job #{job_id}:")
 
-    columns = st.beta_columns(2)
+    columns = st.beta_columns((3, 2))
 
     with columns[0]:
         show_hierarchy(driver, filters)
         has_inactive_components, has_active_grids = perform_healthcheck(driver, filters)
 
-    with columns[-1]:
-        with st.beta_expander("Alerts", expanded=True):
-            if has_inactive_components:
-                st.error(
-                    """
-                    One or more of your deployed components cannot be reached! 
-                    
-                    This could be due to:
+    if has_inactive_components or not has_active_grids:
 
-                    1. Faulty or misconfigured VMs
-                    2. Wrong connection metadata declared
+        with columns[-1]:
+            with st.beta_expander(label="Alerts", expanded=True):
+                if has_inactive_components:
+                    st.error(
+                        """
+                        One or more of your deployed components cannot be reached! 
+                        
+                        This could be due to:
 
-                    Please check and ensure that you have correctly deployed your components.
-                    """
-                )
-            if not has_active_grids:
-                st.error(
-                    """
-                    No active grids has been detected!
+                        1. Faulty or misconfigured VMs
+                        2. Wrong connection metadata declared
 
-                    This could be due to:
+                        Please check and ensure that you have correctly deployed your components.
+                        """
+                    )
+                if not has_active_grids:
+                    st.error(
+                        """
+                        No active grids has been detected!
 
-                    1. Participants having faulty or misconfigured deployments
-                    2. Participants registering wrong node connection information
+                        This could be due to:
 
-                    Please check and ensure that your participants have correctly deployed their worker nodes.
-                    """
-                )
+                        1. Participants having faulty or misconfigured deployments
+                        2. Participants registering wrong node connection information
 
-    temp = tempfile.NamedTemporaryFile(prefix="demoPrefix_",
-                                    suffix="_demoSuffix")
-     
-
-
-
-    ####################################################################
-    # Step 3a: If federated job has not been trained before, start it  #
-    ####################################################################
+                        Please check and ensure that your participants have correctly deployed their worker nodes.
+                        """
+                    )
     
+    elif not has_inactive_components and has_active_grids:
 
+        fl_job = TrackedProcess(
+            driver=driver, 
+            p_type="submission", 
+            filters=filters
+        ) 
+        detected_status = fl_job.check()
 
-    ##########################################################################
-    # Step 3b: If federated job has already completed, preview and download  #
-    ##########################################################################
+        with columns[0]:
+            manual_status = st.text_input(
+                label="Status:", 
+                key="process_status", 
+                value=detected_status
+            )
 
+        idle_key = fl_job.statuses[0]
+        in_progress_key = fl_job.statuses[1]
+        completed_key = fl_job.statuses[2]
+
+        # Edge 1: Orchestrator is forcing a rerun of a completed job
+        if detected_status == completed_key and manual_status == idle_key:
+
+            with columns[1]:
+                with st.beta_expander(label="Alerts", expanded=True):
+                    st.warning(
+                        """
+                        You have chosen to override current job state.
+
+                        This will rerun the current federated job.
+
+                        Please confirm to proceed.
+                        """
+                    )
+            with columns[0]:
+                is_forced = st.selectbox(
+                    label="Are you sure you want to force a rerun?",
+                    options=["No", "Yes"],
+                    key=f"forced_rerun"
+                ) == "Yes"
+                
+            detected_status = manual_status if is_forced else detected_status
+        
+        ########################################################################
+        # Step 3a: If federated job has already completed, preview & download  #
+        ########################################################################
+
+        if detected_status == completed_key:
+
+            trained_model = driver.models.read(**filters).get('data', {})
+            valid_stats = driver.validations.read(**filters).get('data', {})
+
+            with columns[0]:
+                action = st.radio(
+                    label="Select an action:",
+                    options=SUPPORTED_OPTIONS,
+                    key=f"action"
+                )
+                
+                if action == SUPPORTED_OPTIONS[0]:
+
+                    with st.beta_expander(label="Preview", expanded=False):
+                        st.code(
+                            json.dumps(valid_stats, sort_keys=True, indent=4),
+                            language="json"
+                        )
+
+                else:
+
+                    filename = st.text_input(
+                        label="Filename:",
+                        value=f"RESULTS_{filters['collab_id']}_{filters['project_id']}_{filters['expt_id']}_{filters['run_id']}",
+                        help="Specify a custom filename if desired"
+                    )
+                    download_name = f"{filename}.json"
+                    download_tag = download_button(
+                        object_to_download={
+                            'models': trained_model,
+                            'validations': valid_stats 
+                        },
+                        download_filename=download_name,
+                        button_text="Download"
+                    )
+                    st.markdown(download_tag, unsafe_allow_html=True)
+
+        #########################################################################
+        # Step 3b: If federated job is still in progress, alert and do nothing  #
+        #########################################################################
+
+        elif detected_status == in_progress_key:
+
+            with columns[1]:
+                fl_job.track_access()
+                start_time = fl_job.retrieve_start_time()
+                access_counts = fl_job.retrieve_access_counts()
+
+                with st.beta_expander(label="Alerts", expanded=True):
+                    st.warning(
+                        f"""
+                        Requested job is still in progress. 
+                        
+                        Start time              : {start_time}
+
+                        No. of times visited    : {access_counts} 
+                        """
+                    )
+
+        ####################################################################
+        # Step 3c: If federated job has not been trained before, start it  #
+        ####################################################################
+
+        elif detected_status == idle_key:
+
+            with columns[0]:
+                is_auto_aligned = st.checkbox(
+                    label="Perform state auto-alignment",
+                    value=True,
+                    key=f"auto_alignment"
+                )
+                is_auto_fixed = st.checkbox(
+                    label="Perform architecture auto-fixing",
+                    value=True,
+                    key=f"auto_fix"
+                )
+                is_logged = st.checkbox(
+                    label="Display logs",
+                    value=False,
+                    key=f"log_msg"
+                )
+                is_verbose = False
+                if is_logged:
+                    is_verbose = st.checkbox(
+                        label="Use verbose view",
+                        value=is_verbose,
+                        key=f"verbose"
+                    )
+
+                is_submitted = st.button(label="Start", key=f"start_job")
+                if is_submitted:
+
+                    fl_job.start()
+                    with st.spinner('Job in progress...'):
+
+                        driver.alignments.create(
+                            **filters,
+                            auto_align=is_auto_aligned,
+                            auto_fix=is_auto_fixed
+                        ).get('data', [])
+
+                        driver.models.create(
+                            **filters,
+                            auto_align=is_auto_aligned,
+                            dockerised= True,
+                            log_msgs=is_logged,
+                            verbose=is_verbose
+                        ).get('data', [])
+
+                        driver.validations.create(
+                            **filters,
+                            auto_align=is_auto_aligned,
+                            dockerised= True,
+                            log_msgs=is_logged,
+                            verbose=is_verbose
+                        ).get('data', [])
+
+                    fl_job.stop()
+                    st.info("Job Completed! Please refresh to view results.")
 
 
 
@@ -679,19 +808,23 @@ def app(action: str):
     driver = render_orchestrator_inputs()
 
     if driver:
-
         filters = render_upstream_hierarchy(r_type="model", driver=driver)
-        core_app.run(action)(driver, filters)
+        has_filters = any([id for id in list(filters.values())])
+ 
+        if has_filters:
+            core_app.run(action)(driver, filters)
 
-        # dashboard_type = st.sidebar.selectbox(
-        #     label="What do you want to see?",
-        #     options=SUPPORTED_DASHBOARDS
-        # )
+        else:
+            st.warning(
+                """
+                Please specify your hierarchy filters to continue.
+                
+                You will see this message if:
 
-        # if dashboard_type == SUPPORTED_DASHBOARDS[0]:
-        #     load_launchpad(driver=driver, filters=filters)
-        # else:
-        #     load_command_station({})
+                    1. You have not create any collaborations
+                    2. One or more of the IDs you have declared are invalid
+                """
+            )
 
     else:
         st.warning(

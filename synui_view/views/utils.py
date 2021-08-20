@@ -122,6 +122,44 @@ def is_request_successful(resp: dict):
         return False
 
 
+def rerun(msg: str = None, delay: int = 3):
+    """ Rerun a Streamlit app from the top of current loaded script.
+        
+        Note:
+        This is a solution adapted from an issue documented at 
+        https://gist.github.com/tvst/ef477845ac86962fa4c92ec6a72bb5bd. The
+        idea is to grab the state of widgets on the current page. However, the
+        main different between the current implementation and the suggested
+        solution is that Steamlit's latest version has officialized extraction
+        of widget states differently.
+
+    Args:
+        msg (str): Optional message to print out as notification to the user
+        delay (int): Time delay between message print-out and page reset
+    """
+    if msg:
+        st.info(msg)
+        time.sleep(delay)
+
+    ctx = ReportThread.get_report_ctx()
+    widget_states = ctx.widgets
+
+    # st.write(dir(list(widget_states._state.items())[0][1]))
+
+    # TARGET_WIDGETS = ["confirmation"]
+    # for w_idx, widget in widget_states._state.items():
+    #     for w_type in TARGET_WIDGETS:
+    #         if w_type in w_idx:
+    #             if getattr(widget, 'bool_value', None) is not None:
+    #                 st.write("Before:", widget)
+    #                 widget.bool_value = not widget.bool_value
+    #                 widget.trigger_value = not widget.trigger_value
+    #                 st.write("After:", widget)
+
+    st.caching.clear_cache()
+    raise RerunException(RerunData(widget_states))
+
+
 class _SessionState:
 
     def __init__(self, session, hash_funcs):
@@ -196,44 +234,6 @@ def _get_state(hash_funcs=None):
         session._custom_session_state = _SessionState(session, hash_funcs)
 
     return session._custom_session_state
-
-
-def rerun(msg: str = None, delay: int = 3):
-    """ Rerun a Streamlit app from the top of current loaded script.
-        
-        Note:
-        This is a solution adapted from an issue documented at 
-        https://gist.github.com/tvst/ef477845ac86962fa4c92ec6a72bb5bd. The
-        idea is to grab the state of widgets on the current page. However, the
-        main different between the current implementation and the suggested
-        solution is that Steamlit's latest version has officialized extraction
-        of widget states differently.
-
-    Args:
-        msg (str): Optional message to print out as notification to the user
-        delay (int): Time delay between message print-out and page reset
-    """
-    if msg:
-        st.info(msg)
-        time.sleep(delay)
-
-    ctx = ReportThread.get_report_ctx()
-    widget_states = ctx.widgets
-
-    # st.write(dir(list(widget_states._state.items())[0][1]))
-
-    # TARGET_WIDGETS = ["confirmation"]
-    # for w_idx, widget in widget_states._state.items():
-    #     for w_type in TARGET_WIDGETS:
-    #         if w_type in w_idx:
-    #             if getattr(widget, 'bool_value', None) is not None:
-    #                 st.write("Before:", widget)
-    #                 widget.bool_value = not widget.bool_value
-    #                 widget.trigger_value = not widget.trigger_value
-    #                 st.write("After:", widget)
-
-    st.caching.clear_cache()
-    raise RerunException(RerunData(widget_states))
 
 
 #####################

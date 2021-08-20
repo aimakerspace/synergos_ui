@@ -22,7 +22,6 @@ from views.ui_participant import app as participant_app
 from views.ui_registration import app as reg_app
 from views.ui_inference import app as infer_app
 from views.ui_submission import app as submit_app
-from views.analysis import app as analysis_app
 from views.utils import load_custom_css
 
 ##################
