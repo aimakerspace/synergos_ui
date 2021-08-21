@@ -6,13 +6,13 @@
 <template>
     <div id="app">
         <WithStreamlitConnection v-slot="{ args }">
-            <MyComponent :args="args" />
+            <CommandStation :args="args" />
         </WithStreamlitConnection>
     </div>
 </template>
 
 <script>
-import MyComponent from "./MyComponent.vue";
+import CommandStation from "./CommandStation.vue";
 
 // "withStreamlitConnection" is a scoped slot. It bootstraps the
 // connection between your component and the Streamlit app, and handles
@@ -24,7 +24,7 @@ import WithStreamlitConnection from "./streamlit/WithStreamlitConnection.vue";
 export default {
     name: "App",
     components: {
-        MyComponent,
+        CommandStation,
         WithStreamlitConnection,
     },
 };

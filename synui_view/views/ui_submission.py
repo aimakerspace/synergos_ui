@@ -78,7 +78,7 @@ def load_command_station(driver: Driver, filters: Dict[str, str]):
 
         command_station = components.declare_component(
             "command_station",
-            url="http://localhost:3001"
+            url="http://127.0.0.1:4002"
         )
         command_station(
             Meter="http://localhost:15672",

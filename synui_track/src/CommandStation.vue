@@ -1,16 +1,32 @@
 <template>
-    <div style="width: 100%; height: auto">
-        <div class="container">
-            <input type="checkbox" v-model="draggable" />
-            <i class="bi bi-arrows-move"></i>
-            <input type="checkbox" v-model="resizable" /><i
-                class="bi bi-aspect-ratio"
-            ></i>
-            <input type="checkbox" v-model="responsive" /><i
-                class="bi bi-grid-1x2"
-            ></i>
-        </div>
-        <div style="width: 100%; height: 100%">
+    <div id="viewport">
+        <!-- <div id="control-bar" class="container">
+            <span id="checkbox">
+                <input
+                    id="checkbox-element"
+                    type="checkbox"
+                    v-model="draggable"
+                />
+                <i class="bi bi-arrows-move"></i>
+            </span>
+            <span id="checkbox">
+                <input
+                    id="checkbox-element"
+                    type="checkbox"
+                    v-model="resizable"
+                />
+                <i class="bi bi-aspect-ratio"></i>
+            </span>
+            <span id="checkbox">
+                <input
+                    id="checkbox-element"
+                    type="checkbox"
+                    v-model="responsive"
+                />
+                <i class="bi bi-grid-1x2"></i>
+            </span>
+        </div> -->
+        <div id="command-station">
             <grid-layout
                 :layout.sync="layout"
                 :col-num="18"
@@ -60,7 +76,7 @@ type Window = {
 type Layout = Array<Window>;
 
 export default {
-    name: "MyComponent",
+    name: "CommandStation",
     props: ["args"], // Arguments that are passed to the plugin in Python are accessible in props `args`. Here, we access the "name" arg.
     components: {
         GridLayout,
@@ -76,13 +92,14 @@ export default {
             index: 0,
         };
     },
-    computed: {},
     methods: {
         computeRanks(this: any): Array<string> {
-            const PRIORITY = ["MQ", "Logs", "MLOps", "Catalogue", "Meter"]
-            const components = Object.keys(this.args)
-            const ranks = PRIORITY.filter(value => components.includes(value));
-            return ranks
+            const PRIORITY = ["MQ", "Logs", "MLOps", "Catalogue", "Meter"];
+            const components = Object.keys(this.args);
+            const ranks = PRIORITY.filter((value) =>
+                components.includes(value)
+            );
+            return ranks;
         },
 
         computeLayout() {
@@ -133,18 +150,43 @@ export default {
 
 
 <style scoped>
-/* input[type="checkbox"] {
-    display: none;
-} */
-.label {
-    border: 1px solid #000;
+#viewport {
+    width: 100%; 
+    height: auto;
+}
+
+/* #control-bar {
+    display: block;
+    text-align: right;
+}
+
+#checkbox {
+    background: #f5f5f5;
     display: inline-block;
-    padding: 3px;
+    padding: 10px 10px;
+    border-radius: 2px;
+    position: relative;
+    cursor: pointer;
 }
-input[type="checkbox"]:checked + .label {
-    background: #f00;
-    color: #fff;
+
+#checkbox-element {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    opacity: 0;
 }
+
+#checkbox > input[type="checkbox"] + i {
+    color: black;
+}
+
+#checkbox > input[type="checkbox"]:checked + i {
+    color: #da7f4d;
+} */
 
 .vue-grid-layout {
     background: #f5f5f5;
