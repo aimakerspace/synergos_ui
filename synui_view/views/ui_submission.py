@@ -20,7 +20,6 @@ from synergos import Driver
 from views.core.processes import TrackedProcess
 from views.utils import (
     is_connection_valid,
-    rerun,
     download_button,
     load_custom_css,
     render_orchestrator_inputs,
@@ -82,21 +81,11 @@ def load_command_station(driver: Driver, filters: Dict[str, str]):
             url="http://localhost:3001"
         )
         command_station(
-            mlops={
-                'name': "MLOps",
-                'host': "111.111.111.111",
-                'port': 5000,
-            },
-            logs={
-                'name': "Logs",
-                'host': "localhost",
-                'port': 9000
-            },
-            mq={
-                'name': "MQ",
-                'host': "localhost",
-                'port': 15672 
-            }
+            Meter="http://localhost:15672",
+            Catalogue="http://localhost:15672",
+            MLOps="http://localhost:15672",
+            Logs="http://127.0.0.1:9000",
+            MQ="http://localhost:15672"
         )
 
     else:
@@ -355,21 +344,20 @@ def collate_model_statistics(driver: Driver, filters: Dict[str, str]):
     st.subheader("Models")
     st.code(
         "\n".join([
-            f"{_f('No. of models submitted')} {model_count}",
-            f"{_f('  > Best architectures')} {best_architectures}",
+            f"{_f('No. of models submitted', 29)} {model_count}",
+            f"{_f('  > Best architectures', 29)} {best_architectures}",
             *[
-                f"{_f(f'  > Best avg {metric}')} {_f(f'{expt_id} > {run_id}', id_buffer_length+3, '')}   -> {score}"
+                f"{_f(f'  > Best avg {metric}', 29)} {_f(f'{expt_id} > {run_id}', id_buffer_length+3, '')}   -> {score}"
                 for metric, (expt_id, run_id, score) in best_metrics.items()
             ]
         ])
     )
 
 
-def show_hierarchy(driver: Driver, filters: Dict[str, str]):
+def show_hierarchy(filters: Dict[str, str]):
     """ List out keyword hierarchy derived from specified filters
 
     Args:
-        driver (Driver): Helper object to facilitate connection
         filters (dict): Composite key set identifying a specific federated job
     """
     collab_id = filters.get('collab_id', "")
@@ -525,7 +513,7 @@ def perform_healthcheck(driver: Driver, filters: Dict[str, str]) -> Tuple[bool]:
     for grid_idx, node_states in participant_connections.items():
         grid_healthcheck_messages.append(f"  > Grid #{grid_idx}")
         for p_id, state in node_states.items():
-            grid_healthcheck_messages.append(f"{_f(f'    | {p_id}', len(p_id)+11)} {parse_state(state)}")
+            grid_healthcheck_messages.append(f"{_f(f'    | {p_id}', len(p_id)+9)} {parse_state(state)}")
 
     st.code(
         "\n".join([
@@ -590,7 +578,7 @@ def load_launchpad(driver: Driver, filters: Dict[str, str]):
     columns = st.beta_columns((3, 2))
 
     with columns[0]:
-        show_hierarchy(driver, filters)
+        show_hierarchy(filters)
         has_inactive_components, has_active_grids = perform_healthcheck(driver, filters)
 
     if has_inactive_components or not has_active_grids:

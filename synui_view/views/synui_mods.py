@@ -5491,7 +5491,21 @@ section[data-testid="stSidebar"][aria-expanded=false]+section>div.eknhn3m2 {
 
 
 
+        // logs(this: any) {
+        //     const name = this.args.logs.name;
+        //     const host = this.args.logs.host;
+        //     const port = this.args.logs.port;
+        //     const url = `http://${host}:${port}`;
+        //     return { name: name, url: url };
+        // },
 
+        // component(this: any) {
+        //     const name = this.args.logs.name;
+        //     const host = this.args.logs.host;
+        //     const port = this.args.logs.port;
+        //     const url = `http://${host}:${port}`;
+        //     return { name: name, url: url };
+        // },
 
 
 
@@ -5848,3 +5862,604 @@ def commence_jobs(driver: Driver = None, filters: Dict[str, str] = {}):
     # "mq_port":5672
     # "ui_host":""
     # "ui_port":0 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# SUPPORTED_DEFAULT_PROCESSES = {
+#     # "Construct a deployment script": None
+# }
+
+# SUPPORTED_ORCHESTRATOR_PROCESSES = {
+#     'collaborations': {'Manage collaboration(s)': collab_app},
+#     'projects': {'Manage project(s)': project_app},
+#     'experiments': {'Manage experiment(s)': expt_app},
+#     "Manage run(s)": run_app,
+#     "Submit federated job(s)": submit_app,
+#     # "Analyse federated job(s)": analysis_app,
+#     # "Optimize a model": None
+# }
+
+# SUPPORTED_PARTICIPANT_PROCESSES = {
+#     "Manage your profile": participant_app,
+#     "Manage your registrations": reg_app,
+#     "Submit inference(s)": infer_app
+# }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def render_cascading_filter(participant_id: str) -> Dict[str, str]:
+    """ Renders a dynamic filter that allows users to traverse the federated
+        job hierarchy
+
+    Returns:
+        Composite Filtering keys (dict)
+    """
+    with st.sidebar.beta_container():
+
+        st.header("FILTERS")
+
+        with st.beta_expander("Key Parameters", expanded=True):
+
+            selected_collab_id = st.text_input(label="Collaboration ID:")
+
+            selected_project_id = (
+                st.text_input(label="Project ID:")
+                if selected_collab_id
+                else None
+            )
+
+            selected_expt_id = (
+                st.text_input(label="Experiment ID:")
+                if selected_project_id
+                else None
+            )
+
+            selected_run_id = (
+                st.text_input(label="Run ID:")
+                if selected_expt_id
+                else None
+            )
+
+    return {
+        'collab_id': selected_collab_id, 
+        'project_id': selected_project_id, 
+        'expt_id': selected_expt_id, 
+        'run_id': selected_run_id
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+def app(action: str):
+    """ Main app orchestrating collaboration management procedures """
+
+    driver = render_orchestrator_inputs()
+
+    with st.sidebar.beta_container():
+        st.header("USER")
+
+        with st.beta_expander("User Parameters", expanded=True):
+            participant_id, _ = render_participant(
+                driver=driver, 
+                show_details=False
+            )
+
+    key_filters = render_cascading_filter()
+    st.write(key_filters)
+
+    commence_inference(
+        driver=driver, 
+        participant_id=participant_id,
+        filters={}#key_filters    
+    )
+
+
+
+
+
+        st.header("FILTERS")
+
+        with st.beta_expander("Key Parameters", expanded=True):
+
+            pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+    "search_space": {
+        "rounds": {"_type":"choice","_value":[1, 2]},
+        "epochs": {"_type":"choice","_value":[1, 2]},
+        "batch_size": {"_type":"choice", "_value": [450, 512]},
+        "lr":{"_type":"choice","_value":[0.0001, 0.1]},
+        "criterion":{"_type":"choice","_value":["NLLLoss"]},
+        "mu":{"_type":"uniform","_value":[0.0, 1.0]},
+        "base_lr":{"_type":"choice","_value":[0.00005]},
+        "max_lr":{"_type":"choice","_value":[0.2]}
+    },
+
+
+    "backend": "tune",
+    "scheduler": "ASHAScheduler",
+    "searcher": "TuneBOHB",
+    "optimize_mode": "max",
+    "metric": "accuracy",
+    "trial_concurrency": 1,
+    "max_exec_duration": "1h",
+    "max_trial_num": 10,
+    "max_concurrent": 1,
+
+
+    "is_remote": true,
+    "use_annotation": true,
+    "auto_align": true,
+    "dockerised": true,
+    "verbose": true,
+    "log_msgs": true
+}
+
+
+
+
+
+
+                    <!-- <grid-item :x=0 :y=0 :w=4 :h=18 :i=0 :key="MQ">
+                    <iframe
+                        src="http://localhost:15672"
+                        id="mq"
+                        allowfullscreen
+                        frameborder="0"
+                        wmode="transparent"
+                    >
+                        Your browser doesn't support iframes
+                    </iframe>
+                </grid-item>
+
+                <grid-item :x=4 :y=0 :w=4 :h=12 :i=1 :key="Logs">
+                    <iframe
+                        src="http://127.0.0.1:9000"
+                        id="logs"
+                        allowfullscreen
+                        frameborder="0"
+                        wmode="transparent"
+                    >
+                        Your browser doesn't support iframes
+                    </iframe>
+                </grid-item> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export default {
+    name: "MyComponent",
+    props: ["args"], // Arguments that are passed to the plugin in Python are accessible in props `args`. Here, we access the "name" arg.
+    components: {
+        GridLayout,
+        GridItem,
+    },
+    data() {
+        return {
+            draggable: true,
+            resizable: true,
+            responsive: true,
+            index: 0,
+        };
+    },
+    computed: {
+
+        // NOTE: "any" type is used because "args" is casted as "any" //
+
+        ranks(this: any): Array<string> {
+            const PRIORITY = ["Logs", "MLOps", "MQ", "Catalogue", "Meter"]
+            const components = Object.keys(this.args)
+            const ranks = PRIORITY.filter(value => components.includes(value));
+            return ranks
+        },
+
+        layout(this: any): Layout {
+            const oneComponent = [{ x: 0, y: 0, w: 12, h: 12, i: "0"}];
+            const twoComponent = [
+                { x: 0, y: 0, w: 8, h: 18, i: "0" },
+                { x: 0, y: 0, w: 8, h: 18, i: "1" },
+            ];
+            const threeComponent = [
+                { x: 0, y: 0, w: 8, h: 18, i: "0" },
+                { x: 0, y: 0, w: 8, h: 18, i: "1" },
+                { x: 0, y: 0, w: 8, h: 18, i: "2" },
+            ];
+            const fourComponent = [
+                { x: 0, y: 0, w: 8, h: 18, i: "0" },
+                { x: 0, y: 0, w: 8, h: 18, i: "1" },
+                { x: 0, y: 0, w: 8, h: 18, i: "2" },
+                { x: 0, y: 0, w: 8, h: 18, i: "3" },
+            ];
+            const fiveComponent = [
+                { x: 0, y: 0, w: 8, h: 18, i: "0" },
+                { x: 0, y: 0, w: 8, h: 18, i: "1" },
+                { x: 0, y: 0, w: 8, h: 18, i: "2" },
+                { x: 0, y: 0, w: 8, h: 18, i: "3" },
+                { x: 0, y: 0, w: 8, h: 18, i: "4" },
+            ];
+
+            const COUNTMAP: { [componentCount: number]: Layout | [] } = {};
+            COUNTMAP[0] = [];
+            COUNTMAP[1] = oneComponent;
+            COUNTMAP[2] = twoComponent;
+            COUNTMAP[3] = threeComponent;
+            COUNTMAP[4] = fourComponent;
+            COUNTMAP[5] = fiveComponent;
+
+            const noOfComponents = this.ranks.length;
+
+            return COUNTMAP[noOfComponents];
+        }
+    },
+    methods: {
+        retrieveUrl(this: any, name: string): string {
+            const url = this.args[name];
+            return url;
+        }
+    },
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export default {
+    name: "MyComponent",
+    props: ["args"], // Arguments that are passed to the plugin in Python are accessible in props `args`. Here, we access the "name" arg.
+    components: {
+        GridLayout,
+        GridItem,
+    },
+    data(this: any) {
+        const oneComponent = [{ x: 0, y: 0, w: 12, h: 12, i: "0" }];
+        const twoComponent = [
+            { x: 0, y: 0, w: 8, h: 18, i: "0" },
+            { x: 0, y: 0, w: 8, h: 18, i: "1" },
+        ];
+        const threeComponent = [
+            { x: 0, y: 0, w: 8, h: 18, i: "0" },
+            { x: 0, y: 0, w: 8, h: 18, i: "1" },
+            { x: 0, y: 0, w: 8, h: 18, i: "2" },
+        ];
+        const fourComponent = [
+            { x: 0, y: 0, w: 8, h: 18, i: "0" },
+            { x: 0, y: 0, w: 8, h: 18, i: "1" },
+            { x: 0, y: 0, w: 8, h: 18, i: "2" },
+            { x: 0, y: 0, w: 8, h: 18, i: "3" },
+        ];
+        const fiveComponent = [
+            { x: 0, y: 0, w: 8, h: 18, i: "0" },
+            { x: 0, y: 0, w: 8, h: 18, i: "1" },
+            { x: 0, y: 0, w: 8, h: 18, i: "2" },
+            { x: 0, y: 0, w: 8, h: 18, i: "3" },
+            { x: 0, y: 0, w: 8, h: 18, i: "4" },
+        ];
+
+        const COUNTMAP: { [componentCount: number]: Layout | [] } = {};
+        COUNTMAP[0] = [];
+        COUNTMAP[1] = oneComponent;
+        COUNTMAP[2] = twoComponent;
+        COUNTMAP[3] = threeComponent;
+        COUNTMAP[4] = fourComponent;
+        COUNTMAP[5] = fiveComponent;
+
+        const noOfComponents = this.ranks().length;
+
+        return {
+            layout: COUNTMAP[noOfComponents],
+            draggable: true,
+            resizable: true,
+            responsive: true,
+            index: 0,
+        };
+    },
+    computed: {},
+    methods: {
+        ranks(this: any): Array<string> {
+            const PRIORITY = ["Logs", "MLOps", "MQ", "Catalogue", "Meter"]
+            const components = Object.keys(this.args)
+            const ranks = PRIORITY.filter(value => components.includes(value));
+            return ranks
+        },
+
+        retrieveUrl(this: any, name: string): string {
+            const url = this.args[name];
+            return url;
+        },
+    },
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export default {
+    name: "MyComponent",
+    props: ["args"], // Arguments that are passed to the plugin in Python are accessible in props `args`. Here, we access the "name" arg.
+    components: {
+        GridLayout,
+        GridItem,
+    },
+    data(this: any) {
+        const PRIORITY = ["Logs", "MLOps", "MQ", "Catalogue", "Meter"];
+        const components = Object.keys(this.args);
+        const ranks = PRIORITY.filter((value) => components.includes(value));
+
+        const oneComponent = [{ x: 0, y: 0, w: 12, h: 12, i: "0" }];
+        const twoComponent = [
+            { x: 0, y: 0, w: 8, h: 18, i: "0" },
+            { x: 0, y: 0, w: 8, h: 18, i: "1" },
+        ];
+        const threeComponent = [
+            { x: 0, y: 0, w: 8, h: 18, i: "0" },
+            { x: 0, y: 0, w: 8, h: 18, i: "1" },
+            { x: 0, y: 0, w: 8, h: 18, i: "2" },
+        ];
+        const fourComponent = [
+            { x: 0, y: 0, w: 8, h: 18, i: "0" },
+            { x: 0, y: 0, w: 8, h: 18, i: "1" },
+            { x: 0, y: 0, w: 8, h: 18, i: "2" },
+            { x: 0, y: 0, w: 8, h: 18, i: "3" },
+        ];
+        const fiveComponent = [
+            { x: 0, y: 0, w: 8, h: 18, i: "0" },
+            { x: 0, y: 0, w: 8, h: 18, i: "1" },
+            { x: 0, y: 0, w: 8, h: 18, i: "2" },
+            { x: 0, y: 0, w: 8, h: 18, i: "3" },
+            { x: 0, y: 0, w: 8, h: 18, i: "4" },
+        ];
+
+        const COUNTMAP: { [componentCount: number]: Layout | [] } = {};
+        COUNTMAP[0] = [];
+        COUNTMAP[1] = oneComponent;
+        COUNTMAP[2] = twoComponent;
+        COUNTMAP[3] = threeComponent;
+        COUNTMAP[4] = fourComponent;
+        COUNTMAP[5] = fiveComponent;
+
+        const noOfComponents = ranks.length;
+
+        return {
+            layout: COUNTMAP[noOfComponents],
+            draggable: true,
+            resizable: true,
+            responsive: true,
+            index: 0,
+        };
+    },
+    computed: {},
+    methods: {
+        retrieveUrl(this: any, name: string): string {
+            const url = this.args[name];
+            return url;
+        },
+    },
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+input[type="checkbox"] {
+    display: none;
+}
+.label {
+    border: 1px solid #000;
+    display: inline-block;
+    padding: 3px;
+    /* background: url("unchecked.png") no-repeat left center;  */
+    /* padding-left: 15px; */
+}
+input[type="checkbox"]:checked + .label {
+    background: #f00;
+    color: #fff;
+    /* background-image: url("checked.png"); */
+}
+
+.vue-grid-layout {
+    background: #eee;
+}
+.vue-grid-item:not(.vue-grid-placeholder) {
+    background: #ccc;
+    border: 1px solid black;
+}
+.vue-grid-item .resizing {
+    opacity: 0.9;
+}
+.vue-grid-item .static {
+    background: #cce;
+}
+.vue-grid-item .text {
+    font-size: 24px;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 100%;
+    width: 100%;
+}
+.vue-grid-item .no-drag {
+    height: 100%;
+    width: 100%;
+}
+.vue-grid-item .minMax {
+    font-size: 12px;
+}
+.vue-grid-item .add {
+    cursor: pointer;
+}
+.vue-draggable-handle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 0;
+    left: 0;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><circle cx='5' cy='5' r='5' fill='#999999'/></svg>")
+        no-repeat;
+    background-position: bottom right;
+    padding: 0 8px 8px 0;
+    background-repeat: no-repeat;
+    background-origin: content-box;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+.layoutJSON {
+    background: #ddd;
+    border: 1px solid black;
+    margin-top: 10px;
+    padding: 10px;
+}
+.columns {
+    -moz-columns: 120px;
+    -webkit-columns: 120px;
+    columns: 120px;
+}
+
+#window {
+    margin-top: 0.4rem;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <span> Hello, {{ args }} {{ typeof args }}! </span>
+        <!-- <span>{{ ranks }} {{ typeof ranks }} {{ typeof ranks[0] }}</span> -->
+        <span>{{ layout }} {{ typeof layout }}</span>
+
+
+
+
+
+
+
+
+                    :static="item.static"
+
+
+
+// import { Streamlit } from "streamlit-component-lib";
+
+
+
+
+            const threeComponent = [
+                { x: 0, y: 0, w: 12, h: 9, i: 0 },
+                { x: 0, y: 9, w: 6, h: 9, i: 1 },
+                { x: 6, y: 9, w: 6, h: 9, i: 2 },
+            ];

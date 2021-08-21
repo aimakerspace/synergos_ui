@@ -290,6 +290,7 @@ def app(action: str):
     driver = render_orchestrator_inputs()
 
     if driver:
+        
         with st.sidebar.beta_container():
             st.header("USER")
 

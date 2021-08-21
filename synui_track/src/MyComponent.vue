@@ -1,10 +1,6 @@
 <template>
     <div style="width: 100%; height: auto">
-        <!-- <span> Hello, {{ args }}! </span>
-        <a href="mq.url"
-            ><button>{{ mq.url }}</button></a
-        > -->
-        <!-- <div class="container">
+        <div class="container">
             <input type="checkbox" v-model="draggable" />
             <i class="bi bi-arrows-move"></i>
             <input type="checkbox" v-model="resizable" /><i
@@ -13,11 +9,11 @@
             <input type="checkbox" v-model="responsive" /><i
                 class="bi bi-grid-1x2"
             ></i>
-        </div> -->
+        </div>
         <div style="width: 100%; height: 100%">
             <grid-layout
                 :layout.sync="layout"
-                :col-num="12"
+                :col-num="18"
                 :row-height="35"
                 :is-draggable="draggable"
                 :is-resizable="resizable"
@@ -27,7 +23,6 @@
             >
                 <grid-item
                     v-for="item in layout"
-                    :static="item.static"
                     :x="item.x"
                     :y="item.y"
                     :w="item.w"
@@ -35,39 +30,15 @@
                     :i="item.i"
                     :key="item.i"
                 >
-                    <span class="text">{{ item.i }}</span>
                     <iframe
-                        src="http://127.0.0.1:9000"
-                        id="mq"
+                        :src="retrieveUrl(ranks[item.i])"
+                        id="window"
                         allowfullscreen
                         frameborder="0"
                         wmode="transparent"
                     >
                         Your browser doesn't support iframes
                     </iframe>
-                    <!-- <grid-item :x=0 :y=0 :w=4 :h=18 :i=0 :key="MQ">
-                    <iframe
-                        src="http://localhost:15672"
-                        id="mq"
-                        allowfullscreen
-                        frameborder="0"
-                        wmode="transparent"
-                    >
-                        Your browser doesn't support iframes
-                    </iframe>
-                </grid-item>
-
-                <grid-item :x=4 :y=0 :w=4 :h=12 :i=1 :key="Logs">
-                    <iframe
-                        src="http://127.0.0.1:9000"
-                        id="logs"
-                        allowfullscreen
-                        frameborder="0"
-                        wmode="transparent"
-                    >
-                        Your browser doesn't support iframes
-                    </iframe>
-                </grid-item> -->
                 </grid-item>
             </grid-layout>
         </div>
@@ -76,8 +47,17 @@
 
 
 <script lang="ts">
-import { Streamlit } from "streamlit-component-lib";
 import { GridLayout, GridItem } from "vue-grid-layout";
+
+// Declare custom typings
+type Window = {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    i: number;
+};
+type Layout = Array<Window>;
 
 export default {
     name: "MyComponent",
@@ -86,55 +66,91 @@ export default {
         GridLayout,
         GridItem,
     },
-    data() {
+    data(this: any) {
         return {
-            layout: [
-                { x: 0, y: 0, w: 8, h: 18, i: "0" },
-                { x: 8, y: 0, w: 4, h: 9, i: "1" },
-                { x: 8, y: 9, w: 4, h: 9, i: "2" },
-            ],
+            ranks: this.computeRanks(),
+            layout: this.computeLayout(),
             draggable: true,
             resizable: true,
             responsive: true,
             index: 0,
         };
     },
-    computed: {
-        mq() {
-            const name = this.args.mq.name;
-            const host = this.args.mq.host;
-            const port = this.args.mq.port;
-            const url = `http://${host}:${port}`;
-            return { name: name, url: url };
+    computed: {},
+    methods: {
+        computeRanks(this: any): Array<string> {
+            const PRIORITY = ["MQ", "Logs", "MLOps", "Catalogue", "Meter"]
+            const components = Object.keys(this.args)
+            const ranks = PRIORITY.filter(value => components.includes(value));
+            return ranks
+        },
+
+        computeLayout() {
+            const oneComponent = [{ x: 0, y: 0, w: 12, h: 18, i: 0 }];
+            const twoComponent = [
+                { x: 0, y: 0, w: 6, h: 18, i: 0 },
+                { x: 6, y: 0, w: 6, h: 18, i: 1 },
+            ];
+            const threeComponent = [
+                { x: 0, y: 0, w: 12, h: 9, i: 0 },
+                { x: 0, y: 9, w: 6, h: 9, i: 1 },
+                { x: 6, y: 9, w: 6, h: 9, i: 2 },
+            ];
+            const fourComponent = [
+                { x: 0, y: 0, w: 6, h: 9, i: 0 },
+                { x: 0, y: 9, w: 6, h: 9, i: 1 },
+                { x: 6, y: 0, w: 6, h: 9, i: 2 },
+                { x: 6, y: 9, w: 6, h: 9, i: 3 },
+            ];
+            const fiveComponent = [
+                { x: 0, y: 0, w: 6, h: 9, i: 0 },
+                { x: 6, y: 0, w: 6, h: 9, i: 1 },
+                { x: 0, y: 9, w: 4, h: 9, i: 2 },
+                { x: 4, y: 9, w: 4, h: 9, i: 3 },
+                { x: 8, y: 9, w: 4, h: 9, i: 4 },
+            ];
+
+            const COUNTMAP: { [componentCount: number]: Layout | [] } = {};
+            COUNTMAP[0] = [];
+            COUNTMAP[1] = oneComponent;
+            COUNTMAP[2] = twoComponent;
+            COUNTMAP[3] = threeComponent;
+            COUNTMAP[4] = fourComponent;
+            COUNTMAP[5] = fiveComponent;
+
+            const noOfComponents = this.computeRanks().length;
+
+            return COUNTMAP[noOfComponents];
+        },
+
+        retrieveUrl(this: any, name: string): string {
+            const url = this.args[name];
+            return url;
         },
     },
-    methods: {},
 };
 </script>
 
 
 <style scoped>
-input[type=checkbox] {
-  display: none;
-}
+/* input[type="checkbox"] {
+    display: none;
+} */
 .label {
-  border: 1px solid #000;
-  display: inline-block;
-  padding: 3px;
-  /* background: url("unchecked.png") no-repeat left center; */ 
-  /* padding-left: 15px; */
+    border: 1px solid #000;
+    display: inline-block;
+    padding: 3px;
 }
-input[type=checkbox]:checked + .label {
-  background: #f00;
-  color: #fff;
-  /* background-image: url("checked.png"); */
+input[type="checkbox"]:checked + .label {
+    background: #f00;
+    color: #fff;
 }
 
 .vue-grid-layout {
-    background: #eee;
+    background: #f5f5f5;
 }
 .vue-grid-item:not(.vue-grid-placeholder) {
-    background: #ccc;
+    background: #ffffff;
     border: 1px solid black;
 }
 .vue-grid-item .resizing {
@@ -171,8 +187,8 @@ input[type=checkbox]:checked + .label {
     height: 20px;
     top: 0;
     left: 0;
-    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><circle cx='5' cy='5' r='5' fill='#999999'/></svg>")
-        no-repeat;
+    /* background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><circle cx='5' cy='5' r='5' fill='#999999'/></svg>")
+        no-repeat; */
     background-position: bottom right;
     padding: 0 8px 8px 0;
     background-repeat: no-repeat;
@@ -192,9 +208,7 @@ input[type=checkbox]:checked + .label {
     columns: 120px;
 }
 
-#mq,
-#logs {
-    margin-top: 0.4rem;
+#window {
     width: 100%;
     height: 100%;
     position: relative;

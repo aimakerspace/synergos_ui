@@ -18,35 +18,16 @@ from views.ui_collaboration import app as collab_app
 from views.ui_project import app as project_app
 from views.ui_experiment import app as expt_app
 from views.ui_run import app as run_app
+from views.ui_submission import app as submit_app
+from views.ui_optimization import app as optim_app
 from views.ui_participant import app as participant_app
 from views.ui_registration import app as reg_app
 from views.ui_inference import app as infer_app
-from views.ui_submission import app as submit_app
 from views.utils import load_custom_css
 
 ##################
 # Configurations #
 ##################
-
-# SUPPORTED_DEFAULT_PROCESSES = {
-#     # "Construct a deployment script": None
-# }
-
-# SUPPORTED_ORCHESTRATOR_PROCESSES = {
-#     'collaborations': {'Manage collaboration(s)': collab_app},
-#     'projects': {'Manage project(s)': project_app},
-#     'experiments': {'Manage experiment(s)': expt_app},
-#     "Manage run(s)": run_app,
-#     "Submit federated job(s)": submit_app,
-#     # "Analyse federated job(s)": analysis_app,
-#     # "Optimize a model": None
-# }
-
-# SUPPORTED_PARTICIPANT_PROCESSES = {
-#     "Manage your profile": participant_app,
-#     "Manage your registrations": reg_app,
-#     "Submit inference(s)": infer_app
-# }
 
 GLOBAL_CSS_PATH = os.path.join(STYLES_DIR, "custom", "st_global.css")
 
@@ -114,8 +95,8 @@ def main():
     elif resource == "analytics":
         submit_app(action=requested_view)
 
-    # elif resource == "optimizations":
-    #     pass
+    elif resource == "optimizations":
+        optim_app(action=requested_view)
 
     elif resource == "profiles":
         participant_app(action=requested_view)
@@ -123,8 +104,8 @@ def main():
     elif resource == "registrations":
         reg_app(action=requested_view)
 
-    # elif resource == "inferences":
-    #     infer_app(action=requested_view)
+    elif resource == "inferences":
+        infer_app(action=requested_view)
 
 
 ###########

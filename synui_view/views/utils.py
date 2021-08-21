@@ -406,45 +406,34 @@ def render_upstream_hierarchy(r_type: str, driver: Driver) -> Dict[str, str]:
     return combination_key
 
 
-def render_cascading_filter() -> Dict[str, str]:
+def render_cascading_filter(driver: Driver) -> Dict[str, str]:
     """ Renders a dynamic filter that allows users to traverse the federated
-        job hierarchy
+        job hierarchy for participants
 
     Returns:
         Composite Filtering keys (dict)
     """
     with st.sidebar.beta_container():
+        st.header("USER")
 
-        st.header("FILTERS")
-
-        with st.beta_expander("Key Parameters", expanded=True):
-
-            selected_collab_id = st.text_input(label="Collaboration ID:")
-
-            selected_project_id = (
-                st.text_input(label="Project ID:")
-                if selected_collab_id
-                else None
+        with st.beta_expander("User Parameters", expanded=True):
+            participant_id, _ = render_participant(
+                driver=driver, 
+                show_details=False
             )
 
-            selected_expt_id = (
-                st.text_input(label="Experiment ID:")
-                if selected_project_id
-                else None
-            )
+    if participant_id:
+        participant_data = driver.participants.read(participant_id).get('data', {})   
+        participant_relations = participant_data.get('relations', {})
+        participant_registrations = participant_relations.get('Registration', [])
+        participant_filters = [
+            reg_record.get('key', {})
+            for reg_record in participant_registrations
+        ]
+    else:
+        participant_filters = []
 
-            selected_run_id = (
-                st.text_input(label="Run ID:")
-                if selected_expt_id
-                else None
-            )
-
-    return {
-        'collab_id': selected_collab_id, 
-        'project_id': selected_project_id, 
-        'expt_id': selected_expt_id, 
-        'run_id': selected_run_id
-    }
+    return participant_id, participant_filters
 
     
 def render_confirmation_form(
@@ -495,8 +484,6 @@ def render_confirmation_form(
 
         with right_column:
             if is_previewed:
-                # with st.echo(code_location="below"):
-                #     st.write(data)
                 st.code(
                     json.dumps(data, sort_keys=True, indent=4),
                     language="json"
