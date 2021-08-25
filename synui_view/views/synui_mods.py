@@ -7079,3 +7079,22 @@ textColor = "#000000"
 # "serif", or "monospace".
 # Default: "sans serif"
 font = "sans serif" 
+
+
+
+
+
+
+
+
+
+
+
+        with st.sidebar.beta_container():
+            st.header("USER")
+
+            with st.beta_expander("User Parameters", expanded=True):
+                participant_id, _ = render_participant(
+                    driver=driver, 
+                    show_details=False
+                )

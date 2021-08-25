@@ -141,7 +141,7 @@ class RegistrationRenderer(BaseRenderer):
                                     key=node_name
                                 )
                     
-                            updated_node_details[node_name] = {
+                            updated_node_details[f"node_{node_idx}"] = {
                                 'host': updated_input_host,
                                 'f_port': updated_input_rpc_port,
                                 'port': updated_input_syft_port,

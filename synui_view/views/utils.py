@@ -411,7 +411,10 @@ def render_upstream_hierarchy(r_type: str, driver: Driver) -> Dict[str, str]:
     return combination_key
 
 
-def render_cascading_filter(driver: Driver) -> Dict[str, str]:
+def render_cascading_filter(
+    driver: Driver,
+    show_details: bool = True
+) -> Dict[str, str]:
     """ Renders a dynamic filter that allows users to traverse the federated
         job hierarchy for participants
 
@@ -426,6 +429,9 @@ def render_cascading_filter(driver: Driver) -> Dict[str, str]:
                 driver=driver, 
                 show_details=False
             )
+
+    if not show_details:
+        return participant_id, None
 
     if participant_id:
         participant_data = driver.participants.read(participant_id).get('data', {})   

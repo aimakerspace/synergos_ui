@@ -17,6 +17,7 @@ from views.utils import (
     is_request_successful,
     rerun,
     render_orchestrator_inputs,
+    render_cascading_filter,
     render_confirmation_form,
     render_collaborations,
     render_projects,
@@ -291,16 +292,12 @@ def app(action: str):
 
     if driver:
         
-        with st.sidebar.beta_container():
-            st.header("USER")
+        participant_id, _ = render_cascading_filter(driver, show_details=False)
+        if participant_id:
+            core_app.run(action)(driver, participant_id)
 
-            with st.beta_expander("User Parameters", expanded=True):
-                participant_id, _ = render_participant(
-                    driver=driver, 
-                    show_details=False
-                )
-
-        core_app.run(action)(driver, participant_id)
+        else:
+            st.warning("Please state your Participant ID to continue.")
 
     else:
         st.warning(
