@@ -17,6 +17,7 @@ import streamlit as st
 # Custom
 from config import STYLES_DIR
 from synergos import Driver
+from views.renderer import OptimRenderer
 from views.core.processes import TrackedProcess
 from views.ui_submission import(
     load_command_station,
@@ -41,31 +42,11 @@ from views.utils import (
 
 SUPPORTED_DASHBOARDS = ['Hyperdrive', 'Command Station']
 
+optim_renderer = OptimRenderer()
+
 #########################################
 # Submission UI Option - Open Launchpad #
 #########################################
-
-def load_hyperparameter_ranges():
-    """
-    """
-    with st.beta_container():
-
-        uploaded_file = st.file_uploader(
-            label="Upload your hyperparameter ranges:",
-            type="json",
-            help="Provide a parsable JSON file documenting each layer of your desired model"    
-        )
-
-        if uploaded_file is not None:
-            bytes_data = uploaded_file.getvalue()
-            stringio = StringIO(bytes_data.decode("utf-8"))
-            hyperparam_string = stringio.read()
-            hyperparam_ranges = {"search_space": json.loads(hyperparam_string)}
-        else:
-            hyperparam_ranges = {}
-
-    return hyperparam_ranges  
-
 
 def load_hyperdrive(driver: Driver, filters: Dict[str, str]):
     """
@@ -97,7 +78,9 @@ def load_hyperdrive(driver: Driver, filters: Dict[str, str]):
         show_hierarchy({**filters, 'run_id': "*"})
         has_inactive_components, has_active_grids = perform_healthcheck(driver, filters)
 
-        hyperparameter_ranges = load_hyperparameter_ranges()
+        tuning_parameters = optim_renderer.render_tuning_parameters()
+        hyperparameter_ranges = optim_renderer.render_upload_mods()
+
 
     if has_inactive_components or not has_active_grids:
 
@@ -265,7 +248,6 @@ def load_hyperdrive(driver: Driver, filters: Dict[str, str]):
 
                     fl_job.stop()
                     st.info("Hyperjob Completed! Please refresh to view results.")
-
 
 
 

@@ -36,7 +36,8 @@ from views.renderer import (
     ParticipantRenderer,
     RegistrationRenderer,
     TagRenderer,
-    AlignmentRenderer
+    AlignmentRenderer,
+    OptimRenderer
 )
 
 ##################
@@ -51,6 +52,7 @@ reg_renderer = RegistrationRenderer()
 tag_renderer = TagRenderer()
 participant_renderer = ParticipantRenderer()
 align_renderer = AlignmentRenderer()
+optim_renderer = OptimRenderer()
 
 ###################
 # General Helpers #
@@ -85,12 +87,15 @@ def is_connection_valid(host: str, port: int) -> bool:
     Returns:
         Connection state (bool)
     """
+    if not host:
+        return False
+
     try:
         # Check if there is a DNS listening
-        host = socket.gethostbyname(host)
+        detected_host = socket.gethostbyname(host)
 
         # Check if the host is actually reachable
-        s = socket.create_connection((host, port), 2)
+        s = socket.create_connection((detected_host, port), 2)
         s.close()
         return True
 
@@ -326,7 +331,7 @@ def render_orchestrator_inputs() -> Union[Driver, None]:
     """
     with st.sidebar.beta_container():
 
-        st.header("GRID")
+        st.header("NETWORK")
 
         with st.beta_expander("Orchestrator Parameters", expanded=True):
         
@@ -455,35 +460,50 @@ def render_confirmation_form(
             True    if participant has confirmed and intends to submit
             False   otherwise 
     """       
+    is_correct = False
+    is_submitted = False
+
     with st.beta_expander("Confirmation Form"):
 
-        left_column, right_column = st.beta_columns(2)
+        columns = st.beta_columns((2, 3))
 
-        with left_column:
-            is_previewed = st.checkbox(
-                label=f"Preview {r_type} entry",
-                value=False,
-                key="confirmation"
+        with columns[0]:
+
+            confirmation_options = [
+                f"Preview {r_type} entry", 
+                f"Finalize {r_type} submission"
+            ]
+            selected_option = st.radio(
+                label="Select an option:",
+                options=confirmation_options,
             )
 
-            is_correct = st.checkbox(
-                label="Confirm if details declared are correct", 
-                value=False,
-                key="confirmation"
-            )
-            if is_correct and use_warnings:
-                is_finalized = st.selectbox(
-                    label="Are you sure? This action is not reversible!", 
-                    index=1,
-                    options=['Yes', 'No'],
-                    key="confirmation"
-                )
-                is_correct = is_correct and (is_finalized == 'Yes') 
+            if selected_option == confirmation_options[1]:
 
-            is_submitted = st.button(label="Submit", key="confirmation")
+                placeholder = st.empty()
+                
+                with placeholder.beta_container():
+                    is_correct = st.checkbox(
+                        label="Confirm if details declared are correct", 
+                        value=False,
+                        key="confirmation"
+                    )
+                    if is_correct and use_warnings:
+                        is_finalized = st.selectbox(
+                            label="Are you sure? This action is not reversible!", 
+                            index=1,
+                            options=['Yes', 'No'],
+                            key="confirmation"
+                        )
+                        is_correct = is_correct and (is_finalized == 'Yes') 
 
-        with right_column:
-            if is_previewed:
+                    is_submitted = st.button(label="Submit", key="confirmation")
+
+                if is_correct and is_submitted:
+                    placeholder.info("Entry confirmed.")
+
+        with columns[1]:
+            if selected_option == confirmation_options[0]:
                 st.code(
                     json.dumps(data, sort_keys=True, indent=4),
                     language="json"
@@ -520,7 +540,7 @@ def render_collaborations(driver: Driver, show_details: bool = True):
         selected_collab_data = driver.collaborations.read(
             collab_id=selected_collab_id
         ).get('data', {})
-        
+       
         if selected_collab_data:
             selected_collab_data.pop('relations')   # no relations rendered!
 

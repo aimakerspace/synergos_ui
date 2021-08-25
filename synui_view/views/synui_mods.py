@@ -6792,3 +6792,290 @@ export default {
     position: relative;
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def render_confirmation_form(
+    data: Dict[str, Any], 
+    r_type: str = "",
+    r_action: str = "",
+    use_warnings: bool = False
+) -> bool:
+    """ Renders declaration form for users to verify if the metadata they are
+        about to submit is correct
+
+    Args:
+        data (dict): Metadata related to a specific process
+        r_type (str): Type of document/archival record handled
+        r_action (str): Type of action (i.e. CRUD) to execute on archived data
+        use_warnings (bool): Toggles if extra warning interaction is active
+    Returns:
+        Confirmation state (bool)
+            True    if participant has confirmed and intends to submit
+            False   otherwise 
+    """       
+    with st.beta_expander("Confirmation Form"):
+
+        columns = st.beta_columns((1, 2))
+
+        with columns[0]:
+            is_previewed = st.checkbox(
+                label=f"Preview {r_type} entry",
+                value=False,
+                key="confirmation"
+            )
+
+            is_correct = st.checkbox(
+                label="Confirm if details declared are correct", 
+                value=False,
+                key="confirmation"
+            )
+            if is_correct and use_warnings:
+                is_finalized = st.selectbox(
+                    label="Are you sure? This action is not reversible!", 
+                    index=1,
+                    options=['Yes', 'No'],
+                    key="confirmation"
+                )
+                is_correct = is_correct and (is_finalized == 'Yes') 
+
+            is_submitted = st.button(label="Submit", key="confirmation")
+
+        with columns[1]:
+            if is_previewed:
+                st.code(
+                    json.dumps(data, sort_keys=True, indent=4),
+                    language="json"
+                )
+
+    return is_correct and is_submitted
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        def check_logger_connections(collab_data: Dict[str, Any]) -> bool:
+        """ Retrieves logger configurations and tests if connection is active
+
+        Args:
+            collab_data (list): A single collaboration archive that stores
+                connection information of all deployed components
+        Returns:
+            Is logger active (bool)
+        """
+        st.write(collab_data)
+        logger_info = collab_data.get('logs', {})
+        logger_host = logger_info.get('host', "")
+        logger_ports = logger_info.get('ports', {})
+        for _, port in logger_ports.items():
+            if not is_connection_valid(logger_host, port):
+                return False
+
+        return True
+
+    def check_mlops_connection(collab_data: Dict[str, Any]) -> bool:
+        """ Retrieves mlops configurations and tests if connection is active
+
+        Args:
+            collab_data (list): A single collaboration archive that stores
+                connection information of all deployed components
+        Returns:
+            Is mlops active (bool)
+        """
+        mlops_info = collab_data.get('mlops', {})
+        mlops_host = mlops_info.get('host', "")
+        mlops_ports = mlops_info.get('ports', {})
+
+        for _, port in mlops_ports.items():
+            if not is_connection_valid(mlops_host, port):
+                return False
+
+        return True
+
+    def check_mq_connection(collab_data: Dict[str, Any]) -> bool:
+        """ Retrieves message queue configurations and tests if connection is 
+            active
+
+        Args:
+            collab_data (list): A single collaboration archive that stores
+                connection information of all deployed components
+        Returns:
+            Is MQ active (bool)
+        """
+        mq_host = collab_data.get('mq_host', "")
+        mq_port = collab_data.get('mq_port', "")
+
+        if not is_connection_valid(mq_host, mq_port):
+            return False
+
+        return True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Adjust visibility of top border (gradient-colored)  */
+.css-ilb8f5 {
+    visibility: hidden;
+}
+
+/* Adjust size of empty space at the top of each page */
+.css-1y0tads {
+    padding-top: 1rem;
+}
+
+/* Adjust sidebar configurations */
+.css-17eq0hr {
+    padding-top     : 3.5rem;
+    background-color: #f5f5f5;
+    border-radius   : 1.5rem;
+}
+
+.main {
+    border-radius: 1.5rem;
+    color        : #000000;
+}
+
+/* Toggles visibility of footer */
+footer {
+    visibility: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+[data-testid="stDecoration"] {
+    height : 0 !important;
+    display: none !important;
+}
+
+/* Full screen IFrame from SynUI-Tracker (when sidebar is expanded) */
+section[data-testid="stSidebar"][aria-expanded=true]+section.main {
+/* section[data-testid="stSidebar"][aria-expanded=true]+section.eknhn3m1,
+section[data-testid="stSidebar"][aria-expanded=true]+section.css-1v3fvcr { */
+    height  : 100vh !important;
+    width   : calc(100vw - 21rem - 1rem) !important;
+    margin  : -2.6rem 0 0 21.5rem !important;
+    padding : 0 !important;
+    position: absolute !important;
+}
+
+section[data-testid="stSidebar"][aria-expanded=true]+section>div.block-container,
+/* section[data-testid="stSidebar"][aria-expanded=true]+section>div.css-1y0tads,
+section[data-testid="stSidebar"][aria-expanded=true]+section>div.eknhn3m2 { */
+    height  : 100% !important;
+    width   : 100% !important;
+    padding : 0 !important;
+    position: relative !important;
+    overflow: hidden;
+}
+
+/* Full screen IFrame from SynUI-Tracker (when sidebar is collapsed) */
+section[data-testid="stSidebar"][aria-expanded=false]+section.main,
+section[data-testid="stSidebar"][aria-expanded=false]+section.eknhn3m1,
+section[data-testid="stSidebar"][aria-expanded=false]+section.css-1v3fvcr {
+    height  : 100vh !important;
+    width   : calc(100vw - 1rem) !important;
+    margin  : -2.6rem 0 0 .5rem !important;
+    padding : 0 !important;
+    position: absolute !important;
+}
+
+section[data-testid="stSidebar"][aria-expanded=false]+section>div.block-container,
+section[data-testid="stSidebar"][aria-expanded=false]+section>div.css-1y0tads,
+section[data-testid="stSidebar"][aria-expanded=false]+section>div.eknhn3m2 {
+    height  : 100% !important;
+    width   : 100% !important;
+    padding : 0 !important;
+    position: relative !important;
+}
+
+.iframe {
+    width     : 100% !important;
+    height    : 100% !important;
+    position  : relative !important;
+    border-radius: 5px;
+}
+
+
+
+
+
+
+# The preset Streamlit theme that your custom theme inherits from. One of 
+# "light" or "dark".
+base = "light"
+
+# Primary accent color for interactive elements.
+primaryColor = "#ffbf00"
+
+# Background color for the main content area.
+backgroundColor = "#ffffff"
+
+# Background color used for the sidebar and most interactive widgets.
+secondaryBackgroundColor = "#df7f4d"
+
+# Color used for almost all text.
+textColor = "#000000"
+
+# Font family for all text in the app, except code blocks. One of "sans serif",
+# "serif", or "monospace".
+# Default: "sans serif"
+font = "sans serif" 

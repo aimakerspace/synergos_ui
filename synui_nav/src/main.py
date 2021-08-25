@@ -5,7 +5,8 @@
 ####################
 
 # Generic/Built-in
-
+import logging
+import os
 
 # Libs
 from fastapi import FastAPI, Request
@@ -20,7 +21,9 @@ from fastapi.staticfiles import StaticFiles
 # Configurations #
 ##################
 
-# app = Flask(__name__, static_url_path='/static')
+VIEW_HOST = os.environ['VIEW_HOST']
+VIEW_PORT = os.environ['VIEW_PORT']
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -64,6 +67,8 @@ def load_view(request: Request, role: str, resource: str, action: str):
         "viewport.html",
         {
             'request': request, 
+            'view_host': VIEW_HOST,
+            'view_port': VIEW_PORT,
             'role': role, 
             'resource': resource, 
             'action': action

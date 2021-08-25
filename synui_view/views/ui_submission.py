@@ -15,7 +15,7 @@ import streamlit as st
 import streamlit.components.v1 as components 
 
 # Custom
-from config import STYLES_DIR
+from config import STYLES_DIR, SUPPORTED_COMPONENTS, TRACKER_HOST, TRACKER_PORT
 from synergos import Driver
 from views.core.processes import TrackedProcess
 from views.utils import (
@@ -34,7 +34,6 @@ from views.utils import (
 R_TYPE = "model"
 
 SUPPORTED_DASHBOARDS = ['Launchpad', 'Command Station']
-SUPPORTED_COMPONENTS = ['catalogue', 'logger', 'meter', 'mlops', 'mq', 'ui']
 SUPPORTED_OPTIONS = ["Preview results", "Download results"]
 
 GLOBAL_CSS_PATH = os.path.join(STYLES_DIR, "custom", "st_global.css")
@@ -55,47 +54,6 @@ def _f(target: str, padding: int = PADDING, postfix: str = ":") -> str:
         Padded string (str)
     """
     return target.ljust(padding, " ") + postfix
-
-###############################################
-# Submission UI Option - Open command station #
-###############################################
-
-def load_command_station(driver: Driver, filters: Dict[str, str]):
-    """ Loads up a consoldated view of IFrames of all registered Synergos
-        components corresponding to the specified set of filters
-
-    Args:
-        driver (Driver): Helper object to facilitate connection
-        filters (dict): Composite key set identifying a specific federated job
-    """
-    load_custom_css(css_path=GLOBAL_CSS_PATH)
-    load_custom_css(css_path=IFRAME_CSS_PATH)
-
-    collab_id = filters.get('collab_id', '')
-    collab_data = driver.collaborations.read(collab_id).get('data', {})
-
-    if collab_data:
-
-        command_station = components.declare_component(
-            "command_station",
-            url="http://127.0.0.1:4002"
-        )
-        command_station(
-            Meter="http://localhost:15672",
-            Catalogue="http://localhost:15672",
-            MLOps="http://localhost:15672",
-            Logs="http://127.0.0.1:9000",
-            MQ="http://localhost:15672"
-        )
-
-    else:
-        st.warning(
-            f"""
-            Specified Collaboration {collab_id} does not exist!
-
-            Please check that you have chosen the correct federated key set before trying again.
-            """
-        )
 
 #########################################
 # Submission UI Option - Open Launchpad #
@@ -402,7 +360,10 @@ def perform_healthcheck(driver: Driver, filters: Dict[str, str]) -> Tuple[bool]:
 
         return detected_components
 
-    def check_logger_connections(collab_data: Dict[str, Any]) -> bool:
+    def check_component_connections(
+        component: str, 
+        collab_data: Dict[str, Any]
+    ) -> bool:
         """ Retrieves logger configurations and tests if connection is active
 
         Args:
@@ -411,46 +372,12 @@ def perform_healthcheck(driver: Driver, filters: Dict[str, str]) -> Tuple[bool]:
         Returns:
             Is logger active (bool)
         """
-        logger_host = collab_data.get('logger_host', "")
-        logger_ports = collab_data.get('logger_ports', {})
-        for _, port in logger_ports.items():
-            if not is_connection_valid(logger_host, port):
+        component_info = collab_data.get(component, {})
+        component_host = component_info.get('host', "")
+        component_ports = component_info.get('ports', {})
+        for _, port in component_ports.items():
+            if not is_connection_valid(component_host, port):
                 return False
-
-        return True
-
-    def check_mlops_connection(collab_data: Dict[str, Any]) -> bool:
-        """ Retrieves mlops configurations and tests if connection is active
-
-        Args:
-            collab_data (list): A single collaboration archive that stores
-                connection information of all deployed components
-        Returns:
-            Is mlops active (bool)
-        """
-        mlops_host = collab_data.get('mlops_host', "")
-        mlops_port = collab_data.get('mlops_port', "")
-
-        if not is_connection_valid(mlops_host, mlops_port):
-            return False
-
-        return True
-
-    def check_mq_connection(collab_data: Dict[str, Any]) -> bool:
-        """ Retrieves message queue configurations and tests if connection is 
-            active
-
-        Args:
-            collab_data (list): A single collaboration archive that stores
-                connection information of all deployed components
-        Returns:
-            Is MQ active (bool)
-        """
-        mq_host = collab_data.get('mq_host', "")
-        mq_port = collab_data.get('mq_port', "")
-
-        if not is_connection_valid(mq_host, mq_port):
-            return False
 
         return True
 
@@ -487,19 +414,15 @@ def perform_healthcheck(driver: Driver, filters: Dict[str, str]) -> Tuple[bool]:
     def parse_state(state: bool) -> str:
         return "online" if state else "unavailable"
 
-    DEPLOYMENT_CHECKERS = {
-        SUPPORTED_COMPONENTS[1]: check_logger_connections,
-        SUPPORTED_COMPONENTS[3]: check_mlops_connection,
-        SUPPORTED_COMPONENTS[4]: check_mq_connection
-    }  
-
     collab_id = filters.get('collab_id', "")
     project_id = filters.get('project_id', "")
 
     collab_data = driver.collaborations.read(collab_id).get('data', {})
     detected_components = detect_deployed_components(collab_data)
     component_states = {
-        component.upper(): parse_state(DEPLOYMENT_CHECKERS[component](collab_data))
+        component.upper(): parse_state(check_component_connections(
+            component, collab_data
+        ))
         for component in detected_components
     }
 
@@ -779,6 +702,84 @@ def load_launchpad(driver: Driver, filters: Dict[str, str]):
 
                     fl_job.stop()
                     st.info("Job Completed! Please refresh to view results.")
+
+
+
+###############################################
+# Submission UI Option - Open command station #
+###############################################
+
+def load_command_station(driver: Driver, filters: Dict[str, str]):
+    """ Loads up a consoldated view of IFrames of all registered Synergos
+        components corresponding to the specified set of filters
+
+    Args:
+        driver (Driver): Helper object to facilitate connection
+        filters (dict): Composite key set identifying a specific federated job
+    """
+    def generate_url(host: str, port: int, secure: bool) -> str:
+        """ Constructs URL to contact UI of component
+
+        Args:
+            host (str): IP of VM component is hosted on
+            port (int): Port allocated to service
+            secure (bool): Is connection secured (i.e. TLS -> http vs https)
+        Returns:
+            URL (str)
+        """
+        protocol = "https" if secure else "http"
+        return f"{protocol}://{host}:{port}"
+
+    def extract_ui_metadata(collab_data: Dict[str, Any]) -> Dict[str, str]:
+        """ Parses and detects all components declared in a collaboration and
+            constructs their respective UI URLs for iframe embedding
+
+        Args:
+            collab_data (list): A single collaboration archive that stores
+                connection information of all deployed components
+        Returns:
+            UI URLs (dict)
+        """
+        ui_urls = {}
+        for component in SUPPORTED_COMPONENTS:
+            component_info = collab_data.get(component, {})
+            component_host = component_info.get('host')
+            component_ui_port = component_info.get('ports', {}).get('ui')
+            is_secured = component_info.get('secure')
+            
+            if component_host and component_ui_port:
+                ui_command = SUPPORTED_COMPONENTS[component]['command']
+                ui_url = generate_url(
+                    host=component_host, 
+                    port=component_ui_port, 
+                    secure=is_secured
+                )
+                ui_urls[ui_command] = ui_url
+
+        return ui_urls
+
+    load_custom_css(css_path=GLOBAL_CSS_PATH)
+    load_custom_css(css_path=IFRAME_CSS_PATH)
+
+    collab_id = filters.get('collab_id', '')
+    collab_data = driver.collaborations.read(collab_id).get('data', {})
+
+    if collab_data:
+        ui_urls = extract_ui_metadata(collab_data)
+        command_station = components.declare_component(
+            "command_station",
+            url=f"http://{TRACKER_HOST}:{TRACKER_PORT}"
+        )
+        command_station(**ui_urls)
+        
+    else:
+        st.warning(
+            f"""
+            Specified Collaboration {collab_id} does not exist!
+
+            Please check that you have chosen the correct federated key set before trying again.
+            """
+        )
 
 
 

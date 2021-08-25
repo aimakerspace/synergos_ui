@@ -11,6 +11,7 @@
 import streamlit as st
 
 # Custom
+from config import SUPPORTED_COMPONENTS, DEFAULT_DEPLOYMENTS
 from synergos import Driver
 from views.renderer import CollaborationRenderer
 from views.utils import (
@@ -31,28 +32,17 @@ from views.utils import (
 # Configurations #
 ##################
 
+SUPPORTED_COMPONENT_NAMES = [
+    metadata['name'] 
+    for metadata in SUPPORTED_COMPONENTS.values()
+]
+
 SUPPORTED_ACTIONS = [
     "Create new collaboration(s)",
     "Browse existing collaboration(s)",
     "Update existing collaboration(s)",
     "Remove existing collaboration(s)"
 ]
-
-DEFAULT_DEPLOYMENTS = {
-    'Basic': [],
-    'Monitored SME': [
-        "Synergos Logger",
-        # "Synergos Meter",
-        "Synergos MLOps"
-    ],
-    'SynCluster': [
-        # "Synergos Catalogue",
-        "Synergos Logger",
-        # "Synergos Meter",
-        "Synergos MLOps",
-        "Synergos MQ"
-    ]
-}
 
 R_TYPE = "collaboration"
 
@@ -127,7 +117,7 @@ def create_collaborations(driver: Driver = None):
     columns = st.beta_columns(3)
 
     synergos_variant = columns[0].selectbox(
-        label="Variant:",
+        label="Configuration:",
         options=list(DEFAULT_DEPLOYMENTS.keys()),
         help="Declare which variant of Synergos you deployed for this collaboration."
     )
@@ -140,10 +130,9 @@ def create_collaborations(driver: Driver = None):
         same server. Conversely, selecting 'distributed' indicates a more 
         complex network deployed."""
     )
-
     default_host = "localhost" if deployment_mode == 'local' else ""
 
-    orchestrator_options = ["TTP" if synergos_variant != "SynCluster" else "Director"]
+    orchestrator_options = ["Director" if synergos_variant == "Synergos Cluster" else "TTP"]
     orchestrator_deployed = columns[2].selectbox(
         label="Orchestrator Type", 
         options=orchestrator_options,
@@ -158,68 +147,42 @@ def create_collaborations(driver: Driver = None):
 
     optional_components_deployed = st.multiselect(
         label="Supplementary components deployed for collaboration:", 
-        options=[
-            # "Synergos Catalogue",
-            "Synergos Logger",
-            # "Synergos Meter",
-            "Synergos MLOps",
-            "Synergos MQ",
-            # "Synergos UI"
-        ], 
+        options=SUPPORTED_COMPONENT_NAMES, 
         default=DEFAULT_DEPLOYMENTS[synergos_variant],
         help="Declare which Addons were deployed alongside the core components."
     )
 
     collab_task = driver.collaborations
-    for idx, component in enumerate(optional_components_deployed, start=1):
-
-        st.markdown(f"{idx}. Register specs for {component}:")
+    for idx, component_name in enumerate(optional_components_deployed, start=1):
         
-        if component == "Synergos Catalogue":
-            catalogue_info = collab_renderer.render_catalogue_metadata()
-            collab_task.configure_catalogue(
-                host=catalogue_info['catalogue_host'], 
-                port=catalogue_info['catalogue_port']
-            )
+        with st.beta_expander(
+            label=f"{idx}. Register specs for {component_name}",
+            expanded=False
+        ):
+            if component_name == "Synergos Catalogue":
+                catalogue_info = collab_renderer.render_catalogue_metadata()
+                if catalogue_info:
+                    collab_task.configure_catalogue(**catalogue_info)
 
-        elif component == "Synergos Logger":
-            logger_info = collab_renderer.render_logger_metadata()
-            logger_ports = logger_info['logger_ports']
-            collab_task.configure_logger(
-                host=logger_info['logger_host'], 
-                sysmetrics_port=logger_ports['sysmetrics'],
-                director_port=logger_ports['director'],
-                ttp_port=logger_ports['ttp'],
-                worker_port=logger_ports['worker']
-            )
+            elif component_name == "Synergos Logger":
+                logger_info = collab_renderer.render_logger_metadata()
+                if logger_info:
+                    collab_task.configure_logger(**logger_info)
 
-        elif component == "Synergos Meter":
-            meter_info = collab_renderer.render_meter_metadata()
-            collab_task.configure_meter(
-                host=meter_info['meter_host'], 
-                port=meter_info['meter_port']
-            )
+            elif component_name == "Synergos Meter":
+                meter_info = collab_renderer.render_meter_metadata()
+                if meter_info:
+                    collab_task.configure_meter(**meter_info)
 
-        elif component == "Synergos MLOps":
-            mlops_info = collab_renderer.render_mlops_metadata()
-            collab_task.configure_mlops(
-                host=mlops_info['mlops_host'], 
-                port=mlops_info['mlops_port']
-            )
+            elif component_name == "Synergos MLOps":
+                mlops_info = collab_renderer.render_mlops_metadata()
+                if mlops_info:
+                    collab_task.configure_mlops(**mlops_info)
 
-        elif component == "Synergos MQ":
-            mq_info = collab_renderer.render_mq_metadata()
-            collab_task.configure_mq(
-                host=mq_info['mq_host'], 
-                port=mq_info['mq_port']
-            )
-
-        elif component == "Synergos UI":
-            ui_info = collab_renderer.render_ui_metadata()
-            collab_task.configure_ui(
-                host=ui_info['ui_host'], 
-                port=ui_info['ui_port']
-            )
+            elif component_name == "Synergos MQ":
+                mq_info = collab_renderer.render_mq_metadata()
+                if mq_info:
+                    collab_task.configure_mq(**mq_info)
 
     ##################################
     # Step 3: Register collaboration #
@@ -313,22 +276,50 @@ def update_collaborations(driver: Driver = None):
     st.header("Step 1: Modify your collaboration of interest")
     selected_collab_id, updated_collab = render_collaborations(driver=driver)
                 
+    collab_task = driver.collaborations
+    removed_components = {}
+    for component, updated_info in updated_collab.items():
+        
+        if updated_info:
+            if component == "catalogue":
+                collab_task.configure_catalogue(**updated_info)
+
+            elif component == "logs":
+                collab_task.configure_logger(**updated_info)
+
+            elif component == "meter":
+                collab_task.configure_meter(**updated_info)
+
+            elif component == "mlops":
+                collab_task.configure_mlops(**updated_info)
+
+            elif component == "mq":
+                collab_task.configure_mq(**updated_info)
+        else:
+            removed_components[component] = updated_info
+
     ##################################
     # Step 2: Register collaboration #
     ##################################
 
     st.header("Step 2: Submit your collaboration entry")
+    updated_configurations = {
+        **collab_task._compile_configurations(), 
+        **removed_components
+    }
     is_confirmed = render_confirmation_form(
-        data=updated_collab,
+        data=updated_configurations,
         r_type=R_TYPE,
         r_action="update",
         use_warnings=False    
     )
     if is_confirmed:
-        update_resp = driver.collaborations.update(
-            collab_id=selected_collab_id, 
-            **updated_collab
+
+        update_resp = collab_task.update(
+            collab_id=selected_collab_id,
+            **removed_components  # for component deletion, manually override
         )
+
         is_request_successful(update_resp)
 
 
