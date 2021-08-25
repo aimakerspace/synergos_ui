@@ -67,12 +67,7 @@ class TagRenderer(BaseRenderer):
     # Helpers #
     ###########
 
-    def __parse_to_tags(
-        self, 
-        meta: str, 
-        tag_string: str,
-        signature: str = ""
-    ) -> List[List[str]]:
+    def __parse_to_tags(self, meta: str, tag_string: str) -> List[List[str]]:
         """ Acquires and convert declared paths to data sources into data tags 
 
         Args:
@@ -87,7 +82,7 @@ class TagRenderer(BaseRenderer):
             label=f"{meta.upper()} Data Sources:", 
             options=data_meta_paths, 
             default=data_meta_paths,
-            key=f"{meta}_options_{signature}"
+            key=f"{meta}_options"
         )
 
         data_meta_tokens = [
@@ -173,7 +168,7 @@ class TagRenderer(BaseRenderer):
     def render_tag_metadata(
         self, 
         data: Dict[str, Any] = {},
-        signature: str = ""
+        tags: List[str] = ["train", "evaluate", "predict"]
     ) -> Dict[str, List[List[str]]]:
         """ Renders entry field for specifying dataset tags for use in 
             Synergos
@@ -181,15 +176,13 @@ class TagRenderer(BaseRenderer):
         Returns:
             Tag details (dict)
         """
-        TAG_KEYS = ["train", "evaluate", "predict"]
-
         with st.beta_container():
             columns = st.beta_columns((1,2))
             dataset_types = columns[0].multiselect(
                 label="Select dataset type(s):",
-                options=TAG_KEYS,
-                default=TAG_KEYS,
-                key=f"tag_keys_{signature}"
+                options=tags,
+                default=tags,
+                key="tag_keys"
             )
 
             st.markdown("---")
@@ -212,13 +205,12 @@ class TagRenderer(BaseRenderer):
                         value="\n".join(meta_tag_paths),
                         help=f"All {dataset_type.upper()} tag declarations must \
                         be made here.",
-                        key=f"dataset_type_{dataset_type}_{signature}"
+                        key=f"dataset_type_{dataset_type}"
                     ).replace('\'', '"')
 
                     updated_meta_tags = self.__parse_to_tags(
                         meta=dataset_type,
-                        tag_string=updated_meta_string,
-                        signature=signature
+                        tag_string=updated_meta_string
                     )
 
                 with columns[1]:

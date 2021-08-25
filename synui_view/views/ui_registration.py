@@ -15,13 +15,11 @@ from synergos import Driver
 from views.renderer import RegistrationRenderer, TagRenderer
 from views.utils import (
     is_request_successful,
-    rerun,
     render_orchestrator_inputs,
     render_cascading_filter,
     render_confirmation_form,
     render_collaborations,
     render_projects,
-    render_participant,
     render_participant_registrations,
     MultiApp
 )
@@ -201,16 +199,12 @@ def update_registrations(driver: Driver = None, participant_id: str = None):
 
     if is_confirmed:
         
-        try:
-            updated_user_role = updated_node_details.get('role')
-            updated_node_info = updated_node_details.get('nodes') 
-            
+        try:           
             # Submit registrations
             registration_task = driver.registrations
             reg_update_resp = registration_task.update(
-                **key,
-                role=updated_user_role,
-                **updated_node_info
+                **key, 
+                **updated_node_details
             )
             st.info("Processing node registrations...")
             is_request_successful(reg_update_resp)

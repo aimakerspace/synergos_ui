@@ -92,7 +92,9 @@ class RegistrationRenderer(BaseRenderer):
             with st.beta_container():
                 columns = st.beta_columns(min(node_count, MAX_PER_ROW))
 
-                updated_node_details = {}
+                has_missing_definitions = False
+                updated_node_details = []
+                invalid_node_idxs = []
                 for node_idx in range(node_count):
                     
                     col_idx = node_idx % MAX_PER_ROW
@@ -117,12 +119,12 @@ class RegistrationRenderer(BaseRenderer):
                                 key=node_name
                             )
                             updated_input_rpc_port = st.number_input(
-                                label="RPC Port:",
+                                label="Command Port:",
                                 value=curr_rpc_port,
                                 key=node_name
                             )
                             updated_input_syft_port = st.number_input(
-                                label="Syft Port:",
+                                label="Data Port:",
                                 value=curr_syft_port,
                                 key=node_name
                             )
@@ -140,18 +142,44 @@ class RegistrationRenderer(BaseRenderer):
                                     value=verbose,
                                     key=node_name
                                 )
-                    
-                            updated_node_details[f"node_{node_idx}"] = {
-                                'host': updated_input_host,
-                                'f_port': updated_input_rpc_port,
-                                'port': updated_input_syft_port,
-                                'log_msgs': updated_log_msgs,
-                                'verbose': updated_verbose
-                            }
 
-                            st.markdown("---")
+                            # Only take in node updates that are valid
+                            if (
+                                updated_input_host and 
+                                updated_input_rpc_port and 
+                                updated_input_syft_port
+                            ):
+                                updated_node_info = {
+                                    'host': updated_input_host,
+                                    'f_port': updated_input_rpc_port,
+                                    'port': updated_input_syft_port,
+                                    'log_msgs': updated_log_msgs,
+                                    'verbose': updated_verbose
+                                }
+                                updated_node_details.append(updated_node_info)
 
-        return {'nodes': updated_node_details}
+                            else:
+                                has_missing_definitions = True
+                                invalid_node_idxs.append(node_name)
+
+                        st.markdown("---")
+                
+                if has_missing_definitions:
+                    st.warning(
+                        f"""
+                        Invalid definitions detected for: {", ".join(invalid_node_idxs)} 
+                        
+                        These node(s) will be skipped and node indexes will be reflowed automatically.
+                        """
+                    )
+
+        # Reflow indexes to accomodate pruned nodes
+        final_nodes = {
+            f"node_{node_idx}": node_info 
+            for node_idx, node_info in enumerate(updated_node_details)
+        }
+
+        return {**final_nodes, 'n_count': len(final_nodes)}
 
 
     ##################
@@ -177,6 +205,5 @@ class RegistrationRenderer(BaseRenderer):
 
         updated_role = self.render_role_declaration(data)
         updated_nodes = self.render_registration_metadata(data)
-
 
         return {**updated_role, **updated_nodes}

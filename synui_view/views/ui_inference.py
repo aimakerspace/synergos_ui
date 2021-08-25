@@ -107,10 +107,7 @@ def commence_inference(
         collab_id=selected_collab_id,
         project_id=selected_project_id
     ).get('data', {})
-    updated_tags = tag_renderer.render_tag_metadata(
-        data=tag_details,
-        signature="updated_tags"
-    )
+    updated_tags = tag_renderer.render_tag_metadata(data=tag_details)
 
     predict_tags = updated_tags.get('predict', {})
 
