@@ -6,10 +6,7 @@
 
 # Generic/Built-in
 import os
-import json
-import logging
-import time
-from datetime import date, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Callable, Dict, List, Any, Union
 
@@ -30,7 +27,21 @@ from synergos import Driver
 #########################################
 
 class TrackedProcess:
-    """
+    """ 
+    Tracking class to help manage asynchronous requests for the same model
+    and validation resources within a federated cycle. Only one party is
+    allowed to trigger the intended process, while subsequent queries will
+    get blocked until job has completed. This is done by tracking the existence
+    of a tempfile that is generated upon process startup.
+
+    Attributes:
+        __STATUS (list(str)):
+        extension (str): File extension/format of the generated tempfile
+        connector (str): Connecting symbol for internal string constructions
+        driver (Driver): Synergos abstraction object to facilitate REST operations
+        p_type (str): Process type to be tracked in the context of the FL cycle
+        filters (dict): Composite key of hierarchical IDs uniquely identifying
+            the specified FL cycle to be tracked
     """
     def __init__(
         self, 
@@ -258,3 +269,104 @@ class TrackedProcess:
             return self.statuses[2]
         else:
             raise RuntimeError("Request was made during transition. Please try again.")
+
+
+
+###########################################
+# Custom Tracker class - TrackedInference #
+###########################################
+
+class TrackedInference(TrackedProcess):
+    """ 
+    Tracking class to help manage asynchronous requests for the same prediction
+    resources, to be performed by the participant. Participants are only allowed
+    to trigger the intended process ONCE, while subsequent participant queries
+    to the same job will get blocked until job has completed. The tracking 
+    mechanism is similar to its parent class (i.e. via means of a tempfile)
+
+    Attributes:
+        __STATUS (list(str)):
+        extension (str): File extension/format of the generated tempfile
+        connector (str): Connecting symbol for internal string constructions
+        driver (Driver): Synergos abstraction object to facilitate REST operations
+        p_type (str): Process type to be tracked in the context of the FL cycle
+        filters (dict): Composite key of hierarchical IDs uniquely identifying
+            the specified FL cycle to be tracked
+    """
+    def __init__(
+        self, 
+        driver: Driver,
+        participant_id: str,
+        filters: Dict[str, str],
+        connector: str = "_-_",
+        extension: str = "txt"
+    ) -> Dict[str, str]:
+        super().__init__(
+            driver=driver,
+            p_type="inference",
+            filters=filters,
+            connector=connector,
+            extension=extension
+        )
+        self.participant_id = participant_id
+
+    ###########
+    # Getters #
+    ###########
+
+    def is_idle(self) -> bool:
+        """ Checks if the job corresponding to the current keyset is 
+            unattempted. An inference rocess is considered as idle if no 
+            tempfile is detected and no inference results are pulled from 
+            REST-RPC for the current set of filters (i.e. completed).
+
+        Returns:
+            Idling state (bool)
+        """
+        tmp_file = self.generate_tracking_path()
+        is_started = os.path.isfile(tmp_file)
+        return not is_started and not self.is_completed()
+
+
+    def is_running(self) -> bool:
+        """ Checks if the job corresponding to the current keyset is 
+            still in progress. An inference process is considered as in 
+            progress if a tempfile is detected. Unlike its parent, since 
+            inference archives are overwritable, there is no need to check if
+            it already exists.
+
+        Returns:
+            Idling state (bool)
+        """
+        tmp_file = self.generate_tracking_path()
+        is_started = os.path.isfile(tmp_file)
+        return is_started
+
+
+    def is_completed(self) -> bool:
+        """ Checks if the job corresponding to the current keyset is 
+            completed. An inference process is considered as completed if the
+            predictions corresponding to the current set of filters is 
+            accessible from REST-RPC.
+
+        Returns:
+            Completed state (bool)
+        """
+        pred_stats = self.driver.predictions.read(
+            participant_id=self.participant_id,
+            **self.filters
+        ).get('data', {})
+        return bool(pred_stats)
+
+    ###########
+    # Helpers #
+    ###########
+
+    def generate_tracking_id(self) -> str:
+        """ Generates a unique tracking ID for the specified set of filters
+        
+        Returns:
+            Tracking ID (str)
+        """
+        process_tracking_id = super().generate_tracking_id()
+        return self.connector.join([self.participant_id, process_tracking_id])

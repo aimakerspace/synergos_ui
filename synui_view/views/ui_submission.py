@@ -562,9 +562,11 @@ def load_launchpad(driver: Driver, filters: Dict[str, str]):
                 with st.beta_expander(label="Alerts", expanded=True):
                     st.warning(
                         """
-                        You have chosen to override current job state.
+                        You have chosen to override the current job state.
 
                         This will rerun the current federated job.
+
+                        Your previous results will be erased.
 
                         Please confirm to proceed.
                         """

@@ -106,8 +106,6 @@ def create_registrations(driver: Driver = None, participant_id: str = None):
             # Submit registrations
             registration_task = driver.registrations
             for _, info in sorted(node_details.items(), key=lambda x: x[0]):
-
-                st.write(info)
                 registration_task.add_node(**info)
 
             reg_create_resp = registration_task.create(

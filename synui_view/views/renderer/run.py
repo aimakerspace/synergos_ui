@@ -181,8 +181,10 @@ class RunRenderer(BaseRenderer):
 
             with right_column:
                 if is_previewed:
-                    with st.echo(code_location='below'):
-                        st.write(data)
+                    st.code(
+                        json.dumps(data, sort_keys=True, indent=4),
+                        language="json"
+                    )
 
         with st.beta_container():
             left_column, right_column = st.beta_columns(2)

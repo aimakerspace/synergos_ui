@@ -132,8 +132,10 @@ class ExperimentRenderer(BaseRenderer):
 
                 is_previewed = st.checkbox(label="Preview layer changes")
                 if is_previewed:
-                    with st.echo(code_location="below"):
-                        st.write(updated_layer)
+                    st.code(
+                        json.dumps(updated_layer, sort_keys=True, indent=4),
+                        language="json"
+                    )
 
             st.markdown("---")
 
@@ -173,8 +175,10 @@ class ExperimentRenderer(BaseRenderer):
 
                 with right_column:
                     if is_previewed:
-                        with st.echo(code_location='below'):
-                            st.write(model)
+                        st.code(
+                            json.dumps(model, sort_keys=True, indent=4),
+                            language="json"
+                        )
 
             with st.beta_container():
                 left_column, right_column = st.beta_columns(2)

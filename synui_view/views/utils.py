@@ -413,6 +413,7 @@ def render_upstream_hierarchy(r_type: str, driver: Driver) -> Dict[str, str]:
 
 def render_cascading_filter(
     driver: Driver,
+    r_type: str = "",
     show_details: bool = True
 ) -> Dict[str, str]:
     """ Renders a dynamic filter that allows users to traverse the federated
@@ -421,6 +422,8 @@ def render_cascading_filter(
     Returns:
         Composite Filtering keys (dict)
     """
+    SUPPORTED_RECORDS = ["collaboration", "project", "experiment", "run", "model"]
+
     with st.sidebar.beta_container():
         st.header("USER")
 
@@ -444,7 +447,73 @@ def render_cascading_filter(
     else:
         participant_filters = []
 
-    return participant_id, participant_filters
+    with st.sidebar.beta_container():
+
+        st.header("FILTERS")
+
+        with st.beta_expander("Key Parameters", expanded=True):
+
+            combination_key = {}
+
+            if r_type in SUPPORTED_RECORDS[1:]:
+                collab_ids = [
+                    keyset.get('collab_id', "") 
+                    for keyset in participant_filters
+                ]
+                selected_collab_id = st.selectbox(
+                    label="Collaboration ID:", 
+                    options=collab_ids,
+                    help="Select a collaboration to peruse."
+                )
+                combination_key['collab_id'] = selected_collab_id
+
+                if r_type in SUPPORTED_RECORDS[2:]:
+                    project_ids = [
+                        keyset.get('project_id', "") 
+                        for keyset in participant_filters
+                        if keyset.get('collab_id') == selected_collab_id
+                    ]
+                    selected_project_id = st.selectbox(
+                        label="Project ID:", 
+                        options=project_ids,
+                        help="""Select a project to peruse."""
+                    )
+                    combination_key['project_id'] = selected_project_id
+
+                    if r_type in SUPPORTED_RECORDS[3:]:
+                        expt_data = driver.experiments.read_all(
+                            collab_id=selected_collab_id, 
+                            project_id=selected_project_id
+                        ).get('data', [])
+                        expt_ids = [
+                            expt_record.get('key', {}).get('expt_id', "")
+                            for expt_record in expt_data
+                        ]
+                        selected_expt_id = st.selectbox(
+                            label="Experiment ID:", 
+                            options=expt_ids,
+                            help="""Select an experiment to peruse."""
+                        )
+                        combination_key['expt_id'] = selected_expt_id
+
+                        if r_type in SUPPORTED_RECORDS[4:]:
+                            run_data = driver.runs.read_all(
+                                collab_id=selected_collab_id,
+                                project_id=selected_project_id,
+                                expt_id=selected_expt_id
+                            ).get('data', [])
+                            run_ids = [
+                                run_record.get('key', {}).get('run_id', "")
+                                for run_record in run_data
+                            ]
+                            selected_run_id = st.selectbox(
+                                label="Run ID:", 
+                                options=run_ids,
+                                help="""Select an run to peruse."""
+                            )
+                            combination_key['run_id'] = selected_run_id
+
+    return participant_id, combination_key
 
     
 def render_confirmation_form(
