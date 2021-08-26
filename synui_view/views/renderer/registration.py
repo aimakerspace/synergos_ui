@@ -179,7 +179,7 @@ class RegistrationRenderer(BaseRenderer):
             for node_idx, node_info in enumerate(updated_node_details)
         }
 
-        return {**final_nodes, 'n_count': len(final_nodes)}
+        return final_nodes
 
 
     ##################
@@ -206,4 +206,4 @@ class RegistrationRenderer(BaseRenderer):
         updated_role = self.render_role_declaration(data)
         updated_nodes = self.render_registration_metadata(data)
 
-        return {**updated_role, **updated_nodes}
+        return {**updated_role, **updated_nodes, 'n_count': len(updated_nodes)}

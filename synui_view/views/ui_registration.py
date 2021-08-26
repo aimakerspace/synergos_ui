@@ -78,8 +78,8 @@ def create_registrations(driver: Driver = None, participant_id: str = None):
 
     st.header("Step 2: Register your compute resources")
     with st.beta_expander("Node Registration"):
-        user_role = registration_renderer.render_role_declaration().get('role')
-        node_details = registration_renderer.render_registration_metadata().get('nodes')
+        user_role = registration_renderer.render_role_declaration()
+        node_details = registration_renderer.render_registration_metadata()
 
     ######################################
     # Step 3: Register your dataset tags #
@@ -95,11 +95,7 @@ def create_registrations(driver: Driver = None, participant_id: str = None):
 
     st.header(f"Step 4: Submit your {R_TYPE} entry")
     is_confirmed = render_confirmation_form(
-        data={
-            'role': user_role, 
-            'nodes': node_details,
-            'tags': tag_details
-        },
+        data={**user_role, 'nodes': node_details, 'tags': tag_details},
         r_type=R_TYPE,
         r_action="creation",
         use_warnings=False    
@@ -110,13 +106,15 @@ def create_registrations(driver: Driver = None, participant_id: str = None):
             # Submit registrations
             registration_task = driver.registrations
             for _, info in sorted(node_details.items(), key=lambda x: x[0]):
+
+                st.write(info)
                 registration_task.add_node(**info)
 
             reg_create_resp = registration_task.create(
                 collab_id=selected_collab_id,
                 project_id=selected_project_id,
                 participant_id=participant_id,
-                role=user_role
+                **user_role
             )
             st.info("Processing node registrations...")
             is_request_successful(reg_create_resp)

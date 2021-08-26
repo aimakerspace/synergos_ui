@@ -56,6 +56,7 @@
         </div>
     </div>
 
+    {% if resource not in ["inferences"] %}
     <!-- Retrieval Pipeline -->
     <div class="row">
         <div class="container custom-card">
@@ -69,6 +70,7 @@
             </a>
         </div>
     </div>
+    {% endif %}
 
     {% if resource not in ["optimizations", "analytics", "inferences"] %}
     <!-- Update Pipeline -->

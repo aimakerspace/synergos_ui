@@ -28,6 +28,7 @@ from views.utils import (
 # Configurations #
 ##################
 
+SUPPORTED_ACTIONS = ["Submit inference request"]
 SUPPORTED_OPTIONS = ["Preview results", "Download results"]
 
 participant_renderer = ParticipantRenderer()
@@ -47,7 +48,8 @@ def commence_inference(
     participant_id: str = "",
     filters: List[Dict[str, str]] = []
 ):
-    """
+    """ Loads up inference page for participants wanting to submit a prediction
+        request. This corresponds to Phase 3B.
     """
     st.title("Participant - Submit an Inference Job")
 
@@ -55,52 +57,55 @@ def commence_inference(
     # A. Extract hierarchical keys #
     ################################
 
-    collab_ids = [keyset.get('collab_id', "") for keyset in filters]
-    selected_collab_id = st.selectbox(
-        label="Collaboration ID:", 
-        options=collab_ids,
-        help="Select a collaboration to peruse."
-    )
+    columns = st.beta_columns((2,1))
 
-    project_ids = [
-        keyset.get('project_id', "") 
-        for keyset in filters
-        if keyset.get('collab_id') == selected_collab_id
-    ]
-    selected_project_id = st.selectbox(
-        label="Project ID:", 
-        options=project_ids,
-        help="""Select a project to peruse."""
-    )
+    with columns[0]:
+        collab_ids = [keyset.get('collab_id', "") for keyset in filters]
+        selected_collab_id = st.selectbox(
+            label="Collaboration ID:", 
+            options=collab_ids,
+            help="Select a collaboration to peruse."
+        )
 
-    expt_data = driver.experiments.read_all(
-        collab_id=selected_collab_id, 
-        project_id=selected_project_id
-    ).get('data', [])
-    expt_ids = [
-        expt_record.get('key', {}).get('expt_id', "")
-        for expt_record in expt_data
-    ]
-    selected_expt_id = st.selectbox(
-        label="Experiment ID:", 
-        options=expt_ids,
-        help="""Select an experiment to peruse."""
-    )
+        project_ids = [
+            keyset.get('project_id', "") 
+            for keyset in filters
+            if keyset.get('collab_id') == selected_collab_id
+        ]
+        selected_project_id = st.selectbox(
+            label="Project ID:", 
+            options=project_ids,
+            help="""Select a project to peruse."""
+        )
 
-    run_data = driver.runs.read_all(
-        collab_id=selected_collab_id,
-        project_id=selected_project_id,
-        expt_id=selected_expt_id
-    ).get('data', [])
-    run_ids = [
-        run_record.get('key', {}).get('run_id', "")
-        for run_record in run_data
-    ]
-    selected_run_id = st.selectbox(
-        label="Run ID:", 
-        options=run_ids,
-        help="""Select an run to peruse."""
-    )
+        expt_data = driver.experiments.read_all(
+            collab_id=selected_collab_id, 
+            project_id=selected_project_id
+        ).get('data', [])
+        expt_ids = [
+            expt_record.get('key', {}).get('expt_id', "")
+            for expt_record in expt_data
+        ]
+        selected_expt_id = st.selectbox(
+            label="Experiment ID:", 
+            options=expt_ids,
+            help="""Select an experiment to peruse."""
+        )
+
+        run_data = driver.runs.read_all(
+            collab_id=selected_collab_id,
+            project_id=selected_project_id,
+            expt_id=selected_expt_id
+        ).get('data', [])
+        run_ids = [
+            run_record.get('key', {}).get('run_id', "")
+            for run_record in run_data
+        ]
+        selected_run_id = st.selectbox(
+            label="Run ID:", 
+            options=run_ids,
+            help="""Select an run to peruse."""
+        )
 
     tag_details = driver.tags.read(
         participant_id=participant_id,
@@ -215,9 +220,8 @@ def commence_inference(
 def app(action: str):
     """ Main app orchestrating participant inference procedures """
 
-    # core_app = MultiApp()
-    # core_app.add_view(title=SUPPORTED_ACTIONS[0], func=create_collaborations)
-    # core_app.add_view(title=SUPPORTED_ACTIONS[1], func=browse_collaborations)
+    core_app = MultiApp()
+    core_app.add_view(title=SUPPORTED_ACTIONS[0], func=commence_inference)
 
     driver = render_orchestrator_inputs()
 
@@ -225,7 +229,7 @@ def app(action: str):
 
         participant_id, participant_filters = render_cascading_filter(driver)
         if participant_id:
-            commence_inference(driver, participant_id, participant_filters)
+            core_app.run(action)(driver, participant_id, participant_filters)
 
         else:
             st.warning("Please state your Participant ID to continue.")
