@@ -1,3 +1,3 @@
 [submodule "synergos_archive"]
 	path = synergos_archive
-	url = https://gitlab.int.aisingapore.org/aims/federatedlearning/synergos_archive.git
+	url = ../synergos_archive.git
