@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/cards.css">
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/home.css">
+{% endblock %}
+
+
+{% block content %}
+<div class="home-page">
+    <h1 class="title" id="home-title">Welcome to Synergos Portal</h1>
+
+    <!-- Dashboard Section -->
+    <h4 class="header" id="dashboard-header">Dashboards</h4>
+
+    <div class="dashboards row">
+
+        <!-- Orchestrator Dashboard -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/orchestrator">
+                <img class="custom-card-img" src="/static/images/orchestrator.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Orchestrator</h5>
+                    <span class="custom-card-text">Trusted Third Parties</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Participant Dashboard -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/participant">
+                <img class="custom-card-img" src="/static/images/participant.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Participant</h5>
+                    <span class="custom-card-text">Contributing entities</span>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Resources Section -->
+
+    <div class="resources row">
+        <div class="col-6">
+            <h4 class="header mb-3">Resources</h4>
+        </div>
+
+        <div class="carousel-nav col-6 text-right">
+            <a class="btn btn-primary mb-3 mr-1" href="#carouselExampleIndicators2" role="button" data-slide="prev">
+                <i class="fa fa-arrow-left"></i>
+            </a>
+            <a class="btn btn-primary mb-3 " href="#carouselExampleIndicators2" role="button" data-slide="next">
+                <i class="fa fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="col-12">
+            <div id="carouselExampleIndicators2" class="carousel slide" data-ride="carousel">
+
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <img class="img-fluid" alt="100%x280" src="/static/images/a1_overview_of_fl.png">
+                                    <div class="card-body">
+                                        <a href="https://aisingapore.org/2019/04/an-overview-of-federated-learning/?highlight=federated%20learning">
+                                            <h4 class="card-title">An Overview of Federated Learning</h4>
+                                            <p class="card-text">A look at its history, potential, progress, and challenges</p>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <img class="img-fluid" alt="100%x280" src="/static/images/a2_aisg_journey_into_fl.png">
+                                    <div class="card-body">
+                                        <a href="https://aisingapore.org/2020/10/ai-singapores-journey-into-the-world-of-federated-learning/?highlight=federated%20learning">
+                                            <h4 class="card-title">AI Singapore’s Journey Into the World of Federated Learning</h4>
+                                            <p class="card-text">Why is Federated Learning needed?</p>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <img class="img-fluid" alt="100%x280"
+                                        src="/static/images/a3_voices_from_aisg_fl_lab.png">
+                                    <div class="card-body">
+                                        <a href="https://aisingapore.org/2020/10/voices-from-the-aisg-federated-lab/?highlight=federated%20learning">
+                                            <h4 class="card-title">Voices from the AISG Federated Learning Lab</h4>
+                                            <p class="card-text">What makes FL interesting?</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <img class="img-fluid" alt="100%x280" src="/static/images/a4_peek_into_synergos.png">
+                                    <div class="card-body">
+                                        <a href="https://aisingapore.org/2020/11/a-peek-into-synergos-ai-singapores-federated-learning-system/?highlight=federated%20learning">
+                                            <h4 class="card-title">SA Peek into Synergos – AI Singapore’s Federated Learning System</h4>
+                                            <p class="card-text">The art of working together.</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <img class="img-fluid" alt="100%x280" src="/static/images/a5_do_great_things_together_fl.png">
+                                    <div class="card-body">
+                                        <a href="https://aisingapore.org/2021/01/do-great-things-together-with-federated-learning/?highlight=federated%20learning">
+                                            <h4 class="card-title">Do Great Things Together With Federated Learning</h4>
+                                            <p class="card-text">Materializing our FL dream.</p>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

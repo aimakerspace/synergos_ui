@@ -1,0 +1,15 @@
+.ttp-page {
+    padding   : 0 3rem;
+    max-height: 100%;
+    height    : auto;
+    overflow-y: auto;
+}
+
+.title {
+    margin-top   : 3rem;
+    margin-bottom: 1rem;
+}
+
+#ttp-header {
+    color: #878787;
+}

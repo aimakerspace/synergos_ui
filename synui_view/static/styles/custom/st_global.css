@@ -1,0 +1,35 @@
+/* Adjust visibility of top border (gradient-colored)  */
+.stApp>header:first-child {
+    visibility: hidden;
+}
+
+/* Adjust size of empty space at the top of each page */
+section.main>div.block-container:first-child {
+    padding-top: 1rem;
+}
+
+/* Adjust sidebar configurations */
+section[data-testid="stSidebar"]>div:first-child {
+    padding-top     : 3.5rem;
+    background-color: #f5f5f5;
+    border-radius   : 1.5rem;
+}
+
+section.main {
+    border-radius: 1.5rem;
+    color        : #000000;
+}
+
+/* 
+Quick Fix for "'setIn' cannot be called on an ElementNode" error caused by 
+st.empty() 
+*/
+[data-baseweb="modal"]>div:nth-child(2),
+[data-baseweb="modal"] div[role="dialog"] {
+    display: none;
+}
+
+/* Toggles visibility of footer */
+footer {
+    visibility: none;
+}

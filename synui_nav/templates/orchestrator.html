@@ -1,0 +1,90 @@
+{% extends "navigation.html" %}
+
+
+{% block selection_styles %}
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/cards.css">
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/orchestrator.css">
+{% endblock %}
+
+
+{% block content %}
+<div class="ttp-page">
+    <h1 class="title" id="ttp-title">Orchestrator Dashboard</h1>
+
+    <div class="row">
+
+        <!-- Collaboration Metadata Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/orchestrator/collaborations">
+                <img class="custom-card-img" src="/static/images/collaboration.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Collaborations</h5>
+                    <span class="custom-card-text">Deployment configurations</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Project Metadata Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/orchestrator/projects">
+                <img class="custom-card-img" src="/static/images/project.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Projects</h5>
+                    <span class="custom-card-text">Dataset variants</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Experiment Metadata Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/orchestrator/experiments">
+                <img class="custom-card-img" src="/static/images/experiment.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Experiments</h5>
+                    <span class="custom-card-text">Model architectures</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Run Metadata Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/orchestrator/runs">
+                <img class="custom-card-img" src="/static/images/run.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Runs</h5>
+                    <span class="custom-card-text">Hyperparameter sets</span>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <h3 class="title" id="ttp-header">Management Actions</h3>
+
+    <div class="row">
+
+        <!-- Analysis Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/orchestrator/analytics">
+                <img class="custom-card-img" src="/static/images/analyzer.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Analyse</h5>
+                    <span class="custom-card-text">Training and tracking</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Optimization Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/orchestrator/optimizations">
+                <img class="custom-card-img" src="/static/images/optimizer.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Optimize</h5>
+                    <span class="custom-card-text">Model tuning</span>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

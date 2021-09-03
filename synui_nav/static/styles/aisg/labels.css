@@ -1,0 +1,19 @@
+.labels-tags{
+    display: inline-flex;
+    font-family: 'Josefin Sans';
+    font-style: normal;
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 160%;
+    color: #E8ACAA;
+
+    width: 64px;
+    height: 24px;
+    background: rgba(244, 177, 175, 0.15);
+    border: 1px solid #F4B1AF;
+    box-sizing: border-box;
+    border-radius: 1px;
+
+    align-items: center;
+    justify-content: center;
+}

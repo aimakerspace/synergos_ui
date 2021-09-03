@@ -1,0 +1,102 @@
+.button-default-primary {
+    --name: Primary;
+    display: inline-flex;
+    width: 141px;
+    height: 40px;
+
+    background: #AE2514;
+    border-radius: 3px;
+
+    align-items: center;
+    justify-content: center;
+    color: #FBECED
+}
+
+.button-hover-primary {
+    --name: Hover;
+    display: inline-flex;
+    width: 141px;
+    height: 40px;
+
+    background: #E7593E;
+    border-radius: 3px;
+
+    align-items: center;
+    justify-content: center;
+    color: #FBECED
+}
+
+.button-pressed-primary {
+    --name: Pressed;
+    display: inline-flex;
+    width: 141px;
+    height: 40px;
+
+    background: #770000;
+    border-radius: 3px;
+
+    align-items: center;
+    justify-content: center;
+    color: #FBECED
+}
+
+.button-default-secondary {
+    --name: Secondary;
+    display: inline-flex;
+    width: 141px;
+    height: 40px;
+
+    background: rgba(251, 236, 237, 0.1);
+    border: 1px solid #AE2514;
+    border-radius: 3px;
+
+    align-items: center;
+    justify-content: center;
+    color: #770000
+}
+
+.button-hover-secondary {
+    --name: Hover;
+    display: inline-flex;
+    width: 141px;
+    height: 40px;
+
+    background: rgba(251, 236, 237, 0.5);
+    border: 1px solid #AE2514;
+    border-radius: 3px;
+
+    align-items: center;
+    justify-content: center;
+    color: #770000
+}
+
+.button-pressed-secondary {
+    --name: Pressed;
+    display: inline-flex;
+    width: 141px;
+    height: 40px;
+
+    background: #FBECED;
+    border: 1px solid #AE2514;
+    border-radius: 3px;
+
+    align-items: center;
+    justify-content: center;
+    color: #770000
+}
+
+.button-others-upload {
+    --name: Upload;
+    display: inline-flex;
+    width: 123px;
+    height: 40px;
+
+    background: #F9F6F1;
+    border: 1px solid #EEC3AB;
+    box-sizing: border-box;
+    border-radius: 3px;
+
+    align-items: center;
+    justify-content: center;
+    color: #ECA154
+}

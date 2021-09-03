@@ -1,0 +1,19 @@
+.selector-simple select{
+    font-family: 'Josefin Sans';
+    background-color: #FCFBF8;
+    color: black;
+    width: 430px;
+    height: 41px;
+    border: 1px solid #EEC3AB;
+    padding: 0.5em 1em
+  }
+
+  .selector-simple select option {
+    font-family: 'Josefin Sans';
+    line-height: 200%;
+  }
+
+  .selector-simple select option:hover{
+    font-family: 'Josefin Sans';
+    background-color: #FFF3E6;
+  }

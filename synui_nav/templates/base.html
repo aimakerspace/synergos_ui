@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Synergos Portal</title>
+    <link rel="icon" type="image/png" href="/static/images/synergos_logo.png" />
+
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="/static/styles/custom/sidebar.css">
+    <link rel="stylesheet" type="text/css" href="/static/styles/custom/viewport.css">
+
+    <!-- Other styles added here -->
+    {% block styles %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- Image and text -->
+    <nav class="topbar navbar shadow-sm navbar-dark flex-row-reverse" id="topbar">
+        <a class="navbar-brand" href="https://aisingapore.org">
+            <img src="/static/images/aisg_horizontal_logo.png" width="200" height="30" class="d-inline-block align-mid"
+                alt="">
+        </a>
+    </nav>
+
+    <nav class="main-menu" id="main-menu">
+        <div class="menu-logo">
+            <a class="logo-content" href="/">
+                <img id="logo" src="/static/images/synergos_logo.svg" alt="">
+                <h1 class="menu-logo-text">Synergos</h1>
+            </a>
+        </div>
+
+        <ul class="menu-options">
+            <li class="main-menu-item">
+                <a class="item-content" href="/home">
+                    <i class="fa fa-home fa-2x"></i>
+                    <span class="nav-text">Home</span>
+                </a>
+            </li>
+            <li class="main-menu-item">
+                <a class="item-content" href="/orchestrator">
+                    <img class="nav-icon" src="/static/images/orchestrator.svg">
+                    <span class="nav-text">Orchestrator</span>
+                </a>
+            </li>
+            <li class="main-menu-item">
+                <a class="item-content" href="/participant">
+                    <img class="nav-icon" src="/static/images/participant.svg">
+                    <span class="nav-text">Participants</span>
+                </a>
+            </li>
+            <li class="main-menu-item">
+                <a class="item-content" href="#">
+                    <i class="fa fa-info fa-2x"></i>
+                    <span class="nav-text">Documentation</span>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="helpline">
+            <li class="main-menu-item">
+                <a class="item-content" href="https://aisingapore.org/home/contact/">
+                    <i class="fa bi-question-circle fa-2x"></i>
+                    <span class="nav-text">Help</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="container-fluid mw-100 mh-100" id="viewport">
+        {% block breadcrumb %}{% endblock %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+        crossorigin="anonymous"></script>
+    <script>
+        function setURL(url) {
+            document.getElementById('streamlit_content').src = url;
+            console.log('Works!')
+        }
+    </script>
+    <script type="text/javascript">
+        $(function() {
+            // this will get the full URL at the address bar
+            var url = window.location.href;
+
+            // passes on every "a" tag
+            $(".main-menu a").each(function() {
+                // checks if its the same on the address bar
+                if (url == (this.href)) {
+                    $(this).closest("li").addClass("active");
+                } else {
+                    $(this).closest("li").removeClass("active");
+                }
+            });
+        });        
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,124 @@
+{% extends "navigation.html" %}
+
+
+{% block selection_styles %}
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/cards.css">
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/actions.css">
+
+{% block view_styles %}{% endblock %}
+{% endblock %}
+
+
+<!-- Override breadcrumb in "navigation.html" -->
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="/{{role}}" id="root-crumb" data-role="{{role}}">
+                <span>{{role | capitalize}}</span>
+            </a>
+        </li>
+
+        {% block action %}
+        <li class="breadcrumb-item active" aria-current="page">
+            <span>Manage {{resource | capitalize}}</span>
+        </li>
+        {% endblock %}
+    </ol>
+</nav>
+{% endblock %}
+
+
+{% block content %}
+{% if resource == "analytics" %}
+{% set term = resource %}
+{% else %}
+{% set term = resource[:-1] %}
+{% endif %}
+<div class="action-page">
+    <h1 class="title" id="action-title">{{term | capitalize}} Actions</h1>
+
+    <!-- Creation Pipeline -->
+    <div class="row">
+        <div class="container custom-card">
+            <a class="clickable-content" href="/view/{{role}}/{{resource}}/create">
+                <img class="custom-card-img" src="/static/images/action_create.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">
+                        {% if resource in ["optimizations", "analytics", "inferences"] %}
+                        Start {{term}}
+                        {% else %}
+                        Create {{term}}
+                        {% endif %}
+                    </h5>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    {% if resource not in ["inferences"] %}
+    <!-- Retrieval Pipeline -->
+    <div class="row">
+        <div class="container custom-card">
+            <a class="clickable-content" href="/view/{{role}}/{{resource}}/browse">
+                <img class="custom-card-img" src="/static/images/action_read.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">
+                        View {{term}}
+                    </h5>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if resource not in ["optimizations", "analytics", "inferences"] %}
+    <!-- Update Pipeline -->
+    <div class="row">
+        <div class="container custom-card">
+            <a class="clickable-content" href="/view/{{role}}/{{resource}}/update">
+                <img class="custom-card-img" src="/static/images/action_edit.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Update {{term}}</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Deletion Pipeline -->
+    <div class="row">
+        <div class="container custom-card">
+            <a class="clickable-content" href="/view/{{role}}/{{resource}}/delete">
+                <img class="custom-card-img" src="/static/images/action_delete.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Remove {{term}}</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    $(function () {
+        // passes on every "a" tag
+        $(".main-menu a").each(function () {
+
+            var curr_root = $('#root-crumb').data("role").toLowerCase();
+
+            // checks if its the same on the address bar
+            if (this.text.trim().toLowerCase().includes(curr_root)) {
+                $(this).closest("li").addClass("active");
+            } else {
+                $(this).closest("li").removeClass("active");
+            }
+        });
+    });        
+</script>
+
+{% block action_scripts %}{% endblock %}
+{% endblock %}

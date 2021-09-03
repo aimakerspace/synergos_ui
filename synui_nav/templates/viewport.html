@@ -1,0 +1,40 @@
+{% extends "actions.html" %}
+
+
+{% block view_styles %}
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/streamlit.css">
+
+{% block station_styles %}{% endblock %}
+{% endblock %}
+
+
+<!-- Override breadcrumb in "actions.html" -->
+{% block action %}
+<li class="breadcrumb-item active" aria-current="page">
+    <span>Manage {{resource | capitalize}}</span>
+</li>
+
+<!-- KIV for future development -->
+<!-- <li class="breadcrumb-item active" aria-current="page">
+    <span>{{action | capitalize}} {{resource | capitalize}}</span>
+</li> -->
+{% endblock %}
+
+
+{% block content %}
+<iframe 
+    src="http://{{view_host}}:{{view_port}}/?r={{role}}&p={{resource}}&a={{action}}" 
+    id="streamlit-content" 
+    allowfullscreen
+    frameborder="0" 
+    wmode="transparent"
+>
+    Your browser doesn't support iframes
+</iframe>
+
+{% block station %}{% endblock %}
+{% endblock %}
+
+
+{% block action_scripts %}
+{% endblock %}

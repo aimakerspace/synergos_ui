@@ -1,0 +1,87 @@
+.cards-basic {
+    --name: Basic;
+    display: inline-block;
+    width: 397px;
+    height: 423px;
+    left: 124px;
+    top: 342px;
+
+    background: #FFFFFF;
+    border: 1px solid #E5D3C5;
+    box-sizing: border-box;
+    box-shadow: 0px 1px 3px #E5D3C5;
+    border-radius: 3px;
+
+    text-align: center;
+    color: #383838, 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cards-expandable-medium {
+    --name: Expandable Card Medium;
+    height: 104px;
+    width: 397px;
+    left: 124px;
+    top: 1270px;
+    border-radius: 3px;
+
+    background: #FFFFFF;
+    border: 1px solid #E5D3C5;
+    box-sizing: border-box;
+    box-shadow: 0px 1px 3px #E5D3C5;
+    border-radius: 3px;
+
+    text-align: center;
+    color: #000000, 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cards-expandable-small {
+    --name: Expandable Card Small;
+    height: 72px;
+    width: 397px;
+    left: 124px;
+    top: 1400px;
+    border-radius: 3px;
+
+    background: #FFFFFF;
+    border: 1px solid #E5D3C5;
+    box-sizing: border-box;
+    box-shadow: 0px 1px 3px #E5D3C5;
+    border-radius: 3px;
+
+    text-align: center;
+    color: #000000, 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cards-expandable-small-round {
+    --name: Expandable Card Small Round;
+    height: 72px;
+    width: 397px;
+    left: 124px;
+    top: 1400px;
+    border-radius: 3px;
+
+    background: #FFFFFF;
+    border: 1px solid #E5D3C5;
+    box-sizing: border-box;
+    box-shadow: 0px 1px 3px #E5D3C5;
+    border-radius: 15px;
+
+    text-align: center;
+    color: #000000, 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -1,0 +1,51 @@
+version: '3'
+
+
+services:
+  
+  synui_track:
+    build:
+      context: ./synui_track
+      dockerfile: Dockerfile_track
+    image: synergos_ui:track
+    ports:
+      - "4002:4000"
+    # networks:
+    #   - synergos
+    network_mode: bridge
+
+
+  synui_view:
+    build:
+      context: .
+      dockerfile: ./synui_view/Dockerfile_view
+    image: synergos_ui:view
+    environment:
+      TRACK_HOST: localhost
+      TRACK_PORT: 4002
+    ports:
+      - "4001:4000"
+    depends_on: 
+      - synui_track
+    # networks:
+    #   - synergos
+    network_mode: bridge
+
+  synui_nav:
+    build:
+      context: ./synui_nav
+      dockerfile: Dockerfile_nav
+    image: synergos_ui:nav
+    environment:
+      VIEW_HOST: localhost
+      VIEW_PORT: 4001
+    ports:
+      - "4000:4000"
+    depends_on: 
+      - synui_view
+    # networks:
+    #   - synergos
+    network_mode: bridge
+
+# networks:
+#   synergos:

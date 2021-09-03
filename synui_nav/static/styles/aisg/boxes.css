@@ -1,0 +1,28 @@
+.basicbox {
+    --name: Basic Box;
+    width: 430px;
+    height: 90px;
+    radius: 3px;
+
+    background: #FFFFFF;
+    border: 1px solid #E5D3C5;
+    box-sizing: border-box;
+    border-radius: 3px;
+
+    padding: 32px;
+    margin: 1px;
+}
+.compactbox{
+    --name: Compact Box;
+    width: 430px;
+    height: 65px;
+    radius: 3px;
+
+    background: #FFFFFF;
+    border: 1px solid #E5D3C5;
+    box-sizing: border-box;
+    border-radius: 3px;
+
+    padding: 21px;
+    margin: 1px;
+}

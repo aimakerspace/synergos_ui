@@ -1,0 +1,28 @@
+/* Overrides standard navigation to adjust breadcrumb position */
+.breadcrumb {
+    padding: 2px 15px 2px 25px !important;
+}
+
+/* Overrrides standard navigation to only emphasize not active tabs */
+.breadcrumb li:hover:not([class="active"]) a {
+    color          : #d87f4d;
+    font-size      : 150%;
+    text-decoration: underline;
+}
+
+.action-page {
+    padding   : 0 3rem;
+    max-height: 100%;
+    height    : auto;
+    overflow-y: auto;
+}
+
+.title {
+    margin-top   : 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Override to increase width of cards */
+.custom-card {
+    width: 30rem;
+}

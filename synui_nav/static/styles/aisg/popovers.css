@@ -1,0 +1,117 @@
+.popover-action{
+    position: relative;
+    height: 300px;
+    width: 260px;
+    border-radius: 3px;
+
+
+    background: #FFFFFF;
+
+    border: 1px solid #EEC3AB;
+    box-sizing: border-box;
+    box-shadow: 0px 1px 5px #EEEEEE;
+    border-radius: 3px;
+
+    padding: 3%
+}
+
+.popover-title {
+    font-family: 'Josefin Sans';
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 32px;
+    letter-spacing: 0em;
+    text-align: left;
+}
+
+.popover-checkbox {
+    position: absolute;
+    top: 3px;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    border-radius: 2px;
+
+    background: #FCFBF8;
+
+    border: 1px solid #EEC3AB;
+    box-sizing: border-box;
+    border-radius: 2px;
+
+    vertical-align: middle;
+}
+
+.popover-list-container {
+    font-family: 'Josefin Sans';
+
+    display: block;
+    align-items: center;
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 1px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.popover-list-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+.popover-information {
+    font-family: 'Josefin Sans';
+
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: 0em;
+    text-align: left;
+
+
+    height: 238px;
+    width: 280px;
+    left: 166px;
+    top: 189px;
+    border-radius: 2px;
+
+    background: #E9ECEF;
+    border-radius: 2px;
+
+    color: #587180;
+
+    padding: 3%
+}
+
+.popover-information-dismiss{
+    font-family: 'Josefin Sans';
+
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: 0em;
+    text-align: left;
+
+
+    height: 238px;
+    width: 280px;
+
+    background: #FFFFFF;
+
+    color: #587180;
+
+    padding: 3%;
+
+    border: 1px solid #C9D3D7;
+    box-sizing: border-box;
+    box-shadow: 0px 1px 5px #EEEEEE;
+    border-radius: 3px;
+}

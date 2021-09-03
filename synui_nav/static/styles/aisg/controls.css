@@ -1,0 +1,109 @@
+
+/* The container */
+.controls-checkbox-container {
+    font-family: 'Josefin Sans';
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 160%;
+
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Hide the browser's default checkbox */
+  .controls-checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  /* Create a custom checkbox */
+  .controls-checkbox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    background-color: #FFFFFF;
+
+    border: 2px solid #ECA154;
+    box-sizing: border-box;
+    border-radius: 2px;
+  }
+
+  /* On mouse-over, add a grey background color */
+  .controls-checkbox-container:hover input ~ .controls-checkbox {
+    background-color: #ccc;
+  }
+
+  /* Create the checkmark/indicator (hidden when not checked) */
+  .controls-checkbox:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+
+  /* Show the checkmark when checked */
+  .controls-checkbox-container input:checked ~ .controls-checkbox:after {
+    display: block;
+  }
+
+  /* Style the checkmark/indicator */
+  .controls-checkbox-container .controls-checkbox:after {
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 5px;
+    height: 10px;
+    border-radius: 0px;
+
+    border: solid #ECA154;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+
+.controls-uncontrolled {
+    border: 2px solid #EED4B9;
+}
+
+.controls-readonly {
+    border: 2px solid transparent
+}
+
+.controls-checkbox-container .controls-readonly:after {
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    width: 5px;
+    height: 10px;
+    border-radius: 0px;
+
+    border: solid #EED4B9;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.controls-checkbox-container .controls-disabled {
+    background: #FFF3E6;
+    /* Mandarin Medium Tint */
+
+    border: 2px solid #EED4B9;
+}
+
+.controls-disabled-text {
+    color: #EED4B9
+}

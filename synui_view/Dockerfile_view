@@ -1,0 +1,26 @@
+##############
+# Base Image #
+##############
+
+FROM python:3.7.4-slim-buster as base
+
+RUN apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    build-essential \
+    git \
+    pciutils \
+    graphviz
+
+RUN pip install --upgrade pip \
+ && pip install --upgrade setuptools wheel
+
+ADD ./synergos /src/synergos
+ADD ./synui_view /src
+WORKDIR /src
+
+RUN pip install /src/synergos
+RUN pip install -r ./requirements.txt
+
+EXPOSE 4000
+
+ENTRYPOINT ["streamlit", "run", "--server.port", "4000", "./app.py"]

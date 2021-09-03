@@ -1,0 +1,57 @@
+{% extends "navigation.html" %}
+
+
+{% block selection_styles %}
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/cards.css">
+<link rel="stylesheet" type="text/css" href="/static/styles/custom/participant.css">
+{% endblock %}
+
+
+{% block content %}
+<div class="participant-page">
+    <h1 class="title" id="participant-title">Participant Dashboard</h1>
+
+    <div class="row">
+
+        <!-- Profile Metadata Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/participant/profiles">
+                <img class="custom-card-img" src="/static/images/participant.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Profile</h5>
+                    <span class="custom-card-text">Content management</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Registration Metadata Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/participant/registrations">
+                <img class="custom-card-img" src="/static/images/registration.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Registrations</h5>
+                    <span class="custom-card-text">Entering partnerships</span>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <h3 class="title" id="participant-header">Actions</h3>
+
+    <div class="row">
+
+        <!-- Inference Pipeline -->
+        <div class="container custom-card">
+            <a class="clickable-content" href="/actions/participant/inferences">
+                <img class="custom-card-img" src="/static/images/inference.svg">
+                <div class="custom-card-body">
+                    <h5 class="custom-card-title">Predict</h5>
+                    <span class="custom-card-text">Conduct inferences</span>
+                </div>
+            </a>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}
