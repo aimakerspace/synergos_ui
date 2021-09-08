@@ -29,6 +29,7 @@ from views.ui_submission import(
 )
 from views.utils import (
     is_connection_valid,
+    wait_for_completion,
     download_button,
     load_custom_css,
     render_orchestrator_inputs,
@@ -49,7 +50,15 @@ optim_renderer = OptimRenderer()
 #########################################
 
 def load_hyperdrive(driver: Driver, filters: Dict[str, str]):
-    """
+    """ Loads up launch page for initializing an optimization job. This 
+        corresponds to Phase 2C.
+        Note: 
+        Only execute this after running at least 1 model! Alignment has to
+        occur at least once before!        
+
+    Args:
+        driver (Driver): Helper object to facilitate connection
+        filters (dict): Composite key set identifying a specific federated job
     """
 
     st.title("Orchestrator - Federated Hyperparameter Optimization")
@@ -77,10 +86,8 @@ def load_hyperdrive(driver: Driver, filters: Dict[str, str]):
     with columns[0]:
         show_hierarchy({**filters, 'run_id': "*"})
         has_inactive_components, has_active_grids = perform_healthcheck(driver, filters)
-
         tuning_parameters = optim_renderer.render_tuning_parameters()
-        hyperparameter_ranges = optim_renderer.render_upload_mods()
-
+        search_space = optim_renderer.render_upload_mods()
 
     if has_inactive_components or not has_active_grids:
 
@@ -115,140 +122,47 @@ def load_hyperdrive(driver: Driver, filters: Dict[str, str]):
     
     elif not has_inactive_components and has_active_grids:
 
-        fl_job = TrackedProcess(
-            driver=driver, 
-            p_type="optimization", 
-            filters=filters
-        ) 
-        detected_status = fl_job.check()
-
-        with columns[0]:
-            manual_status = st.text_input(
-                label="Status:", 
-                key="process_status", 
-                value=detected_status
-            )
-
-        idle_key = fl_job.statuses[0]
-        in_progress_key = fl_job.statuses[1]
-        completed_key = fl_job.statuses[2]
-
-        # Edge 1: Orchestrator is forcing a rerun of a completed job
-        if detected_status == completed_key and manual_status == idle_key:
-
-            with columns[1]:
-                with st.beta_expander(label="Alerts", expanded=True):
-                    st.warning(
-                        """
-                        You have chosen to override current hyperjob state.
-
-                        This will rerun the current hyperjob set. Due to the
-                        nature of generation, you may get different results.
-
-                        Please confirm to proceed.
-                        """
-                    )
-            with columns[0]:
-                is_forced = st.selectbox(
-                    label="Are you sure you want to force a rerun?",
-                    options=["No", "Yes"],
-                    key=f"forced_rerun"
-                ) == "Yes"
-                
-            detected_status = manual_status if is_forced else detected_status
-        
-        ########################################################################
-        # Step 3a: If federated job has already completed, preview & download  #
-        ########################################################################
-
-        if detected_status == completed_key:
-
-            # Show top X performing models
-            pass
-
-        #########################################################################
-        # Step 3b: If federated job is still in progress, alert and do nothing  #
-        #########################################################################
-
-        elif detected_status == in_progress_key:
-
-            with columns[1]:
-                fl_job.track_access()
-                start_time = fl_job.retrieve_start_time()
-                access_counts = fl_job.retrieve_access_counts()
-
-                with st.beta_expander(label="Alerts", expanded=True):
-                    st.warning(
-                        f"""
-                        Requested Hyperjob is still in progress. 
-                        
-                        Start time              : {start_time}
-
-                        No. of times visited    : {access_counts} 
-                        """
-                    )
-
-        ####################################################################
-        # Step 3c: If federated job has not been trained before, start it  #
-        ####################################################################
-
-        elif detected_status == idle_key:
+        if search_space:
 
             with columns[0]:
-                is_auto_aligned = st.checkbox(
-                    label="Perform state auto-alignment",
-                    value=True,
-                    key=f"auto_alignment"
-                )
-                is_auto_fixed = st.checkbox(
-                    label="Perform architecture auto-fixing",
-                    value=True,
-                    key=f"auto_fix"
-                )
-                is_logged = st.checkbox(
-                    label="Display logs",
-                    value=False,
-                    key=f"log_msg"
-                )
-                is_verbose = False
-                if is_logged:
-                    is_verbose = st.checkbox(
-                        label="Use verbose view",
-                        value=is_verbose,
-                        key=f"verbose"
-                    )
 
-                is_submitted = st.button(label="Start", key=f"start_job")
+                placeholder = st.empty()
+
+                with placeholder.beta_container():
+                    is_auto_aligned = st.checkbox(
+                        label="Perform state auto-alignment",
+                        value=True,
+                        key=f"auto_alignment"
+                    )
+                    is_logged = st.checkbox(
+                        label="Display logs",
+                        value=False,
+                        key=f"log_msg"
+                    )
+                    is_verbose = False
+                    if is_logged:
+                        is_verbose = st.checkbox(
+                            label="Use verbose view",
+                            value=is_verbose,
+                            key=f"verbose"
+                        )
+
+                    is_submitted = st.button(label="Start", key=f"start_job")
+
                 if is_submitted:
+                    placeholder.empty()
 
-                    fl_job.start()
                     with st.spinner('Hyperjob in progress...'):
-
-                        driver.alignments.create(
+                        driver.optimizations.create(
                             **filters,
+                            **search_space,
+                            **tuning_parameters,
                             auto_align=is_auto_aligned,
-                            auto_fix=is_auto_fixed
-                        ).get('data', [])
-
-                        driver.models.create(
-                            **filters,
-                            auto_align=is_auto_aligned,
-                            dockerised= True,
                             log_msgs=is_logged,
-                            verbose=is_verbose
-                        ).get('data', [])
+                            verbose=is_verbose        
+                        )
 
-                        driver.validations.create(
-                            **filters,
-                            auto_align=is_auto_aligned,
-                            dockerised= True,
-                            log_msgs=is_logged,
-                            verbose=is_verbose
-                        ).get('data', [])
-
-                    fl_job.stop()
-                    st.info("Hyperjob Completed! Please refresh to view results.")
-
+                    st.info("Hyperjob submitted! You may track your progress via the Command Station.")
 
 
 #######################################

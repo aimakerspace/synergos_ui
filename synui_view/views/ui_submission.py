@@ -7,6 +7,7 @@
 # Generic/Built-in
 import json
 import os
+import time
 from collections import Counter
 from typing import Dict, List, Any, Tuple
 
@@ -20,6 +21,7 @@ from synergos import Driver
 from views.core.processes import TrackedProcess
 from views.utils import (
     is_connection_valid,
+    wait_for_completion,
     download_button,
     load_custom_css,
     render_orchestrator_inputs,
@@ -651,56 +653,73 @@ def load_launchpad(driver: Driver, filters: Dict[str, str]):
         elif detected_status == idle_key:
 
             with columns[0]:
-                is_auto_aligned = st.checkbox(
-                    label="Perform state auto-alignment",
-                    value=True,
-                    key=f"auto_alignment"
-                )
-                is_auto_fixed = st.checkbox(
-                    label="Perform architecture auto-fixing",
-                    value=True,
-                    key=f"auto_fix"
-                )
-                is_logged = st.checkbox(
-                    label="Display logs",
-                    value=False,
-                    key=f"log_msg"
-                )
-                is_verbose = False
-                if is_logged:
-                    is_verbose = st.checkbox(
-                        label="Use verbose view",
-                        value=is_verbose,
-                        key=f"verbose"
-                    )
 
-                is_submitted = st.button(label="Start", key=f"start_job")
+                placeholder = st.empty()
+
+                with placeholder.beta_container():
+                    is_auto_aligned = st.checkbox(
+                        label="Perform state auto-alignment",
+                        value=True,
+                        key=f"auto_alignment"
+                    )
+                    is_auto_fixed = st.checkbox(
+                        label="Perform architecture auto-fixing",
+                        value=True,
+                        key=f"auto_fix"
+                    )
+                    is_logged = st.checkbox(
+                        label="Display logs",
+                        value=False,
+                        key=f"log_msg"
+                    )
+                    is_verbose = False
+                    if is_logged:
+                        is_verbose = st.checkbox(
+                            label="Use verbose view",
+                            value=is_verbose,
+                            key=f"verbose"
+                        )
+
+                    is_submitted = st.button(label="Start", key=f"start_job")
+
                 if is_submitted:
+                    placeholder.empty()
 
                     fl_job.start()
-                    with st.spinner('Job in progress...'):
-
+                    with st.spinner("Grid alignment in progress..."):
+                        align_keys = {
+                            'collab_id': filters.get('collab_id'),
+                            'project_id': filters.get('project_id')
+                        }
                         driver.alignments.create(
-                            **filters,
+                            **align_keys,
                             auto_align=is_auto_aligned,
                             auto_fix=is_auto_fixed
                         ).get('data', [])
+                        
+                        wait_for_completion(driver.alignments, align_keys)
 
+                    with st.spinner("Model training in progress..."):
                         driver.models.create(
                             **filters,
                             auto_align=is_auto_aligned,
-                            dockerised= True,
+                            dockerised=True,
                             log_msgs=is_logged,
                             verbose=is_verbose
                         ).get('data', [])
 
+                        wait_for_completion(driver.models, filters)
+
+                    with st.spinner("Model validation in progress..."):
                         driver.validations.create(
                             **filters,
                             auto_align=is_auto_aligned,
-                            dockerised= True,
+                            dockerised=True,
                             log_msgs=is_logged,
                             verbose=is_verbose
                         ).get('data', [])
+
+                        wait_for_completion(driver.validations, filters)
 
                     fl_job.stop()
                     st.info("Job Completed! Please refresh to view results.")

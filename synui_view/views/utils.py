@@ -127,6 +127,29 @@ def is_request_successful(resp: dict):
         return False
 
 
+def wait_for_completion(
+    resource: Callable, 
+    filters: Dict[str, str], 
+    step: int = 5
+):
+    """ A delay function that checks if a job that was previously submitted to 
+        a particular Synergos REST resource is still in progress, and suspends
+        system functions until it is completed.
+
+    Args:
+        resource (callable): Specific driver resource 
+        filters (dict): Composite key set identifying a specific federated job
+        step (int): Time interval between every check
+    """
+    while True:
+        resp = resource.read(**filters)
+        data = resp.get('data')
+        if data:
+            break
+
+        time.sleep(step)
+
+
 def rerun(msg: str = None, delay: int = 3):
     """ Rerun a Streamlit app from the top of current loaded script.
         
