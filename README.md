@@ -12,7 +12,7 @@ It interacts with Synergos REST services embedded within any orchestrating compo
 
 ![Synergos UI architecture](./docs/images/ui_architecture.png)
 
-Furthermore, the general architecture of the system is flexible incorporate new external frameworks. 
+Furthermore, the general architecture of the system is flexible incorporate new external frameworks. The **Synergos UI** component comprizes of 3 sub-apps, ***SynUI Nav***, ***SynUI View*** & ***SynUI Track***. This architecture will allow us to embed most UI components, and thus enhances future compatibility.
 
 ---
 <br>
@@ -40,7 +40,7 @@ Once all services are up, navigate to `"<protocol>://<address>:<port>"`
 - `<address>`: Address of host machine
 - `<port>`: Port at which `synui_nav` is hosted at (default: `4000`)
 
-You should come to this landing page.
+You should arrive at this landing page.
 
 ![Synergos UI Landing](./docs/images/ui_landing.png)
 
@@ -80,4 +80,5 @@ Participants will be able to:
 
 *Command Station*
 
-Lastly, all components deployed can be tracked within the `Command Station`!
+Lastly, all components deployed can be tracked and easily accessed within the `Command Station`!
+> Note: Each window is resizable, movable and locking. So feel free to re-arrange and customize your views!
