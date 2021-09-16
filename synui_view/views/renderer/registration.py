@@ -137,9 +137,9 @@ class RegistrationRenderer(BaseRenderer):
 
                             updated_verbose = curr_verbose
                             if updated_log_msgs:
-                                verbose = st.checkbox(
+                                updated_verbose = st.checkbox(
                                     label=f"{node_name} - Use verbose view",
-                                    value=verbose,
+                                    value=updated_verbose,
                                     key=node_name
                                 )
 
