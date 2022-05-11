@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile_track
     image: synergos_ui:track
     ports:
-      - "4002:4000"
+      - "${SYNUI_TRACK_PORT}:4000"
     # networks:
     #   - synergos
     network_mode: bridge
@@ -21,10 +21,10 @@ services:
       dockerfile: ./synui_view/Dockerfile_view
     image: synergos_ui:view
     environment:
-      TRACK_HOST: localhost
-      TRACK_PORT: 4002
+      - TRACK_HOST=${SYNUI_TRACK_HOST:-localhost}
+      - TRACK_PORT=${SYNUI_TRACK_PORT}
     ports:
-      - "4001:4000"
+      - "${SYNUI_VIEW_PORT}:4000"
     depends_on: 
       - synui_track
     # networks:
@@ -37,10 +37,10 @@ services:
       dockerfile: Dockerfile_nav
     image: synergos_ui:nav
     environment:
-      VIEW_HOST: localhost
-      VIEW_PORT: 4001
+      - VIEW_HOST=${SYNUI_VIEW_HOST:-localhost}
+      - VIEW_PORT=${SYNUI_VIEW_PORT}
     ports:
-      - "4000:4000"
+      - "${SYNUI_NAV_PORT}:4000"
     depends_on: 
       - synui_view
     # networks:
