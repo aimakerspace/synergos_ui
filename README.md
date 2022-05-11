@@ -32,7 +32,7 @@ git submodule update --init --recursive
 git submodule update --recursive --remote
 
 # Start containerized services
-docker-compose up
+docker-compose --env-file settings.env up
 ```
 
 Once all services are up, navigate to `"<protocol>://<address>:<port>"`
@@ -43,6 +43,8 @@ Once all services are up, navigate to `"<protocol>://<address>:<port>"`
 You should arrive at this landing page.
 
 ![Synergos UI Landing](./docs/images/ui_landing.png)
+
+For advanced cloud deployments, refer [here](./scripts/README.md).
 
 ---
 <br>
